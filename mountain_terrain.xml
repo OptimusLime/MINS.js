@@ -1,0 +1,75 @@
+<model>
+	<comment></comment>
+	<container width="3000" height="422"/>
+	<environment gravity="1.7612019" friction="0.09511748" springyness="0.5"/>
+	<collisions surface_friction="0.1" surface_reflection="-0.75"/>
+	<wave amplitude="1.0" phase="0.71882355" speed="0.033333335"/>
+	<settings gravitydirection="down" wavedirection="forward" autoreverse="on"/>
+
+	<nodes>
+		<node id="n0" x="-1.0" y="-1.0"/>
+		<node id="n1" x="172.0" y="-1.0"/>
+		<node id="n2" x="468.0" y="57.0"/>
+		<node id="n3" x="494.0" y="54.0"/>
+		<node id="n4" x="519.0" y="44.0"/>
+		<node id="n5" x="542.0" y="35.0"/>
+		<node id="n6" x="565.0" y="30.0"/>
+		<node id="n7" x="590.0" y="32.0"/>
+		<node id="n8" x="616.0" y="36.0"/>
+		<node id="n9" x="653.0" y="44.0"/>
+		<node id="n10" x="683.0" y="56.0"/>
+		<node id="n11" x="701.0" y="64.0"/>
+		<node id="n12" x="723.0" y="64.0"/>
+		<node id="n13" x="745.0" y="55.0"/>
+		<node id="n14" x="773.0" y="39.0"/>
+		<node id="n15" x="805.0" y="29.0"/>
+		<node id="n16" x="963.0" y="16.0"/>
+		<node id="n17" x="1191.0" y="83.0"/>
+		<node id="n18" x="1234.0" y="93.0"/>
+		<node id="n19" x="1278.0" y="85.0"/>
+		<node id="n20" x="1516.0" y="14.0"/>
+		<node id="n21" x="1674.0" y="57.0"/>
+		<node id="n22" x="1825.0" y="40.0"/>
+		<node id="n23" x="1953.0" y="71.0"/>
+		<node id="n24" x="2107.0" y="115.0"/>
+		<node id="n25" x="2324.0" y="87.0"/>
+		<node id="n26" x="2524.0" y="39.0"/>
+		<node id="n27" x="2647.0" y="19.0"/>
+		<node id="n28" x="2756.0" y="-1.0"/>
+		<node id="n29" x="2889.0" y="-1.0"/>
+		<node id="n30" x="3001.0" y="18.0"/>
+	</nodes>
+
+	<links>
+		<fixedbar a="n0" b="n1"/>
+		<fixedbar a="n2" b="n3"/>
+		<fixedbar a="n3" b="n4"/>
+		<fixedbar a="n4" b="n5"/>
+		<fixedbar a="n5" b="n6"/>
+		<fixedbar a="n6" b="n7"/>
+		<fixedbar a="n7" b="n8"/>
+		<fixedbar a="n8" b="n9"/>
+		<fixedbar a="n9" b="n10"/>
+		<fixedbar a="n10" b="n11"/>
+		<fixedbar a="n11" b="n12"/>
+		<fixedbar a="n12" b="n13"/>
+		<fixedbar a="n13" b="n14"/>
+		<fixedbar a="n14" b="n15"/>
+		<fixedbar a="n16" b="n17"/>
+		<fixedbar a="n17" b="n18"/>
+		<fixedbar a="n18" b="n19"/>
+		<fixedbar a="n19" b="n20"/>
+		<fixedbar a="n20" b="n21"/>
+		<fixedbar a="n21" b="n22"/>
+		<fixedbar a="n22" b="n23"/>
+		<fixedbar a="n23" b="n24"/>
+		<fixedbar a="n24" b="n25"/>
+		<fixedbar a="n25" b="n26"/>
+		<fixedbar a="n26" b="n27"/>
+		<fixedbar a="n27" b="n28"/>
+		<fixedbar a="n29" b="n30"/>
+		<fixedbar a="n2" b="n1"/>
+		<fixedbar a="n28" b="n29"/>
+		<fixedbar a="n15" b="n16"/>
+	</links>
+</model>

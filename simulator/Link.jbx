@@ -1,0 +1,11 @@
+[PropertyInfo]
+a,Node,false,false, , ,false,<default>
+b,Node,false,false, , ,false,<default>
+color,Color,false,false, , ,false,<default>
+model,Model,false,false, , ,false,<default>
+visible,boolean,false,false, , ,false,<default>
+[IconNames]
+
+
+
+
