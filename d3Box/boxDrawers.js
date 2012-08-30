@@ -4,8 +4,9 @@ var boxNSS = "BoxDrawing";
 var boxNS = namespace(boxNSS);
 
 
-boxNS.DrawingObject = function(sDrawElementName, width, height)
+boxNS.DrawingObject = function(sDrawElementName, width, height, scale)
 {
+    this.drawScale = scale || 1;
     this.drawingElement  = d3.select(sDrawElementName)
         .append("svg")
         .attr("width", width)
