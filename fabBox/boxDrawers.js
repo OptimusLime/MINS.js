@@ -8,6 +8,7 @@ var b2Math = Box2D.Common.Math.b2Math,
 
 boxNS.DrawingObject = function(sDrawElementName, iWidth, iHeight, scale)
 {
+    this.turnOffDrawing = false;
     this.fabricCanvas = new fabric.Canvas(sDrawElementName);
     this.fabricCanvas.selection = false;
     //this.x = d3.scale.linear()
@@ -64,7 +65,8 @@ boxNS.DrawingObject.prototype.setWorldObjects = function(aWorldObjects)
         aFabObjects[iLength + i].selectable = false;
     }
 
-    this.fabricCanvas.renderAll();
+    if(!this.turnOffDrawing)
+        this.fabricCanvas.renderAll();
 
     //var x = this.x;
     //var y = this.y;
@@ -98,8 +100,8 @@ boxNS.DrawingObject.prototype.drawWorld = function(aBodyList)
         aFabItems[i].left = datum.center.x;
         aFabItems[i].top = datum.center.y;
     }
-
-    this.fabricCanvas.renderAll();
+    if(!this.turnOffDrawing)
+        this.fabricCanvas.renderAll();
 //    console.log("Draw: (" + data[0].center.x + " , " + data[0].center.y + ")");
 
 //    x.domain([0,600]);
