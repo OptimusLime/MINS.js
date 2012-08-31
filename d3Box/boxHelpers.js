@@ -52,19 +52,18 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
         );
         this.world.ClearForces();
 
-        console.log("Bo list");
-
-        for (var b = this.world.GetBodyList(); b; b = b.m_next) {
-            if (b.IsActive() && typeof b.GetUserData() !== 'undefined' && b.GetUserData() != null) {
-                console.log(b.GetPosition());
-            }
-        }
-
-        console.log("--");
-
         return (Date.now() - start);
     };
 
+    /*      console.log("Bo list");
+
+     for (var b = this.world.GetBodyList(); b; b = b.m_next) {
+     if (b.IsActive() && typeof b.GetUserData() !== 'undefined' && b.GetUserData() != null) {
+     console.log(b.GetPosition());
+     }
+     }
+
+     console.log("--");*/
 
     this.addDistanceJoint = function(body1Id, body2Id, params) {
         var body1 = this.bodiesMap[body1Id];

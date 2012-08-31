@@ -2,10 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="e0d5e3ed-53be-40cd-8070-10d843a8e471" name="Default" comment="">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/d3Box/fabric.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/d3Box/boxDrawers.js" afterPath="$PROJECT_DIR$/d3Box/boxDrawers.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/simple/Box2dWeb-2.1.a.3.js" afterPath="$PROJECT_DIR$/simple/Box2dWeb-2.1.a.3.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/simple/boxDrawers.js" afterPath="$PROJECT_DIR$/simple/boxDrawers.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/simple/demo.html" afterPath="$PROJECT_DIR$/simple/demo.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/d3Box/boxHelpers.js" afterPath="$PROJECT_DIR$/d3Box/boxHelpers.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/d3Box/simpleExperiment.js" afterPath="$PROJECT_DIR$/d3Box/simpleExperiment.js" />
+      <change type="MOVED" beforePath="F:\Users\Paul\Documents\GitHub\MINS.js\d3Box\d3Box.html" afterPath="$PROJECT_DIR$/d3Box/fabBox.html" />
     </list>
     <ignored path="MINS.js.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -30,16 +32,25 @@
       <file leaf-file-name="demo.html" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/simple/demo.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="91" column="47" selection-start="3613" selection-end="3613" vertical-scroll-proportion="-8.5">
+            <state line="91" column="47" selection-start="3613" selection-end="3613" vertical-scroll-proportion="-20.26923">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="d3Box.html" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/d3Box/d3Box.html">
+      <file leaf-file-name="fabBox.html" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/d3Box/fabBox.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="5" column="4" selection-start="149" selection-end="217" vertical-scroll-proportion="-3.2692308">
+            <state line="19" column="7" selection-start="953" selection-end="953" vertical-scroll-proportion="0.5872727">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="fabric.js" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/d3Box/fabric.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -66,7 +77,7 @@
       <file leaf-file-name="boxDrawers.js" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/simple/boxDrawers.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="94" column="10" selection-start="3118" selection-end="3118" vertical-scroll-proportion="0.0">
+            <state line="20" column="56" selection-start="716" selection-end="716" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -75,7 +86,16 @@
       <file leaf-file-name="simpleExperiment.js" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/d3Box/simpleExperiment.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="18" column="4" selection-start="618" selection-end="667" vertical-scroll-proportion="0.0">
+            <state line="97" column="27" selection-start="3090" selection-end="3090" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="boxHelpers.js" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/d3Box/boxHelpers.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="62" column="6" selection-start="2137" selection-end="2137" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -84,36 +104,16 @@
       <file leaf-file-name="boxDrawers.js" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/d3Box/boxDrawers.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="7" column="1" selection-start="232" selection-end="232" vertical-scroll-proportion="0.0">
+            <state line="65" column="0" selection-start="2345" selection-end="2345" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Box2dWeb-2.1.a.3.js" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="Box2dWeb-2.1.a.3.js" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/simple/Box2dWeb-2.1.a.3.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="10829" column="8" selection-start="428198" selection-end="428198" vertical-scroll-proportion="0.3321492">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="fabric.js" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/simple/fabric.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="5102" column="14" selection-start="148979" selection-end="148989" vertical-scroll-proportion="-7.32">
-              <folding>
-                <element signature="n#!!doc" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="d3.v2.js" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/d3Box/d3.v2.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="1691" column="5" selection-start="53711" selection-end="53711" vertical-scroll-proportion="0.0">
+            <state line="10829" column="60" selection-start="428250" selection-end="428250" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -132,22 +132,22 @@
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
-        <option value="$PROJECT_DIR$/simulator/Mass.js" />
         <option value="$PROJECT_DIR$/simulator/Node.js" />
         <option value="$PROJECT_DIR$/Box2D/index.html" />
         <option value="$PROJECT_DIR$/Box2D/boxHelpers.js" />
         <option value="$PROJECT_DIR$/d3Box/d3.v2.js" />
         <option value="$PROJECT_DIR$/Box2D/bTest.js" />
         <option value="$PROJECT_DIR$/Box2D/compindex.html" />
-        <option value="$PROJECT_DIR$/d3Box/boxHelpers.js" />
-        <option value="$PROJECT_DIR$/d3Box/simpleExperiment.js" />
-        <option value="$PROJECT_DIR$/d3Box/d3Box.html" />
         <option value="$PROJECT_DIR$/simple/d3.vs.js" />
         <option value="$USER_HOME$/Coding/MeteorDope/client/fleaderboard.js" />
-        <option value="$PROJECT_DIR$/d3Box/boxDrawers.js" />
         <option value="$PROJECT_DIR$/simple/demo.html" />
         <option value="$PROJECT_DIR$/simple/boxDrawers.js" />
         <option value="$PROJECT_DIR$/simple/Box2dWeb-2.1.a.3.js" />
+        <option value="$PROJECT_DIR$/d3Box/d3Box.html" />
+        <option value="$PROJECT_DIR$/d3Box/boxHelpers.js" />
+        <option value="$PROJECT_DIR$/d3Box/simpleExperiment.js" />
+        <option value="$PROJECT_DIR$/d3Box/boxDrawers.js" />
+        <option value="$PROJECT_DIR$/d3Box/fabBox.html" />
       </list>
     </option>
   </component>
@@ -275,7 +275,15 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="DefaultHtmlFileTemplate" value="Html" />
   </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="F:\Users\Paul\Documents\GitHub\MINS.js\d3Box" />
+    </key>
+  </component>
   <component name="RunManager">
+    <configuration default="true" type="NodeJSConfigurationType" factoryName="Node JS" working-dir="$PROJECT_DIR$">
+      <method />
+    </configuration>
     <configuration default="true" type="JavascriptDebugSession" factoryName="Local">
       <JSDebuggerConfigurationSettings>
         <option name="engineId" value="embedded" />
@@ -390,16 +398,6 @@
     <breakpoint-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/Box2D/bTest.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="9" column="3" selection-start="381" selection-end="433" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/d3Box/boxHelpers.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="5" column="8" selection-start="75" selection-end="75" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/Coding/MeteorDope/fleaderboard.js">
       <provider selected="true" editor-type-id="text-editor">
         <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" />
@@ -424,38 +422,12 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/d3Box/d3Box.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="5" column="4" selection-start="149" selection-end="217" vertical-scroll-proportion="-3.2692308" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/simple/demo.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="91" column="47" selection-start="3613" selection-end="3613" vertical-scroll-proportion="-8.5">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/simple/fabric.js">
       <provider selected="true" editor-type-id="text-editor">
         <state line="5102" column="14" selection-start="148979" selection-end="148989" vertical-scroll-proportion="-7.32">
           <folding>
             <element signature="n#!!doc" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/d3Box/simpleExperiment.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="18" column="4" selection-start="618" selection-end="667" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/simple/boxDrawers.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="94" column="10" selection-start="3118" selection-end="3118" vertical-scroll-proportion="0.0">
-          <folding />
         </state>
       </provider>
     </entry>
@@ -478,16 +450,58 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/d3Box/boxDrawers.js">
+    <entry file="file://$PROJECT_DIR$/simple/Box2dWeb-2.1.a.3.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="7" column="1" selection-start="232" selection-end="232" vertical-scroll-proportion="0.0">
+        <state line="10829" column="60" selection-start="428250" selection-end="428250" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/simple/Box2dWeb-2.1.a.3.js">
+    <entry file="file://$PROJECT_DIR$/simple/demo.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="10829" column="8" selection-start="428198" selection-end="428198" vertical-scroll-proportion="0.3321492">
+        <state line="91" column="47" selection-start="3613" selection-end="3613" vertical-scroll-proportion="-20.26923">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/simple/boxDrawers.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="20" column="56" selection-start="716" selection-end="716" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/d3Box/fabric.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/d3Box/boxHelpers.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="62" column="6" selection-start="2137" selection-end="2137" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/d3Box/boxDrawers.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="65" column="0" selection-start="2345" selection-end="2345" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/d3Box/simpleExperiment.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="97" column="27" selection-start="3090" selection-end="3090" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/d3Box/fabBox.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="19" column="7" selection-start="953" selection-end="953" vertical-scroll-proportion="0.5872727">
           <folding />
         </state>
       </provider>

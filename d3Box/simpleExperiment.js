@@ -61,11 +61,9 @@ function init() {
     */
 
     //we grab our canvas object really
-    //drawObject = new boxNS.DrawingObject("#" + sCanvasID, canvasWidth, canvasHeight);
+    drawObject = new boxNS.DrawingObject(sCanvasID, canvasWidth, canvasHeight, SCALE);
 
     theWorld = new bHelpNS.ContainedWorld(60, false, canvasWidth, canvasHeight, SCALE, 10, false);
-
-
 
     var world = {};
     for (var i = 0; i < initialState.length; i++) {
@@ -75,7 +73,7 @@ function init() {
     theWorld.setBodies(world);
 
     //we bind the data array - bitch
-    //drawObject.setWorldObjects(theWorld.bodiesList);
+    drawObject.setWorldObjects(theWorld.bodiesList);
 
     //custom stuff here
     var dampingRatio = parseInt(document.getElementById('damping-ratio').value);
@@ -83,14 +81,14 @@ function init() {
     params = {};
     if (dampingRatio != 0) params['dampingRatio'] = dampingRatio;
     if (frequencyHz != 0) params['frequencyHz'] = frequencyHz;
-    console.log(params);
+    //console.log(params);
     distanceJoint = theWorld.addDistanceJoint('ball1', 'ball2', params);
 
 }
 
 function draw() {
     //console.log("d");
-    //drawObject.drawWorld(theWorld);
+    drawObject.drawWorld(theWorld.bodiesList);
 }
 
 function update(animStart) {
