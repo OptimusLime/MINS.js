@@ -4,10 +4,10 @@
    </head>
    <body onload="init();">
       <canvas id="canvas" width="600" height="400" style="background-color:#333333; float:left;" ></canvas>
-      <div id="d3" width=600 height=400 style="float:left;" ></div>
+      <canvas id="d3" width=600 height=400 style="float:left;" ></canvas>
    </body>
    <script type="text/javascript" src="../Helpers/Helpers.js"></script>
-   <script type="text/javascript" src="d3.v2.js"></script>
+   <script type="text/javascript" src="fabric.js"></script>
    <script type="text/javascript" src="Box2dWeb-2.1.a.3.js"></script>
    <script type="text/javascript" src="boxDrawers.js"></script>
    <script type="text/javascript">
@@ -77,7 +77,7 @@
             body.CreateFixture(fixDef);
         }
 
-            drawingObject = new boxNS.DrawingObject("#d3", 600, 400, 30.0);
+            drawingObject = new boxNS.DrawingObject("d3", 600, 400, 30.0);
             drawingObject.setWorldObjects(bodiesList);
 
          //setup debug draw

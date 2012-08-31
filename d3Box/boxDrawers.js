@@ -6,11 +6,14 @@ var boxNS = namespace(boxNSS);
 
 boxNS.DrawingObject = function(sDrawElementName, width, height, scale)
 {
+    this.canvas = new fabric.Canvas(sDrawElementName);
+
+
     this.drawScale = scale || 1;
-    this.drawingElement  = d3.select(sDrawElementName)
-        .append("svg")
-        .attr("width", width)
-        .attr("height", height);
+ //   this.drawingElement  = d3.select(sDrawElementName)
+   //     .append("svg")
+    //    .attr("width", width)
+      //  .attr("height", height);
 };
 
 

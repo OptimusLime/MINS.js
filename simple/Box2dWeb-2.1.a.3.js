@@ -10827,7 +10827,7 @@ Box2D.postDefs = [];
          cx = center.x * drawScale,
          cy = center.y * drawScale;
 
-       console.log("Log center: (" + cx + " , "+ cy + ")");
+      //console.log("Log center: (" + cx + " , "+ cy + ")");
       s.moveTo(0, 0);
       s.beginPath();
       s.strokeStyle = this._color(color.color, this.m_alpha);
