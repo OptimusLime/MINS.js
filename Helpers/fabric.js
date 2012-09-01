@@ -9626,8 +9626,9 @@ fabric.util.object.extend(fabric.StaticCanvas.prototype, {
           maxX = max(points, 'x'),
           maxY = max(points, 'y');
 
-      this.width = maxX - minX;
-      this.height = maxY - minY;
+        //never nonzero width or height
+      this.width = maxX - minX || 1e-11;
+      this.height = maxY - minY || 1e-11;
       this.minX = minX;
       this.minY = minY;
     },

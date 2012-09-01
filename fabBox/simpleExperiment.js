@@ -1,5 +1,7 @@
 //This is where we define our simple experiment, and do all our simulation logic
 
+var lastFPS = 1000/60;
+var desiredFPS = 1000/60;
 
 // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
 window.requestAnimFrame = (function(callback){
@@ -9,7 +11,7 @@ window.requestAnimFrame = (function(callback){
         window.oRequestAnimationFrame      ||
         window.msRequestAnimationFrame     ||
         function(/* function */ callback, /* DOMElement */ element){
-            window.setTimeout(callback, 1000 / 60);
+            window.setTimeout(callback, desiredFPS);
         };
 })();
 
@@ -81,7 +83,7 @@ function init() {
     if (dampingRatio != 0) params['dampingRatio'] = dampingRatio;
     if (frequencyHz != 0) params['frequencyHz'] = frequencyHz;
     //console.log(params);
-    distanceJoint = theWorld.addDistanceJoint('ball1', 'ball2', params);
+    distanceJoint = theWorld.addMuscleJoint('ball1', 'ball2', params);
 
     //we bind the data array - bitch
     drawObject.setWorldObjects({bodies:theWorld.bodiesList, joints:theWorld.jointsList});
@@ -99,13 +101,13 @@ function update(animStart) {
         theWorld.mouseUp();
     }
 
-    if(distanceJoint)
-        distanceJoint.SetLength(distanceJoint.GetLength() +.1*Math.sin(rad));
+    //if(distanceJoint)
+    //    distanceJoint.SetLength(distanceJoint.GetLength() +.1*Math.sin(rad));
 
 
     //console.log(distanceJoint.GetLength());
 
-    rad += .1;
+    //rad += .1;
 
     theWorld.update();
 

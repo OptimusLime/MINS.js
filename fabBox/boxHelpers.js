@@ -29,6 +29,7 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
     this.bodiesMap = {};
     this.bodiesList = [];
     this.jointsList = [];
+    this.muscles = [];
 
     this.worldObjects = {};
 
@@ -41,10 +42,19 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
     this.fixDef.density = 1.0;
     this.fixDef.friction = 0.5;
     this.fixDef.restitution = 0.2;
+    var rad = 0;
 
     this.update = function() {
         var start = Date.now();
         var stepRate = (this.adaptive) ? (now - this.lastTimestamp) / 1000 : (1 / this.intervalRate);
+
+        //push the muscles outward a bit
+
+        for(var i=0; i < this.muscles.length; i++){
+            var muscle = this.muscles[i];
+            muscle.SetLength(muscle.m_length + muscle.amplitude*Math.sin(muscle.phase*rad));
+        }
+
 
         this.world.Step(
             stepRate   //frame-rate
@@ -52,6 +62,8 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
             ,  10       //position iterations
         );
         this.world.ClearForces();
+
+        rad += .0016/stepRate;
 
         return (Date.now() - start);
     };
@@ -77,6 +89,14 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
         //we push our joint into a list of joints created
         this.jointsList.push(wJoint);
         return wJoint;
+    };
+    this.addMuscleJoint = function(body1Id, body2Id, params) {
+        var addedJoint = this.addDistanceJoint(body1Id, body2Id, params);
+        addedJoint.phase =  params['phase']|| 1;
+        addedJoint.amplitude = params['amplitude'] || .025;
+        //we push our muscles onto our muscle list
+        this.muscles.push(addedJoint);
+        return addedJoint;
     };
 
 
