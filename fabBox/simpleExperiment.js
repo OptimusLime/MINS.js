@@ -72,8 +72,7 @@ function init() {
     //this will populate the bodies map -- thereby causing d3 to draw the data on screen
     theWorld.setBodies(world);
 
-    //we bind the data array - bitch
-    drawObject.setWorldObjects(theWorld.bodiesList);
+
 
     //custom stuff here
     var dampingRatio = parseInt(document.getElementById('damping-ratio').value);
@@ -84,11 +83,13 @@ function init() {
     //console.log(params);
     distanceJoint = theWorld.addDistanceJoint('ball1', 'ball2', params);
 
+    //we bind the data array - bitch
+    drawObject.setWorldObjects({bodies:theWorld.bodiesList, joints:theWorld.jointsList});
 }
 
 function draw() {
     //console.log("d");
-    drawObject.drawWorld(theWorld.bodiesList);
+    drawObject.drawWorld();
 }
 
 function update(animStart) {

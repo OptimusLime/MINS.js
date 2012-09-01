@@ -3,6 +3,9 @@
 var boxNSS = "BoxDrawing";
 var boxNS = namespace(boxNSS);
 var b2Math = Box2D.Common.Math.b2Math,
+    b2Joint = Box2D.Dynamics.Joints.b2Joint,
+    b2PulleyJoint = Box2D.Dynamics.Joints.b2PulleyJoint,
+    b2Vec2 = Box2D.Common.Math.b2Vec2,
     b2CircleShape = Box2D.Collision.Shapes.b2CircleShape,
     b2Shape = Box2D.Collision.Shapes.b2Shape,
     b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape,
@@ -22,7 +25,9 @@ boxNS.DrawingObject = function(sDrawElementName, iWidth, iHeight, scale)
     //  .domain([0, iHeight])
     //.range([0, iHeight]);
     this.drawScale = scale || 1;
-    this.drawObjects = {};
+    this.drawObjects = {bodies:{}, joints:{}};
+
+
     //this.drawingElement  = d3.select(sDrawElementName)
     //  .append("svg")
     //.style("background-color", "#333333")
@@ -56,12 +61,12 @@ boxNS.DrawingObject.prototype.addBody = function(dBody)
         case b2Shape.e_circleShape:
         {
 
-            var fabCircle  = new fabric.Circle({ radius: info.radius, fill: '#f55', top: info.center.x, left: info.center.y });
+            var fabCircle  = new fabric.Circle({ radius: info.radius, fill: '#f55', left: info.center.x, top:  info.center.y });
 
             //we've created a drawID already, link the two
             fabCircle.drawID = dBody.drawID;
 
-            this.drawObjects[dBody.drawID] = {index: this.fabricCanvas.getObjects().length, fabric: fabCircle, body: dBody, shape: shape, bodyType: shape.m_type};
+            this.drawObjects.bodies[dBody.drawID] = {index: this.fabricCanvas.getObjects().length, fabric: fabCircle, body: dBody, shape: shape, bodyType: shape.m_type};
 
             //add it to our canvas
             this.fabricCanvas.add(fabCircle);
@@ -70,16 +75,18 @@ boxNS.DrawingObject.prototype.addBody = function(dBody)
             break;
         case b2Shape.e_polygonShape:
         {
-            var i = 0;
-            var poly = ((shape instanceof b2PolygonShape ? shape : null));
-            var vertexCount = parseInt(poly.GetVertexCount());
-            var localVertices = poly.GetVertices();
-            var vertices = new Vector(vertexCount);
-            for (i = 0;
-                 i < vertexCount; ++i) {
-                vertices[i] = b2Math.MulX(dBody.m_xf, localVertices[i]);
-            }
+            //the info object has the vertices in it already - scaled up by drawscale
+
             //this.m_debugDraw.DrawSolidPolygon(vertices, vertexCount, color);
+            var fabPoly  = new fabric.Polygon(info.vertices, {fill: '#5f5'});
+            //we've created a drawID already, link the two
+            fabPoly.drawID = dBody.drawID;
+
+            this.drawObjects.bodies[dBody.drawID] = {index: this.fabricCanvas.getObjects().length, fabric: fabPoly, body: dBody, shape: shape, bodyType: shape.m_type};
+
+            //add it to our canvas
+            this.fabricCanvas.add(fabPoly);
+
         }
             break;
         case b2Shape.e_edgeShape:
@@ -94,13 +101,35 @@ boxNS.DrawingObject.prototype.addBody = function(dBody)
 
 
 }
+boxNS.DrawingObject.prototype.addJoint = function(joint)
+{
+    if(joint.drawID != undefined)
+    {
+        console.log("Already tagged joint with ID: " + joint.drawID);
+        return;
+    }
 
+    joint.drawID = this.getNextID();
+
+    var info = this.jointInfo(joint);
+
+    //create our poly line for this joint (normally just 2 points really)
+    var fabPolyLine =  new fabric.Polyline(info.points, {fill: '#55f', stroke: '#55f'});
+    fabPolyLine.drawID = joint.drawID;
+
+    this.drawObjects.joints[joint.drawID] = {index: this.fabricCanvas.getObjects().length, fabric: fabPolyLine, joint: joint, jointType: joint.m_type};
+
+    //add it to our canvas
+    this.fabricCanvas.add(fabPolyLine);
+
+}
 boxNS.DrawingObject.prototype.shapeInfo = function(dBody, shape)
 {
     switch (shape.m_type) {
         case b2Shape.e_circleShape:
             return this.circleInfo(dBody, ((shape instanceof b2CircleShape ? shape : null)) );
         case b2Shape.e_polygonShape:
+            return this.polygonInfo(dBody, ((shape instanceof b2PolygonShape ? shape : null)));
         case b2Shape.e_edgeShape:
             console.log("No shape info for this type");
             return null;
@@ -122,6 +151,64 @@ boxNS.DrawingObject.prototype.circleInfo = function(dBody, circle)
 
     return cInfo;
 }
+boxNS.DrawingObject.prototype.polygonInfo = function(dBody, poly)
+{
+    var i = 0;
+    var vertexCount = parseInt(poly.GetVertexCount());
+    var localVertices = poly.GetVertices();
+    var vertices = new Vector(vertexCount);
+    for (i = 0;
+         i < vertexCount; ++i) {
+        var b2Temp = b2Math.MulX(dBody.m_xf, localVertices[i]);
+        vertices[i] = new b2Vec2(b2Temp.x*this.drawScale, b2Temp.y*this.drawScale);
+    }
+
+    return {vertices:vertices};
+};
+
+
+boxNS.DrawingObject.scalePoint = function(p, drawScale)
+{
+    return new b2Vec2(p.x*drawScale, p.y*drawScale);
+}
+boxNS.DrawingObject.prototype.jointInfo = function(joint)
+{
+    var b1 = joint.GetBodyA();
+    var b2 = joint.GetBodyB();
+    var xf1 = b1.m_xf;
+    var xf2 = b2.m_xf;
+    var x1 =  boxNS.DrawingObject.scalePoint(xf1.position, this.drawScale);
+    var x2 =  boxNS.DrawingObject.scalePoint(xf2.position, this.drawScale);
+
+    var p1 = boxNS.DrawingObject.scalePoint(joint.GetAnchorA(), this.drawScale);
+    var p2 = boxNS.DrawingObject.scalePoint(joint.GetAnchorB(), this.drawScale);
+//    var color = b2World.s_jointColor;
+    var info = {points:[]};
+    switch (joint.m_type) {
+        case b2Joint.e_distanceJoint:
+            info.points.push(p1, p2);
+            break;
+        case b2Joint.e_pulleyJoint:
+        {
+            var pulley = ((joint instanceof b2PulleyJoint ? joint : null));
+            var s1 = boxNS.DrawingObject.scalePoint(pulley.GetGroundAnchorA(), this.drawScale);
+            var s2 = boxNS.DrawingObject.scalePoint(pulley.GetGroundAnchorB(), this.drawScale);
+            info.points.push(p1, s1,s2,p2);
+        }
+            break;
+        case b2Joint.e_mouseJoint:
+            info.points.push(p1,p2);
+            break;
+        default:
+            var cnt = 0;
+            if (b1 != this.m_groundBody) info.points.push(x1);
+            info.points.push(p1,p2);
+            if (b2 != this.m_groundBody) info.points.push(x2);
+    }
+
+    return info;
+};
+
 
 //body info used previously
 //return {x: b.GetPosition().x, y: b.GetPosition().y, a: b.GetAngle(), c: {x: b.GetWorldCenter().x, y: b.GetWorldCenter().y}};
@@ -185,11 +272,15 @@ boxNS.DrawingObject.prototype.setWorldObjects = function(aWorldObjects)
 
     //for now, we use this as an opportunity to add an object
     //in reality, we're going to make a hook where we get a callback when a physics object is inserted or removed
-
-    for(var j=0; j < aWorldObjects.length; j++)
+    for(var j=0; j < aWorldObjects.joints.length; j++)
     {
-        this.addBody(aWorldObjects[j]);
+        this.addJoint(aWorldObjects.joints[j]);
     }
+    for(var b=0; b < aWorldObjects.bodies.length; b++)
+    {
+        this.addBody(aWorldObjects.bodies[b]);
+    }
+
 
 
 
@@ -229,7 +320,7 @@ boxNS.DrawingObject.prototype.setWorldObjects = function(aWorldObjects)
 
 };
 
-boxNS.DrawingObject.prototype.drawFabricObject = function(drawObj)
+boxNS.DrawingObject.prototype.drawFabricBody = function(drawObj)
 {
     var info = this.shapeInfo(drawObj.body, drawObj.shape);
     var fabObj = drawObj.fabric;
@@ -242,6 +333,11 @@ boxNS.DrawingObject.prototype.drawFabricObject = function(drawObj)
         }
             break;
         case b2Shape.e_polygonShape:
+        {
+            fabObj.points = info.vertices;
+            fabObj._calcDimensions();
+        }
+            break;
         case b2Shape.e_edgeShape:
         default:
             console.log("don't know how to draw this object type");
@@ -250,14 +346,33 @@ boxNS.DrawingObject.prototype.drawFabricObject = function(drawObj)
 
 };
 
+boxNS.DrawingObject.prototype.drawFabricJoint = function(drawObj)
+{
+
+    var info = this.jointInfo(drawObj.joint);
+
+    var fabObj = drawObj.fabric;
+    fabObj.points = info.points;
+    fabObj._calcDimensions();
+
+};
+
+
+
 boxNS.DrawingObject.prototype.drawWorld = function(aBodyList)
 {
 
-    for(var dID in this.drawObjects)
+    for(var jID in this.drawObjects.joints)
     {
-       this.drawFabricObject(this.drawObjects[dID]);
-        //can we do this generically, i don't think so???
+        this.drawFabricJoint(this.drawObjects.joints[jID]);
     }
+    for(var bID in this.drawObjects.bodies)
+    {
+        this.drawFabricBody(this.drawObjects.bodies[bID]);
+    }
+
+
+
 
 //
 //    var data = this.fetchDrawObjects(aBodyList);

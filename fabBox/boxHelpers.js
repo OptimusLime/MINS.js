@@ -28,6 +28,7 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
 
     this.bodiesMap = {};
     this.bodiesList = [];
+    this.jointsList = [];
 
     this.worldObjects = {};
 
@@ -72,7 +73,10 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
         joint.Initialize(body1, body2, body1.GetWorldCenter(), body2.GetWorldCenter());
         if (params && params['frequencyHz']) joint.frequencyHz = params['frequencyHz'];
         if (params && params['dampingRatio']) joint.dampingRatio = params['dampingRatio'];
-        return this.world.CreateJoint(joint);
+        var wJoint =  this.world.CreateJoint(joint);
+        //we push our joint into a list of joints created
+        this.jointsList.push(wJoint);
+        return wJoint;
     };
 
 

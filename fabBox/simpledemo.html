@@ -79,7 +79,8 @@
         }
 
             drawingObject = new boxNS.DrawingObject("d3", 600, 400, 30.0);
-            drawingObject.setWorldObjects(bodiesList);
+
+            drawingObject.setWorldObjects({bodies:bodiesList});
 
          //setup debug draw
          var debugDraw = new b2DebugDraw();
