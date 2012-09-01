@@ -1,7 +1,9 @@
 //This is where we define our simple experiment, and do all our simulation logic
 
-var lastFPS = 1000/60;
-var desiredFPS = 1000/60;
+
+var desiredRenderSpeed = 60;
+var desiredSimulationSpeed = 30;
+var lastFPS = 1000/desiredRenderSpeed;
 
 // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
 window.requestAnimFrame = (function(callback){
@@ -11,7 +13,7 @@ window.requestAnimFrame = (function(callback){
         window.oRequestAnimationFrame      ||
         window.msRequestAnimationFrame     ||
         function(/* function */ callback, /* DOMElement */ element){
-            window.setTimeout(callback, desiredFPS);
+            window.setTimeout(callback, 1000/desiredRenderSpeed);
         };
 })();
 
@@ -33,9 +35,10 @@ var rad =0;
 var distanceJoint;
 
 var initialState = [
-    {id: "ground", x: canvasWidth / 2 / SCALE, y: canvasHeight / SCALE, halfHeight: 0.5, halfWidth: canvasWidth / SCALE, color: 'black'},
-    {id: "ball1", x: 9, y: 2, radius: 0.5},
-    {id: "ball2", x: 11, y: 4, radius: 0.5}
+    {id: "ground", x: canvasWidth / 2 / SCALE, y: canvasHeight / SCALE, halfHeight: 0.5, halfWidth: canvasWidth / SCALE, color: 'black'}
+    //,
+   // {id: "ball1", x: 9, y: 2, radius: 0.5},
+   // {id: "ball2", x: 11, y: 4, radius: 0.5}
 ];
 
 //initialization of our world. Clears everything pretty much
@@ -62,10 +65,24 @@ function init() {
         .attr("r", function(d){return d;});
     */
 
+    createXMLFileReader("files", function(jsonDoc)
+    {
+        console.log("XML converted to: ");
+        console.log(jsonDoc);
+
+        theWorld.jsonParseMINS(jsonDoc);
+
+
+    });
+
     //we grab our canvas object really
     drawObject = new boxNS.DrawingObject(sCanvasID, canvasWidth, canvasHeight, SCALE);
 
-    theWorld = new bHelpNS.ContainedWorld(60, false, canvasWidth, canvasHeight, SCALE, 10, false);
+    theWorld = new bHelpNS.ContainedWorld(desiredSimulationSpeed, false, canvasWidth, canvasHeight, SCALE, 20, false,
+        {object: drawObject, addBody: drawObject.addBody, removeBody: drawObject.removeBody, addJoint: drawObject.addJoint, removeJoint: drawObject.removeJoint });
+
+
+
 
     var world = {};
     for (var i = 0; i < initialState.length; i++) {
@@ -74,8 +91,6 @@ function init() {
     //this will populate the bodies map -- thereby causing d3 to draw the data on screen
     theWorld.setBodies(world);
 
-
-
     //custom stuff here
     var dampingRatio = parseInt(document.getElementById('damping-ratio').value);
     var frequencyHz = parseInt(document.getElementById('frequency-hz').value);
@@ -83,15 +98,19 @@ function init() {
     if (dampingRatio != 0) params['dampingRatio'] = dampingRatio;
     if (frequencyHz != 0) params['frequencyHz'] = frequencyHz;
     //console.log(params);
-    distanceJoint = theWorld.addMuscleJoint('ball1', 'ball2', params);
+   // distanceJoint = theWorld.addMuscleJoint('ball1', 'ball2', params);
+
+
+
 
     //we bind the data array - bitch
-    drawObject.setWorldObjects({bodies:theWorld.bodiesList, joints:theWorld.jointsList});
+    //actually, we don't call this anymore because the callbacks inform our drawing procedures
+    //drawObject.setWorldObjects({bodies:theWorld.bodiesList, joints:theWorld.jointsList});
 }
 
 function draw() {
     //console.log("d");
-    drawObject.drawWorld();
+    drawObject.drawWorld(theWorld.interpolation);
 }
 
 function update(animStart) {

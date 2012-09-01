@@ -40,9 +40,16 @@ boxNS.DrawingObject.prototype.getNextID = function()
 };
 
 //for scaling a vector
-boxNS.DrawingObject.scalePoint = function(p, drawScale)
+boxNS.DrawingObject.scalePoint = function(p, drawScale, modifyInPlace)
 {
-    return new b2Vec2(p.x*drawScale, p.y*drawScale);
+    if(!modifyInPlace)
+        return new b2Vec2(p.x*drawScale, p.y*drawScale);
+    else
+    {
+        p.x *= drawScale; p.y*=drawScale;
+        return p;
+    }
+
 };
 
 //for adding in world objects all at once (you can do this one at a time if you prefer
@@ -68,39 +75,54 @@ boxNS.DrawingObject.prototype.setWorldObjects = function(aWorldObjects)
 
 };
 
-boxNS.DrawingObject.prototype.drawWorld = function(aBodyList)
+boxNS.DrawingObject.prototype.drawWorld = function(alphaInterpolate)
 {
 
     for(var jID in this.drawObjects.joints)
     {
-        this.drawFabricJoint(this.drawObjects.joints[jID]);
+        this.drawFabricJoint(this.drawObjects.joints[jID], alphaInterpolate);
     }
     for(var bID in this.drawObjects.bodies)
     {
-        this.drawFabricBody(this.drawObjects.bodies[bID]);
+        this.drawFabricBody(this.drawObjects.bodies[bID],alphaInterpolate);
     }
 
     if(!this.turnOffDrawing)
         this.fabricCanvas.renderAll();
 
 };
-
-//For updating/drawing bodies or joints
-boxNS.DrawingObject.prototype.drawFabricBody = function(drawObj)
+boxNS.DrawingObject.interpolatePoint = function(pNew, pOld, alpha)
 {
+    pNew.x = alpha*pNew.x + (1-alpha)*pOld.x;
+    pNew.y = alpha*pNew.y + (1-alpha)*pOld.y;
+    return pNew;
+}
+boxNS.DrawingObject.interpolatePoints = function(aCurrent, aOld, fAlpha)
+{
+    for(var i=0; i < aCurrent.length; i++)
+    {
+        aCurrent[i] =  boxNS.DrawingObject.interpolatePoint(aCurrent[i], aOld[i], fAlpha);
+    }
+    return aCurrent;
+}
+//For updating/drawing bodies or joints
+boxNS.DrawingObject.prototype.drawFabricBody = function(drawObj,alphaInterpolate)
+{
+    alphaInterpolate = alphaInterpolate || 1;
+
     var info = this.shapeInfo(drawObj.body, drawObj.shape);
     var fabObj = drawObj.fabric;
 
     switch (drawObj.shape.m_type) {
         case b2Shape.e_circleShape:
         {
-            fabObj.left = info.center.x;
-            fabObj.top = info.center.y;
+            fabObj.left = info.center.x*alphaInterpolate + fabObj.left*(1-alphaInterpolate);
+            fabObj.top = info.center.y*alphaInterpolate + fabObj.top*(1-alphaInterpolate);
         }
             break;
         case b2Shape.e_polygonShape:
         {
-            fabObj.points = info.vertices;
+            fabObj.points = boxNS.DrawingObject.interpolatePoints(info.vertices, fabObj.points, alphaInterpolate);  //info.vertices;
             fabObj._calcDimensions();
         }
             break;
@@ -112,12 +134,12 @@ boxNS.DrawingObject.prototype.drawFabricBody = function(drawObj)
 
 };
 
-boxNS.DrawingObject.prototype.drawFabricJoint = function(drawObj)
+boxNS.DrawingObject.prototype.drawFabricJoint = function(drawObj, alphaInterpolate)
 {
     var info = this.jointInfo(drawObj.joint);
 
     var fabObj = drawObj.fabric;
-    fabObj.points = info.points;
+    fabObj.points = boxNS.DrawingObject.interpolatePoints(info.points, fabObj.points, alphaInterpolate);//info.points;
     fabObj._calcDimensions();
 
 };
@@ -197,7 +219,22 @@ boxNS.DrawingObject.prototype.addJoint = function(joint)
     this.drawObjects.joints[joint.drawID] = {index: this.fabricCanvas.getObjects().length, fabric: fabPolyLine, joint: joint, jointType: joint.m_type};
 
     //add it to our canvas
-    this.fabricCanvas.add(fabPolyLine);
+
+    //but joints get inserted before bodies (if any exist)
+    this.fabricCanvas.insertAt(fabPolyLine);
+
+};
+
+
+//DELTEING BODIES AND JOINTS
+boxNS.DrawingObject.prototype.removeBody = function(joint)
+{
+    console.log("unhandled delete body");
+};
+
+boxNS.DrawingObject.prototype.removeJoint = function(joint)
+{
+    console.log("unhandled delete joint");
 
 };
 
