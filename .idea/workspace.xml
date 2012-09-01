@@ -2,36 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="e0d5e3ed-53be-40cd-8070-10d843a8e471" name="Default" comment="">
-      <change type="DELETED" beforePath="F:\Users\Paul\Documents\GitHub\MINS.js\Box2D\Box2D.js" afterPath="" />
-      <change type="DELETED" beforePath="F:\Users\Paul\Documents\GitHub\MINS.js\Box2D\Box2d.min.js" afterPath="" />
-      <change type="DELETED" beforePath="F:\Users\Paul\Documents\GitHub\MINS.js\Box2D\bTest.js" afterPath="" />
-      <change type="DELETED" beforePath="F:\Users\Paul\Documents\GitHub\MINS.js\Box2D\boxHelpers.js" afterPath="" />
-      <change type="DELETED" beforePath="F:\Users\Paul\Documents\GitHub\MINS.js\Box2D\compindex.html" afterPath="" />
-      <change type="DELETED" beforePath="F:\Users\Paul\Documents\GitHub\MINS.js\Box2D\index.html" afterPath="" />
-      <change type="DELETED" beforePath="F:\Users\Paul\Documents\GitHub\MINS.js\Box2D\ocomp.html" afterPath="" />
-      <change type="DELETED" beforePath="F:\Users\Paul\Documents\GitHub\MINS.js\Box2D\physics.js" afterPath="" />
-      <change type="DELETED" beforePath="F:\Users\Paul\Documents\GitHub\MINS.js\simple\Box2dWeb-2.1.a.3.js" afterPath="" />
-      <change type="DELETED" beforePath="F:\Users\Paul\Documents\GitHub\MINS.js\simple\Box2dWeb-2.1.a.3.min.js" afterPath="" />
-      <change type="DELETED" beforePath="F:\Users\Paul\Documents\GitHub\MINS.js\simple\boxDrawers.js" afterPath="" />
-      <change type="DELETED" beforePath="F:\Users\Paul\Documents\GitHub\MINS.js\simple\d3.v2.js" afterPath="" />
-      <change type="DELETED" beforePath="F:\Users\Paul\Documents\GitHub\MINS.js\simple\demo.html" afterPath="" />
-      <change type="DELETED" beforePath="F:\Users\Paul\Documents\GitHub\MINS.js\simple\fabric.js" afterPath="" />
-      <change type="DELETED" beforePath="F:\Users\Paul\Documents\GitHub\MINS.js\simulator\Choice.js" afterPath="" />
-      <change type="DELETED" beforePath="F:\Users\Paul\Documents\GitHub\MINS.js\simulator\Link.js" afterPath="" />
-      <change type="DELETED" beforePath="F:\Users\Paul\Documents\GitHub\MINS.js\simulator\Mass.js" afterPath="" />
-      <change type="DELETED" beforePath="F:\Users\Paul\Documents\GitHub\MINS.js\simulator\Model.js" afterPath="" />
-      <change type="DELETED" beforePath="F:\Users\Paul\Documents\GitHub\MINS.js\simulator\Node.js" afterPath="" />
-      <change type="DELETED" beforePath="F:\Users\Paul\Documents\GitHub\MINS.js\simulator\Spring.js" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MOVED" beforePath="F:\Users\Paul\Documents\GitHub\MINS.js\d3Box\Box2D.js" afterPath="$PROJECT_DIR$/Helpers/Box2D.js" />
-      <change type="MOVED" beforePath="F:\Users\Paul\Documents\GitHub\MINS.js\d3Box\Box2d.min.js" afterPath="$PROJECT_DIR$/Helpers/Box2d.min.js" />
-      <change type="MOVED" beforePath="F:\Users\Paul\Documents\GitHub\MINS.js\d3Box\boxDrawers.js" afterPath="$PROJECT_DIR$/fabBox/boxDrawers.js" />
-      <change type="MOVED" beforePath="F:\Users\Paul\Documents\GitHub\MINS.js\d3Box\boxHelpers.js" afterPath="$PROJECT_DIR$/fabBox/boxHelpers.js" />
-      <change type="MOVED" beforePath="F:\Users\Paul\Documents\GitHub\MINS.js\d3Box\d3.v2.js" afterPath="$PROJECT_DIR$/Helpers/d3.v2.js" />
-      <change type="MOVED" beforePath="F:\Users\Paul\Documents\GitHub\MINS.js\d3Box\d3.v2.min.js" afterPath="$PROJECT_DIR$/Helpers/d3.v2.min.js" />
-      <change type="MOVED" beforePath="F:\Users\Paul\Documents\GitHub\MINS.js\d3Box\fabBox.html" afterPath="$PROJECT_DIR$/fabBox/fabBox.html" />
-      <change type="MOVED" beforePath="F:\Users\Paul\Documents\GitHub\MINS.js\d3Box\fabric.js" afterPath="$PROJECT_DIR$/Helpers/fabric.js" />
-      <change type="MOVED" beforePath="F:\Users\Paul\Documents\GitHub\MINS.js\d3Box\simpleExperiment.js" afterPath="$PROJECT_DIR$/fabBox/simpleExperiment.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/fabBox/boxDrawers.js" afterPath="$PROJECT_DIR$/fabBox/boxDrawers.js" />
     </list>
     <ignored path="MINS.js.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -56,7 +28,7 @@
       <file leaf-file-name="simpledemo.html" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/fabBox/simpledemo.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="19" column="38" selection-start="810" selection-end="810" vertical-scroll-proportion="-0.65384614">
+            <state line="169" column="32" selection-start="6323" selection-end="6323" vertical-scroll-proportion="-10.461538">
               <folding />
             </state>
           </provider>
@@ -74,7 +46,25 @@
       <file leaf-file-name="boxDrawers.js" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/fabBox/boxDrawers.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="10" column="31" selection-start="374" selection-end="374" vertical-scroll-proportion="0.19517796">
+            <state line="15" column="87" selection-start="645" selection-end="645" vertical-scroll-proportion="-1.1577753">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="fabBox.html" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/fabBox/fabBox.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="2" column="6" selection-start="117" selection-end="117" vertical-scroll-proportion="-1.3076923">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Box2D.js" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Helpers/Box2D.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="6007" column="23" selection-start="224968" selection-end="224974" vertical-scroll-proportion="-7.0">
               <folding />
             </state>
           </provider>
@@ -122,10 +112,10 @@
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="-8" />
+    <option name="x" value="-1688" />
     <option name="y" value="-8" />
-    <option name="width" value="1936" />
-    <option name="height" value="1056" />
+    <option name="width" value="1696" />
+    <option name="height" value="1066" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="false">
     <OptionsSetting value="true" id="Add" />
@@ -280,13 +270,13 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
-    <editor active="false" />
+    <frame x="-1688" y="-8" width="1696" height="1066" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32924107" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="true" content_ui="tabs" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.16552451" sideWeight="0.6707589" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.1894991" sideWeight="0.6707589" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
@@ -387,45 +377,45 @@
         <state line="18" column="0" selection-start="602" selection-end="602" vertical-scroll-proportion="0.53125" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/fabBox/fabBox.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="20" column="7" selection-start="976" selection-end="976" vertical-scroll-proportion="-13.076923" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Helpers/Box2D.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="29" column="45" selection-start="1367" selection-end="1367" vertical-scroll-proportion="0.39253998" />
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Old/boxHelpers.js">
       <provider selected="true" editor-type-id="text-editor">
         <state line="56" column="23" selection-start="1837" selection-end="1837" vertical-scroll-proportion="0.067708336" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/fabBox/simpleExperiment.js">
+    <entry file="file://$PROJECT_DIR$/fabBox/simpledemo.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="97" column="27" selection-start="3090" selection-end="3090" vertical-scroll-proportion="0.0">
+        <state line="169" column="32" selection-start="6323" selection-end="6323" vertical-scroll-proportion="-10.461538">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/fabBox/simpledemo.html">
+    <entry file="file://$PROJECT_DIR$/fabBox/fabBox.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="19" column="38" selection-start="810" selection-end="810" vertical-scroll-proportion="-0.65384614">
+        <state line="2" column="6" selection-start="117" selection-end="117" vertical-scroll-proportion="-1.3076923">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/fabBox/simpleExperiment.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="97" column="27" selection-start="3090" selection-end="3090" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Helpers/Box2D.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="6007" column="23" selection-start="224968" selection-end="224974" vertical-scroll-proportion="-7.0">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/fabBox/boxHelpers.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="147" column="36" selection-start="5248" selection-end="5248" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
+        <state line="147" column="36" selection-start="5248" selection-end="5248" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/fabBox/boxDrawers.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="10" column="31" selection-start="374" selection-end="374" vertical-scroll-proportion="0.19517796">
+        <state line="15" column="87" selection-start="645" selection-end="645" vertical-scroll-proportion="-1.1577753">
           <folding />
         </state>
       </provider>

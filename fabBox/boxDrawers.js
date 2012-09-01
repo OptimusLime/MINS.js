@@ -3,13 +3,17 @@
 var boxNSS = "BoxDrawing";
 var boxNS = namespace(boxNSS);
 var b2Math = Box2D.Common.Math.b2Math,
-    b2CircleShape = Box2D.Collision.Shapes.b2CircleShape;
-
+    b2CircleShape = Box2D.Collision.Shapes.b2CircleShape,
+    b2Shape = Box2D.Collision.Shapes.b2Shape,
+    b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape,
+    b2EdgeShape = Box2D.Collision.Shapes.b2EdgeShape;
 
 boxNS.DrawingObject = function(sDrawElementName, iWidth, iHeight, scale)
 {
+    this.idCount = 0;
+
     this.turnOffDrawing = false;
-    this.fabricCanvas = new fabric.Canvas(sDrawElementName);
+    this.fabricCanvas = new fabric.Canvas(sDrawElementName, { renderOnAddition: false});
     this.fabricCanvas.selection = false;
     //this.x = d3.scale.linear()
     //  .domain([0, iWidth])
@@ -18,7 +22,7 @@ boxNS.DrawingObject = function(sDrawElementName, iWidth, iHeight, scale)
     //  .domain([0, iHeight])
     //.range([0, iHeight]);
     this.drawScale = scale || 1;
-
+    this.drawObjects = {};
     //this.drawingElement  = d3.select(sDrawElementName)
     //  .append("svg")
     //.style("background-color", "#333333")
@@ -26,6 +30,98 @@ boxNS.DrawingObject = function(sDrawElementName, iWidth, iHeight, scale)
     //.attr("height", iHeight + "px");
 };
 
+boxNS.DrawingObject.prototype.peekNextID = function()
+{
+    return this.idCount;
+};
+boxNS.DrawingObject.prototype.getNextID = function()
+{
+    return this.idCount++;
+};
+boxNS.DrawingObject.prototype.addBody = function(dBody)
+{
+
+    if(dBody.drawID != undefined)
+    {
+        console.log("Already tagged with ID: " + dBody.drawID);
+        return;
+    }
+
+    dBody.drawID = this.getNextID();
+
+    var shape = dBody.GetFixtureList().GetShape();
+    var info = this.shapeInfo(dBody, shape);
+
+    switch (shape.m_type) {
+        case b2Shape.e_circleShape:
+        {
+
+            var fabCircle  = new fabric.Circle({ radius: info.radius, fill: '#f55', top: info.center.x, left: info.center.y });
+
+            //we've created a drawID already, link the two
+            fabCircle.drawID = dBody.drawID;
+
+            this.drawObjects[dBody.drawID] = {index: this.fabricCanvas.getObjects().length, fabric: fabCircle, body: dBody, shape: shape, bodyType: shape.m_type};
+
+            //add it to our canvas
+            this.fabricCanvas.add(fabCircle);
+
+        }
+            break;
+        case b2Shape.e_polygonShape:
+        {
+            var i = 0;
+            var poly = ((shape instanceof b2PolygonShape ? shape : null));
+            var vertexCount = parseInt(poly.GetVertexCount());
+            var localVertices = poly.GetVertices();
+            var vertices = new Vector(vertexCount);
+            for (i = 0;
+                 i < vertexCount; ++i) {
+                vertices[i] = b2Math.MulX(dBody.m_xf, localVertices[i]);
+            }
+            //this.m_debugDraw.DrawSolidPolygon(vertices, vertexCount, color);
+        }
+            break;
+        case b2Shape.e_edgeShape:
+        {
+            var edge = (shape instanceof b2EdgeShape ? shape : null);
+            //this.m_debugDraw.DrawSegment(b2Math.MulX(xf, edge.GetVertex1()), b2Math.MulX(xf, edge.GetVertex2()), color);
+        }
+            break;
+    }
+
+
+
+
+}
+
+boxNS.DrawingObject.prototype.shapeInfo = function(dBody, shape)
+{
+    switch (shape.m_type) {
+        case b2Shape.e_circleShape:
+            return this.circleInfo(dBody, ((shape instanceof b2CircleShape ? shape : null)) );
+        case b2Shape.e_polygonShape:
+        case b2Shape.e_edgeShape:
+            console.log("No shape info for this type");
+            return null;
+        default:
+            console.log("Don't know this shape type, returning null info");
+            return null;
+    }
+}
+boxNS.DrawingObject.prototype.circleInfo = function(dBody, circle)
+{
+    if(!circle)
+        return null;
+
+    var cInfo = {center:b2Math.MulX(dBody.m_xf, circle.m_p) ,
+                radius:this.drawScale*circle.m_radius };
+    //need to scale the x and y
+    cInfo.center.x *= this.drawScale;
+    cInfo.center.y *= this.drawScale;
+
+    return cInfo;
+}
 
 //body info used previously
 //return {x: b.GetPosition().x, y: b.GetPosition().y, a: b.GetAngle(), c: {x: b.GetWorldCenter().x, y: b.GetWorldCenter().y}};
@@ -37,6 +133,40 @@ boxNS.DrawingObject.prototype.fetchDrawObjects = function(aWorldObjects)
     {
         var dBody = aWorldObjects[i];
         var shape = dBody.GetFixtureList().GetShape();
+
+        switch (shape.m_type) {
+            case b2Shape.e_circleShape:
+            {
+                var circle = ((shape instanceof b2CircleShape ? shape : null));
+                var center = b2Math.MulX(xf, circle.m_p);
+                var radius = circle.m_radius;
+                var axis = xf.R.col1;
+                this.m_debugDraw.DrawSolidCircle(center, radius, axis, color);
+            }
+                break;
+            case b2Shape.e_polygonShape:
+            {
+                var i = 0;
+                var poly = ((shape instanceof b2PolygonShape ? shape : null));
+                var vertexCount = parseInt(poly.GetVertexCount());
+                var localVertices = poly.GetVertices();
+                var vertices = new Vector(vertexCount);
+                for (i = 0;
+                     i < vertexCount; ++i) {
+                    vertices[i] = b2Math.MulX(xf, localVertices[i]);
+                }
+                this.m_debugDraw.DrawSolidPolygon(vertices, vertexCount, color);
+            }
+                break;
+            case b2Shape.e_edgeShape:
+            {
+                var edge = (shape instanceof b2EdgeShape ? shape : null);
+                this.m_debugDraw.DrawSegment(b2Math.MulX(xf, edge.GetVertex1()), b2Math.MulX(xf, edge.GetVertex2()), color);
+            }
+                break;
+        }
+
+
         var circle = ((shape instanceof b2CircleShape ? shape : null));
         if(circle){
             var center = b2Math.MulX(dBody.m_xf, circle.m_p);
@@ -52,18 +182,29 @@ boxNS.DrawingObject.prototype.fetchDrawObjects = function(aWorldObjects)
 //is the drawing logic called all from this function???
 boxNS.DrawingObject.prototype.setWorldObjects = function(aWorldObjects)
 {
+
+    //for now, we use this as an opportunity to add an object
+    //in reality, we're going to make a hook where we get a callback when a physics object is inserted or removed
+
+    for(var j=0; j < aWorldObjects.length; j++)
+    {
+        this.addBody(aWorldObjects[j]);
+    }
+
+
+
     //we need to do d3 binding here, wa waaaaaaa
 
     // this.circles = this.drawingElement.selectAll("circlesandshit");
 
-    var data = this.fetchDrawObjects(aWorldObjects);
-    var aFabObjects = this.fabricCanvas.getObjects();
-    var iLength = aFabObjects.length;
-    for(var i=0; i < data.length; i++)
-    {
-        this.fabricCanvas.add(new fabric.Circle({ radius: data[i].radius, fill: '#f55', top: data[i].center.x, left: data[i].center.y }));
-        aFabObjects[iLength + i].selectable = false;
-    }
+   // var data = this.fetchDrawObjects(aWorldObjects);
+//    var aFabObjects = this.fabricCanvas.getObjects();
+//    var iLength = aFabObjects.length;
+//    for(var i=0; i < data.length; i++)
+//    {
+//        this.fabricCanvas.add(new fabric.Circle({ radius: data[i].radius, fill: '#f55', top: data[i].center.x, left: data[i].center.y }));
+//        aFabObjects[iLength + i].selectable = false;
+//    }
 
     if(!this.turnOffDrawing)
         this.fabricCanvas.renderAll();
@@ -88,18 +229,47 @@ boxNS.DrawingObject.prototype.setWorldObjects = function(aWorldObjects)
 
 };
 
+boxNS.DrawingObject.prototype.drawFabricObject = function(drawObj)
+{
+    var info = this.shapeInfo(drawObj.body, drawObj.shape);
+    var fabObj = drawObj.fabric;
+
+    switch (drawObj.shape.m_type) {
+        case b2Shape.e_circleShape:
+        {
+            fabObj.left = info.center.x;
+            fabObj.top = info.center.y;
+        }
+            break;
+        case b2Shape.e_polygonShape:
+        case b2Shape.e_edgeShape:
+        default:
+            console.log("don't know how to draw this object type");
+            break;
+    }
+
+};
+
 boxNS.DrawingObject.prototype.drawWorld = function(aBodyList)
 {
-    var data = this.fetchDrawObjects(aBodyList);
 
-    var aFabItems = this.fabricCanvas.getObjects();
-    for(var i=0; i < data.length; i++)
+    for(var dID in this.drawObjects)
     {
-        var datum =  data[i];
-        //console.log(datum.center.y);
-        aFabItems[i].left = datum.center.x;
-        aFabItems[i].top = datum.center.y;
+       this.drawFabricObject(this.drawObjects[dID]);
+        //can we do this generically, i don't think so???
     }
+
+//
+//    var data = this.fetchDrawObjects(aBodyList);
+//
+//    var aFabItems = this.fabricCanvas.getObjects();
+//    for(var i=0; i < data.length; i++)
+//    {
+//        var datum =  data[i];
+//        //console.log(datum.center.y);
+//        aFabItems[i].left = datum.center.x;
+//        aFabItems[i].top = datum.center.y;
+//    }
     if(!this.turnOffDrawing)
         this.fabricCanvas.renderAll();
 //    console.log("Draw: (" + data[0].center.x + " , " + data[0].center.y + ")");
