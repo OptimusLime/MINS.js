@@ -155,7 +155,7 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
                         var linkObj = aLinks[l];
                         //need to add the spring object info -- so springyness and what have you
                         //maybe also the rest length? Does that matter?
-                        var dJoint = this.addDistanceJoint(linkObj.a, linkObj.b, {frequencyHz: 3, dampingRatio:.1});
+                        var dJoint = this.addDistanceJoint(linkObj.a, linkObj.b, {frequencyHz: 3, dampingRatio:.3});
                         //dJoint.SetLength(parseFloat(linkObj.restlength)/this.scale);
                     }
 
