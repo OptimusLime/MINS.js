@@ -181,6 +181,71 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
 
     };
 
+    this.jsonParseNodeApp = function(jsonData)
+    {
+        //The structure of the json is as follows
+
+        //All the bodies are inside of nodes
+        //should all be of type "mass" or "node"
+
+        //so let's create our bodies
+
+        var oNodes = jsonData.InputLocations.concat(jsonData.HiddenLocations);
+
+        var connections = jsonData.Connections;
+
+        var oBodyCount = this.bodiesList.length;
+        var bodyID = this.bodiesList.length;
+
+        var entities = {};
+        var xScaled,yScaled;
+
+        for(var nodeKey in oNodes)
+        {
+            if (Object.prototype.hasOwnProperty.call(oNodes, nodeKey)) {
+                // prop is not inherited
+
+            //node type doesn't matter as much as our documentType
+
+           // var aBodies = oNodes[nodeType];
+
+            //for(var b=0; b < aBodies.length; b++)
+           // {
+             //   var nodeObj = aBodies[b];
+            var nodeLocation = oNodes[nodeKey];
+            xScaled = (parseFloat(nodeLocation.X) +1)*300;
+            yScaled = (parseFloat(nodeLocation.Y) +1)*200;
+
+              //FOR each node, we make a body with certain properties, then increment count
+                entities[bodyID] = (Entity.build({id:bodyID, x: xScaled/this.scale, y: yScaled/this.scale, radius: .5 }));
+
+            //need to increment the body id so we don't overwrite previous object
+            bodyID++;
+
+            }
+            //}
+        }
+        //push our bodies into the system so that our joints have bodies to connect to
+        this.setBodies(entities);
+
+
+        for(var connectionID in connections)
+        {
+            if (Object.prototype.hasOwnProperty.call(connections, connectionID)) {
+                // prop is not inherited
+
+                var connectionObject = connections[connectionID];
+
+                var sourceID = oBodyCount + parseInt(connectionObject.SourceNeuronId);
+                var targetID = oBodyCount + parseInt(connectionObject.TargetNeuronId);
+
+                var dJoint = this.addDistanceJoint(sourceID, targetID, {frequencyHz: 3, dampingRatio:.3});
+
+
+            }
+        }
+
+    };
     this.addDistanceJoint = function(body1Id, body2Id, params) {
         var body1 = this.bodiesMap[body1Id];
         var body2 = this.bodiesMap[body2Id];

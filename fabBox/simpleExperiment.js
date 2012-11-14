@@ -163,3 +163,83 @@ window.onload = function() {
         requestAnimFrame(loop);
     })();
 };
+
+function getBody()
+{
+    $.getJSON('http://127.0.0.1:3000/get',function(jsonData)
+    {
+        if(!jsonData){
+            console.log("No JSON fetched, aborting body add");
+            return;
+        }
+        console.log("JSON fetched: ");
+        console.log( jsonData);//.InputLocations.concat(jsonData.HiddenLocations));
+
+        //right now, this is a bodyObject with InputLocations, HiddenLocations, and Connections
+
+        var inCnt = jsonData.InputLocations.length;
+        var hiCnt = jsonData.HiddenLocations.length;
+
+        var data = jsonData.InputLocations.concat(jsonData.HiddenLocations);
+
+        var connections = jsonData.Connections;
+
+        theWorld.jsonParseNodeApp(jsonData);
+        //we need to decide on scale
+//        We go from -1 to 1, so we have to add 1 to everything, scale, and place each node
+
+
+
+
+
+//        var margin = {top: 0, right: 0, bottom: 0, left: 0},
+//            width = 960,
+//            height = 500;
+//
+//        var x = pad(d3.scale.linear()
+//            .domain(d3.extent(data, function(d, i) { return d.X; }))
+//            .range([0, width - margin.left - margin.right]), 40);
+//
+//        var y = pad(d3.scale.linear()
+//            .domain(d3.extent(data, function(d, i) { return d.Y; }))
+//            .range([ height - margin.top - margin.bottom,0]), 40);
+//
+//        var svg = d3.select("body").append("svg").style("border", "1px solid black")
+//            .attr("width", width)
+//            .attr("height", height)
+//            .attr("class", "dot line chart");
+//
+//
+//        svg.selectAll(".dot")
+//            .data(data)
+//            .enter().append("circle")
+//            .style("fill", function(d, i) {
+//                return i < inCnt ? "#00f" : "#050";
+//            })
+//            .attr("class", "dot")
+//            .attr("cx", function(d) { return x(d.X); })
+//            .attr("cy", function(d) { return y(d.Y); })
+//            .attr("r", 12)
+//        console.log("Connections: ");
+//        console.log(connections);
+//
+//        svg.selectAll(".line")
+//            .data(connections)
+//            .enter().append("line")
+//            .style("stroke-width", function(d) { return 1.5;})//Math.sqrt(d.value); });
+//            .style("stroke", function(d) { return "#000"})
+//            .attr("x1", function(c){ return x(c.coordinates[0]); })
+//            .attr("y1", function(c){ return y(c.coordinates[1]); })
+//            .attr("x2", function(c){ return x(c.coordinates[2]); })
+//            .attr("y2", function(c){ return y(c.coordinates[3]); });
+
+
+    });
+}
+
+function pad(scale, k) {
+    return scale;
+//        var range = scale.range();
+//        if (range[0] > range[1]) k *= -1;
+//        return scale.domain([range[0] - k, range[1] + k].map(scale.invert)).nice();
+}

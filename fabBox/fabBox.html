@@ -4,6 +4,8 @@
 <head>
     <title></title>
     <script type="text/javascript" src="../Helpers/Box2d.js"></script>
+    <!--<script type="text/javascript" src="../Helpers/d3.v2.js"></script>-->
+
     <script type="text/javascript" src="../Helpers/fabric.js"></script>
     <script type="text/javascript" src="../Helpers/Helpers.js"></script>
     <script type="text/javascript" src="../Helpers/jkl-parsexml.js"></script>
@@ -11,15 +13,19 @@
 
     <script type="text/javascript" src="boxHelpers.js"></script>
     <script type="text/javascript" src="boxDrawers.js"></script>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
     <script type="text/javascript" src="simpleExperiment.js" async></script>
 </head>
 <body>
     <canvas id="physics" width=640 height=480></canvas>
     <br>
+    <input type="button" id="fetchBody" value="Get New Body" onclick="getBody()" />
     <input type="file" id="files" name="files[]"/>
 
     <div>Damping Ratio (0 for ignore): <input type="range" min="0" max="1" id="damping-ratio" value="0" step="0.1"><output id="damping-ratio-output">0</output></div>
     <div>Frequency Hz (0 for ignore): <input type="range" min="0" max="30" id="frequency-hz" value="0"><output id="frequency-hz-output">0</output></div>
+
+	
 </body>
 
 
