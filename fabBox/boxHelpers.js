@@ -239,7 +239,7 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
                 var sourceID = oBodyCount + parseInt(connectionObject.SourceNeuronId);
                 var targetID = oBodyCount + parseInt(connectionObject.TargetNeuronId);
 
-                var dJoint = this.addDistanceJoint(sourceID, targetID, {frequencyHz: 3, dampingRatio:.3});
+                var dJoint = this.addMuscleJoint(sourceID, targetID, {frequencyHz: 3, dampingRatio:.3, phase: connectionObject.cppnOutputs[1], amplitude: connectionObject.cppnOutputs[2]});
 
 
             }
