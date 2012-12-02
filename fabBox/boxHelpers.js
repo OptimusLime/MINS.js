@@ -181,6 +181,10 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
 
     };
 
+    this.polarToCartesian= function(r, theta, rScale, shift)
+    {
+        return {x:  (r+1)/2*Math.cos(theta*Math.PI)*rScale + shift.x, y: (r+1)/2*Math.sin(theta*Math.PI)*rScale + shift.y };
+    };
     this.jsonParseNodeApp = function(jsonData)
     {
         //The structure of the json is as follows
@@ -199,7 +203,7 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
 
         var entities = {};
         var xScaled,yScaled;
-
+        console.log('No prob');
         for(var nodeKey in oNodes)
         {
             if (Object.prototype.hasOwnProperty.call(oNodes, nodeKey)) {
@@ -213,38 +217,55 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
            // {
              //   var nodeObj = aBodies[b];
             var nodeLocation = oNodes[nodeKey];
-            xScaled = (parseFloat(nodeLocation.X) +1)*300;
-            yScaled = (parseFloat(nodeLocation.Y) +1)*200;
+                var polarScaled = this.polarToCartesian(parseFloat(nodeLocation.X), parseFloat(nodeLocation.Y), 300, {x: 200, y: 100});
+            console.log('Polar scaled: ');
+                console.log( {x: parseFloat(nodeLocation.X), y: parseFloat(nodeLocation.Y)});
+            xScaled = polarScaled.x;// (parseFloat(nodeLocation.X) +1)*300;
+            yScaled = polarScaled.y;//(parseFloat(nodeLocation.Y) +1)*200;
 
               //FOR each node, we make a body with certain properties, then increment count
                 entities[bodyID] = (Entity.build({id:bodyID, x: xScaled/this.scale, y: yScaled/this.scale, radius: .5 }));
 
             //need to increment the body id so we don't overwrite previous object
             bodyID++;
-
+//                console.log('No prob1');
             }
             //}
         }
         //push our bodies into the system so that our joints have bodies to connect to
         this.setBodies(entities);
-
-
+//        console.log('No pro2b');
+//        var count =0;
         for(var connectionID in connections)
         {
+
             if (Object.prototype.hasOwnProperty.call(connections, connectionID)) {
                 // prop is not inherited
-
+//                console.log('No prob3');
                 var connectionObject = connections[connectionID];
 
                 var sourceID = oBodyCount + parseInt(connectionObject.SourceNeuronId);
                 var targetID = oBodyCount + parseInt(connectionObject.TargetNeuronId);
 
-                var dJoint = this.addMuscleJoint(sourceID, targetID, {frequencyHz: 3, dampingRatio:.3, phase: connectionObject.cppnOutputs[1], amplitude: connectionObject.cppnOutputs[2]});
 
+                if(sourceID == targetID){
+                    console.log('We ignore self connections, since that is physically silly');
+                    continue;
+                }
+                try
+                {
+                     var dJoint = this.addMuscleJoint(sourceID, targetID, {frequencyHz: 3, dampingRatio:.3, phase: connectionObject.cppnOutputs[1], amplitude: connectionObject.cppnOutputs[2]});
+                }
+                catch(e)
+                {
+                    console.error('HOLY POOP ERROR');
+                    console.log(e);
+                    throw e;
+                }
 
             }
         }
-
+//        console.log('No 4444');
     };
     this.addDistanceJoint = function(body1Id, body2Id, params) {
         var body1 = this.bodiesMap[body1Id];
