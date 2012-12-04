@@ -22,6 +22,8 @@ var SCALE= 30;
 var sCanvasID = "physics";
 var canvas = document.getElementById(sCanvasID);
 
+var lastObjectID = -1;
+
 var canvasWidth = 640;
 var canvasHeight = 480;
 canvas.style.width = canvasWidth + "px";
@@ -164,6 +166,37 @@ window.onload = function() {
     })();
 };
 
+function toggleTest()
+{
+    console.log('Attmpting toggle');
+    //we need our body ID, where do I get that from?
+
+    $.ajax({
+        url: "http://127.0.0.1:3000/toggle",
+        type: "POST",
+        dataType: "json",
+        data: JSON.stringify({ 'genomeID' : lastObjectID }),
+        contentType: "application/json",
+        cache: false,
+        timeout: 30000,
+        complete: function() {
+            //called when complete
+            console.log('process complete');
+        },
+
+        success: function(data) {
+            console.log('Toggle success');
+            console.log(data);
+            console.log('process sucess');
+        },
+
+        error: function() {
+            console.log('process error');
+        }
+    });
+
+
+}
 function getBody()
 {
     $.getJSON('http://127.0.0.1:3000/get',function(jsonData)
@@ -177,6 +210,8 @@ function getBody()
 
         //right now, this is a bodyObject with InputLocations, HiddenLocations, and Connections
 
+        //we grab our genomeID
+        lastObjectID = parseInt(jsonData.GenomeID);
         var inCnt = jsonData.InputLocations.length;
         var hiCnt = jsonData.HiddenLocations.length;
 
