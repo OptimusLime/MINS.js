@@ -14,6 +14,26 @@ function populateGenomes()
         $("#underPanel").append(fakeGenome.create());
     }
 }
+function addInitialGenomes()
+{
+    console.log('Adding initial genomes');
+    //add ten sample genomes for now
+    for(var i =0; i < 10; i++){
+        //make multiple requests to get body genomes, then add the genome objects
+        getBody(addGenomeDiv);
+    }
+
+
+}
+function addGenomeDiv(genomeJSON)
+{
+    console.log('Returning JSON from the get request')
+    //JSON Body comes back async from JSON body
+    var $container = $('#container');
+
+    $container.append('<div class="element"><h1>Test body addition</h1><h2>' + 'GenomeID: ' + genomeJSON.GenomeID + '</h2></div>');
+
+};
 
 function isoSetup(){
 

@@ -26,6 +26,7 @@ var lastObjectID = -1;
 
 var canvasWidth = 640;
 var canvasHeight = 480;
+
 canvas.style.width = canvasWidth + "px";
 canvas.style.height = canvasHeight + "px";
 canvas.style.border = "thick solid #000000";
@@ -197,9 +198,11 @@ function toggleTest()
 
 
 }
-function getBody()
+
+
+function insertBody()
 {
-    $.getJSON('http://127.0.0.1:3000/get',function(jsonData)
+    getBody(function(jsonData)
     {
         if(!jsonData){
             console.log("No JSON fetched, aborting body add");

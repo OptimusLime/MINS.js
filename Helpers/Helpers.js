@@ -1,4 +1,14 @@
 ﻿
+//this is a function to grab a body from our server
+function getBody(bodyCallback)
+{
+    console.log('Senidng body requests');
+    $.getJSON('http://127.0.0.1:3000/get',function(jsonData)
+    {
+        console.log('Return body request');
+        bodyCallback(jsonData);
+    });
+};
 
 function namespace(namespaceString) {
     var parts = namespaceString.split('.'),

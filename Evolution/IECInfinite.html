@@ -1,0 +1,127 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>IEC Framework- Infinite</title>
+
+    <link rel="stylesheet" href="IECInfinite.css" type="text/css" />
+    <!--<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>-->
+    <!--<script src="../Helpers/jquery.isotope.js"></script>-->
+</head>
+
+<body class="demos" onload="addInitialGenomes()">
+
+<nav id="site-nav">
+
+
+</nav> <!-- #site-nav -->
+
+<section id="content">
+
+<h1>Infinite Scroll</h1>
+
+
+<section id="copy">
+</section>
+
+<canvas id="physics" width=640 height=480></canvas>
+    <br/>
+<div>
+<input type="button" id="fetchBody" value="Get New Body" onclick="insertBody()" />
+<input type="file" id="files" name="files[]"/>
+<input type="button" id="toggleBodyTest" value="Toggle Last Body" onclick="toggleTest()" />
+</div>
+    <br/>
+    <div style="display: none;">Damping Ratio (0 for ignore): <input type="range" min="0" max="1" id="damping-ratio" value="0" step="0.1"><output id="damping-ratio-output">0</output></div>
+    <div style="display: none">Frequency Hz (0 for ignore): <input type="range" min="0" max="30" id="frequency-hz" value="0"><output id="frequency-hz-output">0</output></div>
+
+
+    <div id="container" class="variable-sizes clearfix infinite-scrolling">
+
+
+</div> <!-- #container -->
+
+<nav id="page_nav">
+    <a href="http://localhost:3000/get"></a>
+</nav>
+
+<script src="../Helpers/jquery-1.7.1.min.js"></script>
+<script src="../Helpers/jquery.isotope.js"></script>
+<script src="../Helpers/jquery.infinitescroll.min.js"></script>
+<!--load the experiment script when the body gets processed, so it has access to the canvas object for styling-->
+
+<script type="text/javascript" src="../Helpers/jkl-parsexml.js"></script>
+<script type="text/javascript" src="../Helpers/loadXML.js"></script>
+
+<script type="text/javascript" src="../Helpers/Box2d.min.js"></script>
+<script type="text/javascript" src="../Helpers/fabric.js"></script>
+    <!--has our getbody request logic-->
+<script type="text/javascript" src="../Helpers/Helpers.js"></script>
+
+<script type="text/javascript" src="../fabBox/boxHelpers.js"></script>
+<script type="text/javascript" src="../fabBox/boxDrawers.js"></script>
+
+
+<script type="text/javascript" src="IEC.js"></script>
+
+    <script>
+    $(function(){
+        var $container = $('#container');
+
+
+
+        $container.isotope({
+            itemSelector : '.element'
+        });
+
+        $container.infinitescroll({
+            // other options
+            navSelector  : '#page_nav',    // selector for the paged navigation
+            nextSelector : '#page_nav a',
+            loading: {
+                        finishedMsg: 'No more pages to load.',
+                        img: 'http://i.imgur.com/qkKy8.gif'
+                    },
+            dataType: 'json',
+            appendCallback: false
+        }, function(json, opts) {
+            // Get json back
+            //now we have a new body, wrap it up in a worldly object
+            console.log('Incoming json body: ')
+            console.log(json);
+            console.log('end json');
+            //var page = opts.state.currPage;
+            // Do something with JSON data, create DOM elements, etc ..
+        });
+
+//        $container.infinitescroll({
+//                    navSelector  : '#page_nav',    // selector for the paged navigation
+//                    nextSelector : '#page_nav a',  // selector for the NEXT link (to page 2)
+//                    itemSelector : '.element',     // selector for all items you'll retrieve
+//                    loading: {
+//                        finishedMsg: 'No more pages to load.',
+//                        img: 'http://i.imgur.com/qkKy8.gif'
+//                    }
+//                },
+//                // call Isotope as a callback
+//                function( newElements ) {
+//                    $container.isotope( 'appended', $( newElements ) );
+//                }
+//        );
+
+
+    });
+
+
+</script>
+
+<footer>
+   WIN Interactive set up by <a href="http://designforcode.com">Paul Szerlip</a> / and <a href="http://eplex.cs.ucf.edu">Eplex</a>
+</footer>
+
+</section> <!-- #content -->
+
+</body>
+
+</html>
