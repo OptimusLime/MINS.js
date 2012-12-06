@@ -172,33 +172,17 @@ function toggleTest()
     console.log('Attmpting toggle');
     //we need our body ID, where do I get that from?
 
-    $.ajax({
-        url: "http://127.0.0.1:3000/toggle",
-        type: "POST",
-        dataType: "json",
-        data: JSON.stringify({ 'genomeID' : lastObjectID }),
-        contentType: "application/json",
-        cache: false,
-        timeout: 30000,
-        complete: function() {
-            //called when complete
-            console.log('process complete');
-        },
+    toggleSelectedBody(lastObjectID, function(responseData)
+    {
+        //we've received a server response, lets just print it
+        console.log('Toggle success');
+        console.log(responseData);
+        console.log('toggle over and out');
 
-        success: function(data) {
-            console.log('Toggle success');
-            console.log(data);
-            console.log('process sucess');
-        },
-
-        error: function() {
-            console.log('process error');
-        }
     });
 
 
 }
-
 
 function insertBody()
 {

@@ -1,6 +1,8 @@
 //Javascript file for dealing with interactive evolution
 //lots of dummy code for now. Later, will need to ajax hook up to server for fetching genomes (calling HTTP get/post etc)
 
+var initialGenomeRequest = 5;
+
 
 function populateGenomes()
 {
@@ -17,17 +19,23 @@ function populateGenomes()
 function addInitialGenomes()
 {
     console.log('Adding initial genomes');
-    //add ten sample genomes for now
-    for(var i =0; i < 10; i++){
-        //make multiple requests to get body genomes, then add the genome objects
-        getBody(addGenomeDiv);
-    }
 
-
+    //add initialGenomeRequest sample genomes for now
+    //make multiple requests to get body genomes, then add the genome objects
+    getBodies(initialGenomeRequest, addManyGenomeDivs);
+}
+function addManyGenomeDivs(genomeArray)
+{
+    console.log('Adding many genomes in a loop!')
+    for(var i=0; i < genomeArray.length; i++)
+        addGenomeDiv(genomeArray[i]);
 }
 function addGenomeDiv(genomeJSON)
 {
-    console.log('Returning JSON from the get request')
+    console.log('Returning JSON from the get request');
+
+
+
     //JSON Body comes back async from JSON body
     var $container = $('#container');
 

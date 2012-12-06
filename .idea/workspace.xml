@@ -2,7 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="e0d5e3ed-53be-40cd-8070-10d843a8e471" name="Default" comment="">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Helpers/AjaxRequests.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Evolution/IEC.js" afterPath="$PROJECT_DIR$/Evolution/IEC.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Evolution/IECInfinite.html" afterPath="$PROJECT_DIR$/Evolution/IECInfinite.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Helpers/Helpers.js" afterPath="$PROJECT_DIR$/Helpers/Helpers.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/fabBox/fabBox.html" afterPath="$PROJECT_DIR$/fabBox/fabBox.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/fabBox/simpleExperiment.js" afterPath="$PROJECT_DIR$/fabBox/simpleExperiment.js" />
@@ -30,7 +33,7 @@
       <file leaf-file-name="fabBox.html" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/fabBox/fabBox.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="27" column="0" selection-start="1211" selection-end="1528" vertical-scroll-proportion="-17.653847">
+            <state line="16" column="77" selection-start="820" selection-end="894" vertical-scroll-proportion="-10.461538">
               <folding />
             </state>
           </provider>
@@ -39,7 +42,7 @@
       <file leaf-file-name="simpleExperiment.js" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/fabBox/simpleExperiment.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="198" column="0" selection-start="5529" selection-end="5529" vertical-scroll-proportion="0.0">
+            <state line="185" column="0" selection-start="5160" selection-end="5160" vertical-scroll-proportion="-28.68">
               <folding />
             </state>
           </provider>
@@ -57,7 +60,16 @@
       <file leaf-file-name="Helpers.js" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Helpers/Helpers.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="1" column="51" selection-start="52" selection-end="52" vertical-scroll-proportion="0.0">
+            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="AjaxRequests.js" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/Helpers/AjaxRequests.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="22" column="21" selection-start="601" selection-end="601" vertical-scroll-proportion="0.6849817">
               <folding />
             </state>
           </provider>
@@ -66,25 +78,7 @@
       <file leaf-file-name="IECInfinite.html" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Evolution/IECInfinite.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="9" column="63" selection-start="429" selection-end="429" vertical-scroll-proportion="-5.8846154">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="boxHelpers.js" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/fabBox/boxHelpers.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="216" column="11" selection-start="7219" selection-end="7219" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="IEC.css" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Evolution/IEC.css">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="14" column="26" selection-start="164" selection-end="164" vertical-scroll-proportion="0.0">
+            <state line="36" column="45" selection-start="1163" selection-end="1163" vertical-scroll-proportion="-10.423077">
               <folding />
             </state>
           </provider>
@@ -93,16 +87,25 @@
       <file leaf-file-name="IEC.js" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Evolution/IEC.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="22" column="12" selection-start="786" selection-end="786" vertical-scroll-proportion="0.0">
+            <state line="25" column="1" selection-start="844" selection-end="844" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="IEC.html" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="simpledemo.html" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/fabBox/simpledemo.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="8" column="0" selection-start="283" selection-end="564" vertical-scroll-proportion="-5.230769">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="IEC.html" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Evolution/IEC.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="37" column="57" selection-start="1290" selection-end="1348" vertical-scroll-proportion="1.2480159">
+            <state line="37" column="57" selection-start="1290" selection-end="1348" vertical-scroll-proportion="-24.192308">
               <folding />
             </state>
           </provider>
@@ -130,7 +133,6 @@
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
-        <option value="$PROJECT_DIR$/Helpers/Box2D.js" />
         <option value="$PROJECT_DIR$/fabBox/simpledemo.html" />
         <option value="$PROJECT_DIR$/Helpers/fabric.js" />
         <option value="$PROJECT_DIR$/../CPPN.js/Support/loadhack.js" />
@@ -142,10 +144,11 @@
         <option value="$PROJECT_DIR$/Evolution/fakeGenomes.js" />
         <option value="$PROJECT_DIR$/fabBox/boxHelpers.js" />
         <option value="$PROJECT_DIR$/fabBox/fabBox.html" />
-        <option value="$PROJECT_DIR$/Evolution/IEC.js" />
-        <option value="$PROJECT_DIR$/fabBox/simpleExperiment.js" />
-        <option value="$PROJECT_DIR$/Helpers/Helpers.js" />
         <option value="$PROJECT_DIR$/Evolution/IECInfinite.html" />
+        <option value="$PROJECT_DIR$/Helpers/Helpers.js" />
+        <option value="$PROJECT_DIR$/fabBox/simpleExperiment.js" />
+        <option value="$PROJECT_DIR$/Evolution/IEC.js" />
+        <option value="$PROJECT_DIR$/Helpers/AjaxRequests.js" />
       </list>
     </option>
   </component>
@@ -260,6 +263,7 @@
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="F:\Users\Paul\Documents\GitHub\MINS.js\Helpers" />
       <recent name="F:\Users\Paul\Documents\GitHub\MINS.js\d3Box" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
@@ -310,10 +314,11 @@
     <frame x="1" y="0" width="1678" height="1010" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.34705883" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.34705883" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3282353" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="true" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.16412446" sideWeight="0.65294117" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.16412446" sideWeight="0.67176473" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
@@ -323,7 +328,6 @@
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32924107" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
@@ -384,11 +388,6 @@
     <breakpoint-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/Evolution/fakeGenomes.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="35" column="16" selection-start="1501" selection-end="1501" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/Coding/WebLibraries/isotope-site/custom-layout-modes/centered-masonry.html">
       <provider selected="true" editor-type-id="text-editor">
         <state line="375" column="0" selection-start="10362" selection-end="10410" vertical-scroll-proportion="0.0" />
@@ -402,13 +401,6 @@
     <entry file="jar://$APPLICATION_HOME_DIR$/plugins/JavaScriptLanguage/lib/JavascriptLanguage.jar!/com/intellij/lang/javascript/index/predefined/EcmaScript5.js">
       <provider selected="true" editor-type-id="text-editor">
         <state line="158" column="5" selection-start="2962" selection-end="2962" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/fabBox/simpledemo.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="8" column="0" selection-start="283" selection-end="564" vertical-scroll-proportion="-5.230769">
           <folding />
         </state>
       </provider>
@@ -430,9 +422,23 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Evolution/IEC.js">
+    <entry file="file://$PROJECT_DIR$/Helpers/Helpers.cs">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="22" column="12" selection-start="786" selection-end="786" vertical-scroll-proportion="0.0">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Helpers/Helpers.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Evolution/IEC.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="37" column="57" selection-start="1290" selection-end="1348" vertical-scroll-proportion="-24.192308">
           <folding />
         </state>
       </provider>
@@ -444,44 +450,44 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/fabBox/simpledemo.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="8" column="0" selection-start="283" selection-end="564" vertical-scroll-proportion="-5.230769">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/fabBox/fabBox.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="27" column="0" selection-start="1211" selection-end="1528" vertical-scroll-proportion="-17.653847">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Helpers/Helpers.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/fabBox/simpleExperiment.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="198" column="0" selection-start="5529" selection-end="5529" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Helpers/Helpers.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="1" column="51" selection-start="52" selection-end="52" vertical-scroll-proportion="0.0">
+        <state line="16" column="77" selection-start="820" selection-end="894" vertical-scroll-proportion="-10.461538">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Evolution/IECInfinite.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="9" column="63" selection-start="429" selection-end="429" vertical-scroll-proportion="-5.8846154">
+        <state line="36" column="45" selection-start="1163" selection-end="1163" vertical-scroll-proportion="-10.423077">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Evolution/IEC.html">
+    <entry file="file://$PROJECT_DIR$/Evolution/IEC.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="37" column="57" selection-start="1290" selection-end="1348" vertical-scroll-proportion="1.2480159">
+        <state line="25" column="1" selection-start="844" selection-end="844" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/fabBox/simpleExperiment.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="185" column="0" selection-start="5160" selection-end="5160" vertical-scroll-proportion="-28.68">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Helpers/AjaxRequests.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="22" column="21" selection-start="601" selection-end="601" vertical-scroll-proportion="0.6849817">
           <folding />
         </state>
       </provider>
