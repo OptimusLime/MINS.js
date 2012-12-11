@@ -27,14 +27,14 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
     this.addJointCallback = callbacks.addJoint || function(){};
     this.removeJointCallback = callbacks.removeJoint || function(){};
 
+    this.canvasWidth = width;
+    this.canvasHeight = height;
 
     this.intervalRate = parseInt(intervalRate);
 
     this.simulationRate = 1/parseInt(intervalRate);
 
     this.adaptive = adaptive;
-    this.width = width;
-    this.height = height;
     this.scale = scale;
 
     this.bodiesMap = {};
@@ -51,7 +51,7 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
 
     this.fixDef = new b2FixtureDef;
     this.fixDef.density = 1.0;
-    this.fixDef.friction = 0.5;
+    this.fixDef.friction = 0.8;
     this.fixDef.restitution = 0.2;
     var rad = 0;
 
@@ -203,7 +203,7 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
 
         var entities = {};
         var xScaled,yScaled;
-        console.log('No prob');
+//        console.log('No prob');
         for(var nodeKey in oNodes)
         {
             if (Object.prototype.hasOwnProperty.call(oNodes, nodeKey)) {
@@ -217,9 +217,12 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
            // {
              //   var nodeObj = aBodies[b];
             var nodeLocation = oNodes[nodeKey];
-                var polarScaled = this.polarToCartesian(parseFloat(nodeLocation.X), parseFloat(nodeLocation.Y), 300, {x: 200, y: 100});
-            console.log('Polar scaled: ');
-                console.log( {x: parseFloat(nodeLocation.X), y: parseFloat(nodeLocation.Y)});
+
+                var maxR = Math.sqrt(this.canvasWidth*this.canvasWidth + this.canvasHeight*this.canvasHeight)/4;
+
+                var polarScaled = this.polarToCartesian(parseFloat(nodeLocation.X), parseFloat(nodeLocation.Y), maxR, {x: this.canvasWidth/2, y: this.canvasHeight/2});
+//            console.log('Polar scaled: ');
+//                console.log( {x: parseFloat(nodeLocation.X), y: parseFloat(nodeLocation.Y)});
             xScaled = polarScaled.x;// (parseFloat(nodeLocation.X) +1)*300;
             yScaled = polarScaled.y;//(parseFloat(nodeLocation.Y) +1)*200;
 
@@ -249,7 +252,7 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
 
 
                 if(sourceID == targetID){
-                    console.log('We ignore self connections, since that is physically silly');
+//                    console.log('We ignore self connections, since that is physically silly');
                     continue;
                 }
                 try
@@ -291,52 +294,57 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
         return addedJoint;
     };
 
+    this.setBody = function(entity)
+    {
+        var bodyDef = new b2BodyDef;
+
+//        console.log("Adding entity:");
+//        console.log(entity);
+
+        if (entity.id == 'ground') {
+            bodyDef.type = b2Body.b2_staticBody;
+        } else {
+            bodyDef.type = b2Body.b2_dynamicBody;
+        }
+
+        bodyDef.position.x = entity.x;
+        bodyDef.position.y = entity.y;
+        bodyDef.userData = entity.id;
+        bodyDef.angle = entity.angle;
+        var body = this.world.CreateBody(bodyDef);
+
+
+        if (entity.radius) {
+            this.fixDef.shape = new b2CircleShape(entity.radius);
+            body.CreateFixture(this.fixDef);
+        } else if (entity.polys) {
+            for (var j = 0; j < entity.polys.length; j++) {
+                var points = entity.polys[j];
+                var vecs = [];
+                for (var i = 0; i < points.length; i++) {
+                    var vec = new b2Vec2();
+                    vec.Set(points[i].x, points[i].y);
+                    vecs[i] = vec;
+                }
+                this.fixDef.shape = new b2PolygonShape;
+                this.fixDef.shape.SetAsArray(vecs, vecs.length);
+                body.CreateFixture(this.fixDef);
+            }
+        } else {
+            this.fixDef.shape = new b2PolygonShape;
+            this.fixDef.shape.SetAsBox(entity.halfWidth, entity.halfHeight);
+            body.CreateFixture(this.fixDef);
+        }
+
+        //we have to register our body AFTER we create the fixture to go with it!
+        this.registerBody(body);
+    };
 
     this.setBodies = function(bodyEntities) {
         var bodyDef = new b2BodyDef;
         for(var id in bodyEntities) {
             var entity = bodyEntities[id];
-            console.log("Adding entity:");
-            console.log(entity);
-
-            if (entity.id == 'ground') {
-                bodyDef.type = b2Body.b2_staticBody;
-            } else {
-                bodyDef.type = b2Body.b2_dynamicBody;
-            }
-
-            bodyDef.position.x = entity.x;
-            bodyDef.position.y = entity.y;
-            bodyDef.userData = entity.id;
-            bodyDef.angle = entity.angle;
-            var body = this.world.CreateBody(bodyDef);
-
-
-            if (entity.radius) {
-                this.fixDef.shape = new b2CircleShape(entity.radius);
-                body.CreateFixture(this.fixDef);
-            } else if (entity.polys) {
-                for (var j = 0; j < entity.polys.length; j++) {
-                    var points = entity.polys[j];
-                    var vecs = [];
-                    for (var i = 0; i < points.length; i++) {
-                        var vec = new b2Vec2();
-                        vec.Set(points[i].x, points[i].y);
-                        vecs[i] = vec;
-                    }
-                    this.fixDef.shape = new b2PolygonShape;
-                    this.fixDef.shape.SetAsArray(vecs, vecs.length);
-                    body.CreateFixture(this.fixDef);
-                }
-            } else {
-                this.fixDef.shape = new b2PolygonShape;
-                this.fixDef.shape.SetAsBox(entity.halfWidth, entity.halfHeight);
-                body.CreateFixture(this.fixDef);
-            }
-
-            //we have to register our body AFTER we create the fixture to go with it!
-            this.registerBody(body);
-
+            this.setBody(entity);
         }
         this.ready = true;
     };

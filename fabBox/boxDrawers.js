@@ -11,7 +11,7 @@ var b2Math = Box2D.Common.Math.b2Math,
     b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape,
     b2EdgeShape = Box2D.Collision.Shapes.b2EdgeShape;
 
-boxNS.DrawingObject = function(sDrawElementName, iWidth, iHeight, scale)
+boxNS.DrawingObject = function(sDrawElementName, scale)
 {
     //for creating IDs for our drawing objects
     this.idCount = 0;

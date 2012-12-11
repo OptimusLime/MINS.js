@@ -19,22 +19,11 @@
 
 <section id="content">
 
-<h1>Infinite Scroll</h1>
+<h1>Infinite Genomes</h1>
 
 
 <section id="copy">
 </section>
-
-<canvas id="physics" width=640 height=480></canvas>
-    <br/>
-<div>
-<input type="button" id="fetchBody" value="Get New Body" onclick="insertBody()" />
-<input type="file" id="files" name="files[]"/>
-<input type="button" id="toggleBodyTest" value="Toggle Last Body" onclick="toggleTest()" />
-</div>
-    <br/>
-    <div style="display: none;">Damping Ratio (0 for ignore): <input type="range" min="0" max="1" id="damping-ratio" value="0" step="0.1"><output id="damping-ratio-output">0</output></div>
-    <div style="display: none">Frequency Hz (0 for ignore): <input type="range" min="0" max="30" id="frequency-hz" value="0"><output id="frequency-hz-output">0</output></div>
 
 
     <div id="container" class="variable-sizes clearfix infinite-scrolling">
@@ -43,7 +32,7 @@
 </div> <!-- #container -->
 
 <nav id="page_nav">
-    <a href="http://localhost:3000/get"></a>
+    <a href="http://localhost:3000/getBodies"></a>
 </nav>
 
 <script src="../Helpers/jquery-1.7.1.min.js"></script>
@@ -51,6 +40,7 @@
 <script src="../Helpers/jquery.infinitescroll.min.js"></script>
 <!--load the experiment script when the body gets processed, so it has access to the canvas object for styling-->
 
+<script type="text/javascript" src="../Helpers/d3.v2.js"></script>
 <script type="text/javascript" src="../Helpers/jkl-parsexml.js"></script>
 <script type="text/javascript" src="../Helpers/loadXML.js"></script>
 
@@ -63,6 +53,7 @@
 <script type="text/javascript" src="../fabBox/boxHelpers.js"></script>
 <script type="text/javascript" src="../fabBox/boxDrawers.js"></script>
 
+<script type="text/javascript" src="../fabBox/smallestWorld.js"></script>
 
 <script type="text/javascript" src="IEC.js"></script>
 
@@ -70,7 +61,7 @@
     $(function(){
         var $container = $('#container');
 
-
+        console.log('Container setup');
 
         $container.isotope({
             itemSelector : '.element'

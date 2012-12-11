@@ -79,7 +79,7 @@ function init() {
     });
 
     //we grab our canvas object really
-    drawObject = new boxNS.DrawingObject(sCanvasID, canvasWidth, canvasHeight, SCALE);
+    drawObject = new boxNS.DrawingObject(sCanvasID, SCALE);
 
     theWorld = new bHelpNS.ContainedWorld(desiredSimulationSpeed, false, canvasWidth, canvasHeight, SCALE, 20, false,
         {object: drawObject, addBody: drawObject.addBody, removeBody: drawObject.removeBody, addJoint: drawObject.addJoint, removeJoint: drawObject.removeJoint });
