@@ -12,7 +12,7 @@ function getBody(bodyCallback)
 };
 
 //this is a function to grab multiple bodies from our server
-function getBodies(numberBodies, bodyCallback)
+function getBodies(numberBodies, bodyCallback, errorCallback)
 {
     console.log('Sending multibody request');
 
@@ -36,6 +36,8 @@ function getBodies(numberBodies, bodyCallback)
 
         error: function(err) {
             console.log('Multibody error: ' + err.responseText);
+            if(errorCallback)
+                errorCallback(err);
         }
     });
 

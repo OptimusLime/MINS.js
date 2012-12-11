@@ -1,7 +1,7 @@
 //Javascript file for dealing with interactive evolution
 //lots of dummy code for now. Later, will need to ajax hook up to server for fetching genomes (calling HTTP get/post etc)
 
-var initialGenomeRequest = 20;
+var initialGenomeRequest = 21;
 
 
 function populateGenomes()
@@ -55,7 +55,19 @@ function addGenomeDiv(genomeJSON)
     //hopefully this works!
     smallWorld.addJSONBody(genomeObject);
 
-    $('#' + divID).mouseenter(function(){smallWorld.startLoop();}).mouseleave(function(){smallWorld.stopLoop();});
+    //.mouseenter(function(){smallWorld.startLoop();}).mouseleave(function(){smallWorld.stopLoop();})
+    $('#' + divID).bind('inview', function (event, visible) {
+        if (visible == true) {
+            // element is now visible in the viewport
+            console.log('Visible: ' + divID)
+            smallWorld.startLoop();
+
+        } else {
+            // element has gone out of viewport
+            console.log('Became invisible: ' + divID )
+            smallWorld.stopLoop();
+        }
+    });
 
 //    smallWorld.startLoop();
 //

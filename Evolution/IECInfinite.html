@@ -31,6 +31,8 @@
 
 </div> <!-- #container -->
 
+    <div id="loadmoreajaxloader" style="display:none;"><center><img src="../Helpers/ajax-loader.gif" /></center></div>
+
 <nav id="page_nav">
     <a href="http://localhost:3000/getBodies"></a>
 </nav>
@@ -38,6 +40,7 @@
 <script src="../Helpers/jquery-1.7.1.min.js"></script>
 <script src="../Helpers/jquery.isotope.js"></script>
 <script src="../Helpers/jquery.infinitescroll.min.js"></script>
+    <script src="../Helpers/jquery.inview.js"></script>
 <!--load the experiment script when the body gets processed, so it has access to the canvas object for styling-->
 
 <script type="text/javascript" src="../Helpers/d3.v2.js"></script>
@@ -58,34 +61,59 @@
 <script type="text/javascript" src="IEC.js"></script>
 
     <script>
-    $(function(){
-        var $container = $('#container');
+        var htmlID = '#container';
+        $(htmlID).scroll(function()
+        {
+            console.log('scrollheight: ' + $(this)[0].scrollHeight + ' and scrolltop: ' + $(this).scrollTop() + ' outerheight: ' + $(this).outerHeight());
+//            console.log('Scrolltop: ' + $(htmlID).scrollTop() + ' and height: ' + $(htmlID).height() + ' win top: ' + $(htmlID).offset().top);
+//            if($(htmlID).scrollTop() == $(htmlID).height() - $(htmlID).offset().top)
+            if($(htmlID)[0].scrollHeight - $(htmlID).scrollTop() <= $(htmlID).outerHeight())
+            {
+                $('div#loadmoreajaxloader').show();
 
-        console.log('Container setup');
+                getBodies(12, function(jsonBodyArray)
+                {
+                    //on success, we're done loading
+                    $('div#loadmoreajaxloader').hide();
 
-        $container.isotope({
-            itemSelector : '.element'
+                    //go ahead and append our bodies as usual
+                    addManyGenomeDivs(jsonBodyArray);
+
+                }, function(err) {
+                    //still need to hide on body error!
+                    $('div#loadmoreajaxloader').hide();
+                });
+            }
         });
 
-        $container.infinitescroll({
-            // other options
-            navSelector  : '#page_nav',    // selector for the paged navigation
-            nextSelector : '#page_nav a',
-            loading: {
-                        finishedMsg: 'No more pages to load.',
-                        img: 'http://i.imgur.com/qkKy8.gif'
-                    },
-            dataType: 'json',
-            appendCallback: false
-        }, function(json, opts) {
-            // Get json back
-            //now we have a new body, wrap it up in a worldly object
-            console.log('Incoming json body: ')
-            console.log(json);
-            console.log('end json');
-            //var page = opts.state.currPage;
-            // Do something with JSON data, create DOM elements, etc ..
-        });
+//    $(function(){
+//        var $container = $('#container');
+//
+//        console.log('Container setup');
+//
+//        $container.isotope({
+//            itemSelector : '.element'
+//        });
+//
+//        $container.infinitescroll({
+//            // other options
+//            navSelector  : '#page_nav',    // selector for the paged navigation
+//            nextSelector : '#page_nav a',
+//            loading: {
+//                        finishedMsg: 'No more pages to load.',
+//                        img: 'http://i.imgur.com/qkKy8.gif'
+//                    },
+//            dataType: 'json',
+//            appendCallback: false
+//        }, function(json, opts) {
+//            // Get json back
+//            //now we have a new body, wrap it up in a worldly object
+//            console.log('Incoming json body: ')
+//            console.log(json);
+//            console.log('end json');
+//            //var page = opts.state.currPage;
+//            // Do something with JSON data, create DOM elements, etc ..
+//        });
 
 //        $container.infinitescroll({
 //                    navSelector  : '#page_nav',    // selector for the paged navigation
@@ -101,9 +129,7 @@
 //                    $container.isotope( 'appended', $( newElements ) );
 //                }
 //        );
-
-
-    });
+//    });
 
 
 </script>

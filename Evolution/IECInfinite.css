@@ -163,6 +163,9 @@ body {
   border: 1px solid #666;
   padding: 5px;
   margin-bottom: 20px;
+    max-width: 740px;
+    max-height: 740px;
+    overflow-y: scroll;
 }
 
 .element {
