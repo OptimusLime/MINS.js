@@ -33,6 +33,41 @@ function addManyGenomeDivs(genomeArray)
     for(var i=0; i < genomeArray.length; i++)
         addGenomeDiv(genomeArray[i]);
 }
+//insertCallback takes html string as input, and does what needs to be done for insert
+function insertGenomeFromJSON(genomeJSON, insertCallback)
+{
+    var genomeObject = JSON.parse(genomeJSON);
+
+    var divID = "d" + genomeObject.GenomeID;
+    var id = "s"+ genomeObject.GenomeID;
+
+    //make the insert call to our function with the html string
+    insertCallback(smallNS.smallWorldHtmlString(divID, id, 230,230));
+
+    //small world
+    var smallWorld = new smallNS.SmallWorld(id, 230, 230, 14);
+
+    //Add our genome body to the single object woot woot
+    smallWorld.addJSONBody(genomeObject);
+
+    //.mouseenter(function(){smallWorld.startLoop();}).mouseleave(function(){smallWorld.stopLoop();})
+//    $('#' + divID).bind('inview', function (event, visible) {
+//        if (visible == true) {
+//            // element is now visible in the viewport
+//            console.log('Visible: ' + divID)
+//            smallWorld.startLoop();
+//
+//        } else {
+//            // element has gone out of viewport
+//            console.log('Became invisible: ' + divID )
+//            smallWorld.stopLoop();
+//        }
+//    });
+
+
+
+
+}
 function addGenomeDiv(genomeJSON)
 {
 //    console.log('Returning JSON from the get request');
