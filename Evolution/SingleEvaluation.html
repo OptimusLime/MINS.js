@@ -1,0 +1,175 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>IEC Single Object Evaluation</title>
+
+    <link rel="stylesheet" href="IECInfinite.css" type="text/css" />
+    <!--<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>-->
+    <!--<script src="../Helpers/jquery.isotope.js"></script>-->
+</head>
+
+<body class="demoes">
+
+
+<h1>Single Genome</h1>
+    <h2 style="float:left;">GenomeID: </h2>
+    <input id='GenomeID' class="positive-integer" type="text" />
+
+<div style="clear:left;">
+
+    <button id='randomEvaluationButton' onclick="getRandomEvaluate()">  <h2>Fetch Random and Visual Evaluation</h2> </button>
+</div>
+
+<div>
+    <button id='visualButton' onclick="getVisualEvaluation()"> <h2>Visual Evaluation</h2>  </button>
+</div>
+
+<div>
+    <button id='headlessButton' onclick="getHeadlessEvaluation()"> <h2>Headless Evaluation</h2> </button>
+</div>
+<br/>
+<br/>
+<div id="container" class="variable-sizes clearfix infinite-scrolling">
+
+
+</div> <!-- #container -->
+
+
+    <script src="../Helpers/jquery-1.7.1.min.js"></script>
+    <script src="../Helpers/jquery.numeric.js"></script>
+    <!--load the experiment script when the body gets processed, so it has access to the canvas object for styling-->
+
+<script type="text/javascript" src="../Helpers/Box2d.min.js"></script>
+<script type="text/javascript" src="../Helpers/fabric.js"></script>
+    <!--has our getbody request logic-->
+<script type="text/javascript" src="../Helpers/Helpers.js"></script>
+<script type="text/javascript" src="../Helpers/AjaxRequests.js"></script>
+
+<script type="text/javascript" src="../fabBox/boxHelpers.js"></script>
+<script type="text/javascript" src="../fabBox/boxDrawers.js"></script>
+
+<script type="text/javascript" src="../fabBox/smallestWorld.js"></script>
+
+<script type="text/javascript" src="IEC.js"></script>
+
+
+
+    <script>
+
+        $('.positive-integer').numeric({ decimal: false, negative: false },  function() { alert("Positive integers only"); this.value = ""; this.focus(); });
+
+        function setSmallWorldProperties(smallWorld, props)
+        {
+            //start up our guy
+            smallWorld.startLoop();
+            var behavior;
+
+            if(props.startEval){
+                //run until simulation is done sequentially
+                behavior = smallWorld.runSimulationForBehavior();
+                delete smallWorld;
+            }
+//            else{
+                smallWorld.shouldDraw(props.isVisible);
+                smallWorld.zombieMode(props.zombieMode);
+                smallWorld.shouldDrawBehavior(props.drawBehavior);
+//            }
+            return behavior;
+        }
+
+        function getRandomEvaluate()
+        {
+            //get a body, start showing it, make sure it's draw, and show the object behavior too
+            getBodySetProperties(true, true, true);
+
+        }
+        function getVisualEvaluation()
+        {
+            //get a body, start showing it, make sure it's draw, and show the object behavior too
+            getGenomeFromID(true, true, true);
+
+        }
+
+        function getHeadlessEvaluation()
+        {
+            //get a body, start showing it, make sure it's invisible, you don't show the object behavior,
+            //and it's in zombie mode!
+            getGenomeFromID(true, false, false, true);
+
+        }
+
+        function getGenomeFromID(startEval, isVisible, drawBehavior, zombieMode)
+        {
+            var genomeID = parseInt($('#GenomeID').text());
+
+            getGenomes([genomeID], function(jsonBodyString)
+            {
+                var jsonObject = JSON.parse(jsonBodyString);
+
+                var genomeObject = jsonObject[genomeID];
+
+                var smallWorld = addGenomeObjectDiv(genomeObject);
+
+
+                var behavior = setSmallWorldProperties(smallWorld, {startEval: startEval,
+                    isVisible: isVisible,
+                    drawBehavior: drawBehavior,
+                    zombieMode: zombieMode});
+
+                //now we have simulated behavior in "behavior" if you asked for an evaluation
+
+            });
+
+
+        }
+        function getBodySetProperties(startEval, isVisible, drawBehavior, zombieMode)
+        {
+            //Gotta go fetch a body
+            getBodies(1, function(jsonBodyArray)
+            {
+                console.log('Back from thing');
+                //set the object as our own
+
+                for(var i=0; i < jsonBodyArray.length; i++)
+                {
+                    var genomeObject = JSON.parse(jsonBodyArray[i]);
+
+                    console.log('Genome check! ' + genomeObject.GenomeID);
+                    $('#GenomeID').val(genomeObject.GenomeID);
+
+                    //Now, we're going to want to insert that object
+                    var smallWorld = addGenomeObjectDiv(genomeObject);
+
+//                    console.log(smallWorld);
+                    var smallWorldID = smallWorld.worldID;
+                    var behavior =  setSmallWorldProperties(smallWorld, {startEval: startEval,
+                        isVisible: isVisible,
+                        drawBehavior: drawBehavior,
+                        zombieMode: zombieMode});
+
+                    //now we have simulated behavior in "behavior" if you asked for an evaluation
+//                    console.log('removing:  ' + " worldidchk " + smallWorldID + " divid: " + divIDFromGenome(genomeObject.GenomeID, smallWorldID));
+
+                    $('#' + divIDFromGenome(genomeObject.GenomeID, smallWorldID)).remove();
+                }
+
+
+            }, function(err) {
+                //still need to hide on body error!
+                console.log('Error getting body: ');
+                console.log(err);
+            });
+
+        }
+
+
+
+</script>
+
+
+
+</body>
+
+</html>

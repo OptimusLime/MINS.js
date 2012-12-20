@@ -17,7 +17,6 @@ boxNS.DrawingObject = function(sDrawElementName, scale)
     this.idCount = 0;
 
     //do we actually want to draw using the fabricJS library - can toggle
-    this.turnOffDrawing = false;
     //create fabric object, render only when we call
     //and disable global selection (i.e. drag rectangle)
     this.fabricCanvas = new fabric.Canvas(sDrawElementName, { renderOnAddition: false});
@@ -26,7 +25,21 @@ boxNS.DrawingObject = function(sDrawElementName, scale)
     //we set the scale, and then initialize the drawObjects
     this.drawScale = scale || 1;
     this.drawObjects = {bodies:{}, joints:{}};
+
 };
+
+boxNS.DrawingObject.prototype.turnOffDrawing = false;
+
+boxNS.DrawingObject.prototype.drawBehavior = false;
+
+boxNS.DrawingObject.prototype.zombieMode = false;
+
+
+boxNS.DrawingObject.prototype.addBehavior = function(behaviorList)
+{
+    //keep track of the behavior of an object!
+    this.behavior = behaviorList;
+}
 
 //some helpers for the class
 
@@ -56,6 +69,9 @@ boxNS.DrawingObject.scalePoint = function(p, drawScale, modifyInPlace)
 //in the future, I think it would be best to do this individually
 boxNS.DrawingObject.prototype.setWorldObjects = function(aWorldObjects)
 {
+    //don't do ANYTHING in zombie mode
+    if(this.zombieMode)
+        return;
 
     //for now, we use this as an opportunity to add an object
     //in reality, we're going to make a hook where we get a callback when a physics object is inserted or removed
@@ -77,6 +93,9 @@ boxNS.DrawingObject.prototype.setWorldObjects = function(aWorldObjects)
 
 boxNS.DrawingObject.prototype.drawWorld = function(alphaInterpolate)
 {
+    //don't draw or update anything in zombie mode
+    if(this.zombieMode)
+        return;
 
     for(var jID in this.drawObjects.joints)
     {
@@ -86,6 +105,11 @@ boxNS.DrawingObject.prototype.drawWorld = function(alphaInterpolate)
     {
         this.drawFabricBody(this.drawObjects.bodies[bID],alphaInterpolate);
     }
+    if(this.drawBehavior)
+    {
+        this.updateBehaviorJoints(this.behaviorDrawObj, this.behavior);
+    }
+
 
     if(!this.turnOffDrawing)
         this.fabricCanvas.renderAll();
@@ -136,6 +160,7 @@ boxNS.DrawingObject.prototype.drawFabricBody = function(drawObj,alphaInterpolate
 
 boxNS.DrawingObject.prototype.drawFabricJoint = function(drawObj, alphaInterpolate)
 {
+
     var info = this.jointInfo(drawObj.joint);
 
     var fabObj = drawObj.fabric;
@@ -144,10 +169,41 @@ boxNS.DrawingObject.prototype.drawFabricJoint = function(drawObj, alphaInterpola
 
 };
 
+boxNS.DrawingObject.prototype.createAndAddBehaviorDrawObject = function(behaviorList)
+{
+    //create our object without any points, and add it!
+    var fabPoly  = new fabric.Polygon(behaviorList, {fill: '#55f', stroke: '#f55'});
+
+    var behaviorDrawObject = {index: this.fabricCanvas.getObjects().length, fabric: fabPoly};
+
+    //add it to our canvas
+    this.fabricCanvas.add(fabPoly);
+
+    return behaviorDrawObject;
+}
+
+boxNS.DrawingObject.prototype.updateBehaviorJoints = function(behaviorDrawObj, behaviorJoints)
+{
+    if(behaviorJoints.length && !behaviorDrawObj){
+        this.behaviorDrawObj = this.createAndAddBehaviorDrawObject(behaviorJoints);
+        behaviorDrawObj = this.behaviorDrawObj;
+    }
+    else if(!behaviorDrawObj)
+        return;
+
+    var fabObj = behaviorDrawObj.fabric;
+    fabObj.points = behaviorJoints;
+    fabObj._calcDimensions();
+}
+
+
 
 //ADD BODY/ ADD JOINT
 boxNS.DrawingObject.prototype.addBody = function(dBody)
 {
+    if(this.zombieMode)
+        return;
+
     if(dBody.drawID != undefined)
     {
         console.log("Already tagged with ID: " + dBody.drawID);
@@ -202,6 +258,9 @@ boxNS.DrawingObject.prototype.addBody = function(dBody)
 };
 boxNS.DrawingObject.prototype.addJoint = function(joint)
 {
+    if(this.zombieMode)
+        return;
+
     if(joint.drawID != undefined)
     {
         console.log("Already tagged joint with ID: " + joint.drawID);
@@ -221,7 +280,7 @@ boxNS.DrawingObject.prototype.addJoint = function(joint)
     //add it to our canvas
 
     //but joints get inserted before bodies (if any exist)
-    this.fabricCanvas.insertAt(fabPolyLine);
+    this.fabricCanvas.insertAt(fabPolyLine,0);
 
 };
 
@@ -229,11 +288,15 @@ boxNS.DrawingObject.prototype.addJoint = function(joint)
 //DELTEING BODIES AND JOINTS
 boxNS.DrawingObject.prototype.removeBody = function(joint)
 {
+    if(this.zombieMode)
+        return;
     console.log("unhandled delete body");
 };
 
 boxNS.DrawingObject.prototype.removeJoint = function(joint)
 {
+    if(this.zombieMode)
+        return;
     console.log("unhandled delete joint");
 
 };

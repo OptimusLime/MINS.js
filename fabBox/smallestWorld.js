@@ -3,6 +3,14 @@
 var smallNSS = "SmallWorld";
 var smallNS = namespace(smallNSS);
 
+
+
+smallNS.BehaviorTypes = {
+    xyCenterOfMass : 0,
+    xCenterOfMass : 1,
+    yCenterOfMass : 2
+}
+
 var desiredSmallRenderSpeed = 30;
 var desiredSmallSimulationSpeed = 30;
 var lastFPS = 1000/desiredSmallRenderSpeed;
@@ -23,7 +31,11 @@ window.requestAnimFrame = (function(callback){
 
 
 //initialization of our world. Clears everything pretty much
-smallNS.SmallWorld = function(sCanvasID, canvasWidth, canvasHeight, scale) {
+smallNS.SmallWorld = function(sCanvasID, canvasWidth, canvasHeight, scale, zombieMode) {
+
+    this.worldID = worldId + 0;
+
+    worldId++;
 
     this.scale = scale;
     //make sure to save our canvasID for generating html string
@@ -31,6 +43,15 @@ smallNS.SmallWorld = function(sCanvasID, canvasWidth, canvasHeight, scale) {
     this.canvasWidth = canvasWidth;
     this.canvasHeight = canvasHeight;
 
+    this.behaviorType = smallNS.BehaviorTypes.xyCenterOfMass;
+    this.behavior = [];
+
+    //measure behavior every three frames
+    this.behaviorSkipFrames = 5;
+    //30 frames/sec, skip 3 frames, = 10 frames a second
+    //50 behaviors = 5 seconds
+    this.behaviorTotalCount = 100;
+    this.frameCount  =0;
 
     this.initialSmallState = [
         {id: "ground", x: canvasWidth / 2 / scale, y: canvasHeight / scale, halfHeight: 0.5, halfWidth: canvasWidth / scale, color: 'black'}
@@ -53,6 +74,10 @@ smallNS.SmallWorld = function(sCanvasID, canvasWidth, canvasHeight, scale) {
 
     //we grab our canvas object really
     this.drawObject = new boxNS.DrawingObject(sCanvasID, scale);
+    //if we start in zombie mode, we won't process any added objects for drawing
+    this.drawObject.zombieMode = (zombieMode);
+
+    this.drawObject.addBehavior(this.behavior);
 
     this.theWorld = new bHelpNS.ContainedWorld(desiredSmallSimulationSpeed, false, canvasWidth, canvasHeight, scale, 20, false,
         {object: this.drawObject, addBody: this.drawObject.addBody, removeBody: this.drawObject.removeBody,
@@ -76,17 +101,86 @@ smallNS.SmallWorld.prototype.draw = function() {
     this.drawObject.drawWorld(this.theWorld.interpolation);
 }
 
-smallNS.SmallWorld.prototype.update = function(animStart) {
-    if (this.isMouseDown) {
-        this.theWorld.mouseDownAt(mouseX, mouseY);
-    } else if (this.theWorld.isMouseDown()) {
-        this.theWorld.mouseUp();
+smallNS.SmallWorld.prototype.runSimulationForBehavior = function()
+{
+    var updateDeltaMS = 200;
+    this.simulating  = true;
+
+    while(this.behavior.length < this.behaviorTotalCount)
+        this.update(updateDeltaMS);
+
+    this.simulating = false;
+
+    return this.behavior;
+}
+
+smallNS.SmallWorld.prototype.update = function(updateDeltaMS) {
+
+    if(! this.simulating)
+    {
+        if (this.isMouseDown) {
+            this.theWorld.mouseDownAt(mouseX, mouseY);
+        } else if (this.theWorld.isMouseDown()) {
+            this.theWorld.mouseUp();
+        }
     }
 
 //    console.log('Update?');
-    this.theWorld.update();
+
+   var updateInfo = this.theWorld.update(updateDeltaMS);
+
+
+    this.calculateBehavior(updateInfo.stepCount);
 
 }
+
+smallNS.SmallWorld.prototype.calculateBehavior = function(stepsTaken)
+{
+    //we're done with our behavior!
+    if(this.behavior.length >= this.behaviorTotalCount)
+        return;
+
+    //only grab it when you wants it (depending on frames to skip)
+    //so we add our frame count.
+    //this tells us how many frames we've seen
+    this.frameCount += stepsTaken;
+
+    //we want to take a snapshot every 3 frames for instance
+    //if we've only gone two simulation steps, ignore this!
+    if(this.frameCount < this.behaviorSkipFrames)
+        return;
+
+    //every update, we should calculate behavior, but we keep these separate calls, since it may be expensive in some scenarios
+    var com = this.theWorld.nodesCenterOfMass();
+
+    //we actually will assume this body position for multiple frames if there is an accidental skip or something
+    while(this.frameCount >= this.behaviorSkipFrames)
+    {
+        switch(this.behaviorType)
+        {
+            case smallNS.BehaviorTypes.xyCenterOfMass:
+                this.behavior.push(com);
+
+                break;
+            case smallNS.BehaviorTypes.xCenterOfMass:
+                this.behavior.push(com.x);
+
+                break;
+            case smallNS.BehaviorTypes.yCenterOfMass:
+                this.behavior.push(com.y);
+
+                break;
+        }
+
+        this.frameCount -= this.behaviorSkipFrames;
+    }
+
+
+
+
+
+}
+
 
 smallNS.SmallWorld.prototype.addEventListeners = function()
 {
@@ -111,6 +205,22 @@ smallNS.SmallWorld.prototype.handleMouseMove = function(e) {
     this.mouseY = (e.clientY - canvas.getBoundingClientRect().top) / this.scale;
 }
 
+smallNS.SmallWorld.prototype.shouldDraw = function(boolValue)
+{
+    this.drawObject.turnOffDrawing = !boolValue;
+
+}
+smallNS.SmallWorld.prototype.shouldDrawBehavior = function(boolValue)
+{
+
+    this.drawObject.drawBehavior = boolValue;
+}
+
+smallNS.SmallWorld.prototype.zombieMode = function(boolValue)
+{
+    this.drawObject.zombieMode = boolValue;
+}
+
 smallNS.SmallWorld.prototype.startLoop = function()
 {
     //for a smooth transition, just make the start time be now!
@@ -120,7 +230,7 @@ smallNS.SmallWorld.prototype.startLoop = function()
     var smallWorld = this;
 //    this.init();
     (function loop(animStart) {
-        smallWorld.update(animStart);
+        smallWorld.update();
         smallWorld.draw();
         if(!smallWorld.interruptLoop)
             requestAnimFrame(loop);

@@ -10,7 +10,7 @@
     <!--<script src="../Helpers/jquery.isotope.js"></script>-->
 </head>
 
-<body class="demos" onload="addInitialGenomes()">
+<body class="demos" >
 
 <nav id="site-nav">
 
@@ -71,13 +71,16 @@
             {
                 $('div#loadmoreajaxloader').show();
 
-                getBodies(12, function(jsonBodyArray)
-                {
+                getBodies(12, function(jsonBodyArray) {
                     //on success, we're done loading
                     $('div#loadmoreajaxloader').hide();
 
                     //go ahead and append our bodies as usual
-                    addManyGenomeDivs(jsonBodyArray);
+                    for(var i=0; i < jsonBodyArray.length; i++){
+                        var world = addGenomeDiv(jsonBodyArray[i]);
+                        world.shouldDrawBehavior(true);
+                        world.startLoop();
+                    }
 
                 }, function(err) {
                     //still need to hide on body error!

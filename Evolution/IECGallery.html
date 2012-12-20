@@ -214,8 +214,8 @@
                     var gjson = genomeArrayJSON[i];
                     var genomeObject = JSON.parse(gjson);
 
-                    var divID = "d" + genomeObject.GenomeID;
-                    var id = "s"+ genomeObject.GenomeID;
+                    var divID = divIDFromGenome(genomeObject.GenomeID);
+                    var id = canvasIDFromGenome(genomeObject.GenomeID);
 
 
                     var galleryInsert = smallNS.smallWorldHtmlString(divID, id, 230,230);

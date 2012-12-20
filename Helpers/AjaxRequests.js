@@ -44,7 +44,38 @@ function getBodies(numberBodies, bodyCallback, errorCallback)
 
 
 };
+function getGenomes(genomeIDArray, bodyCallback, errorCallback)
+{
+    console.log('Sending multi-genomeID request');
 
+    $.ajax({
+        url: "http://127.0.0.1:3000/getGenomes",
+        type: 'GET',
+        data: {"genomeArray" : genomeIDArray },
+        cache: false,
+        timeout: 30000,
+        complete: function() {
+            //called when complete
+            console.log('done with get genomeIDs request');
+        },
+
+        success: function(data) {
+
+            console.log('Multi-genome success');
+            bodyCallback(data);
+
+        },
+
+        error: function(err) {
+            console.log('Multibody error: ' + err.responseText);
+            if(errorCallback)
+                errorCallback(err);
+        }
+    });
+
+
+
+};
 function toggleSelectedBody(genomeID, successCallback, errorCallback)
 {
 

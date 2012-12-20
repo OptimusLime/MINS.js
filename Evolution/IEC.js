@@ -2,7 +2,7 @@
 //lots of dummy code for now. Later, will need to ajax hook up to server for fetching genomes (calling HTTP get/post etc)
 
 var initialGenomeRequest = 21;
-
+var worldId = 0;
 
 function populateGenomes()
 {
@@ -38,8 +38,8 @@ function insertGenomeFromJSON(genomeJSON, insertCallback)
 {
     var genomeObject = JSON.parse(genomeJSON);
 
-    var divID = "d" + genomeObject.GenomeID;
-    var id = "s"+ genomeObject.GenomeID;
+    var divID = divIDFromGenome(genomeObject.GenomeID);
+    var id = canvasIDFromGenome(genomeObject.GenomeID);
 
     //make the insert call to our function with the html string
     insertCallback(smallNS.smallWorldHtmlString(divID, id, 230,230));
@@ -68,20 +68,45 @@ function insertGenomeFromJSON(genomeJSON, insertCallback)
 
 
 }
-function addGenomeDiv(genomeJSON)
+function divIDFromGenome(genomeID, wID)
 {
+    if(wID !== undefined)
+        return  "w" +  wID + "d" + genomeID;
+    else
+        return  "w" +  worldId + "d" + genomeID;
+}
+
+function canvasIDFromGenome(genomeID, wID)
+{
+    if(wID !== undefined)
+        return  "w" +  wID + "s" + genomeID;
+    else
+        return  "w" +  worldId + "s" + genomeID;
+}
+
+function addGenomeDiv(genomeJSON, containID)
+{
+    var genomeObject = JSON.parse(genomeJSON);
+    return addGenomeObjectDiv(genomeObject, containID);
+}
+
+//takes a genomeObject, adds it to a div specified by containID,
+//and then return a small world with the object inside and ready to go
+function addGenomeObjectDiv(genomeObject, containID)
+{
+
+    var containerID = containID || '#container';
 //    console.log('Returning JSON from the get request');
 
 //    console.log(genomeJSON);
 
-    var genomeObject = JSON.parse(genomeJSON);
 //    console.log(genomeObject);
 
     //JSON Body comes back async from JSON body
-    var $container = $('#container');
+    var $container = $(containerID);
 
-    var divID = "d" + genomeObject.GenomeID;
-    var id = "s"+ genomeObject.GenomeID;
+    var divID = divIDFromGenome(genomeObject.GenomeID);
+    var id =  canvasIDFromGenome(genomeObject.GenomeID);
 
 
     $container.append(smallNS.smallWorldHtmlString(divID, id, 230,230));
@@ -94,15 +119,17 @@ function addGenomeDiv(genomeJSON)
     $('#' + divID).bind('inview', function (event, visible) {
         if (visible == true) {
             // element is now visible in the viewport
-            console.log('Visible: ' + divID)
+//            console.log('Visible: ' + divID)
             smallWorld.startLoop();
 
         } else {
             // element has gone out of viewport
-            console.log('Became invisible: ' + divID )
+//            console.log('Became invisible: ' + divID )
             smallWorld.stopLoop();
         }
     });
+
+    return smallWorld;
 
 //    smallWorld.startLoop();
 //

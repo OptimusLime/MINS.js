@@ -3,6 +3,7 @@ var bHelpNSS = "BoxHelpers";
 var bHelpNS = namespace(bHelpNSS);
 
 
+
 bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, yGravity, sleep, callbacks ) {
 
 
@@ -26,6 +27,10 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
     this.removeBodyCallback = callbacks.removeBody || function(){};
     this.addJointCallback = callbacks.addJoint || function(){};
     this.removeJointCallback = callbacks.removeJoint || function(){};
+
+
+
+
 
     this.canvasWidth = width;
     this.canvasHeight = height;
@@ -57,6 +62,7 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
 
     this.interpolation = 0;
     this.lastTime = Date.now();
+    this.realTime = true;
 
     var accumulator = 0;
 
@@ -64,10 +70,24 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
 //based on principles in here:
 //http://gafferongames.com/game-physics/fix-your-timestep/
 
-    this.update = function() {
+    this.update = function(msSimRate) {
 
+        var stepCount =0;
 
-        var currentTime = Date.now();
+        if(msSimRate)
+            this.realTime = false;
+
+        var currentTime = (msSimRate) ? this.lastTime + msSimRate : Date.now();
+
+        if(!this.realTime && !msSimRate)
+        {
+            //we aren't in real time, but now we are! quickly, reset our lastTime variable
+            this.lastTime = Date.now();
+
+            //and make sure we're in real time now
+            this.realTime = true;
+        }
+
         //# of seconds since last time
         var frameTime = (currentTime - this.lastTime)/1000;
 
@@ -83,6 +103,7 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
 
         while(accumulator >= this.simulationRate)
         {
+            stepCount++;
             //push the muscles outward a bit
 
             for(var i=0; i < this.muscles.length; i++){
@@ -111,8 +132,49 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
         //console.log("Partial: " +  this.interpolation);
         //console.log(rad*180/Math.PI);
 
-        return (Date.now() - currentTime);
+        return {stepCount: stepCount, deltaChange: (Date.now() - currentTime)};
     };
+
+    //always returns SOMETHING, even if nothing is calculated
+    this.nodesCenterOfMass = function()
+    {
+        //grab all of the bodies that aren't static, and tell me the center of mass
+        //right now, we assume 1 object per world, which is okay if it's a "small" world.
+
+        var x = 0;
+        var y = 0;
+        var nodeBodyCount = 0;
+
+
+        //grab body and shape first
+        for(var i=0; i < this.bodiesList.length;i++)
+        {
+            var body = this.bodiesList[i];
+
+//            console.log('Body: ');
+//            console.log(body);
+
+            var shape = body.GetFixtureList().GetShape();
+            var centerInfo = this.callObject.shapeInfo(body, shape);
+
+            if(centerInfo.center)
+            {
+                x += centerInfo.center.x;
+                y += centerInfo.center.y;
+
+                nodeBodyCount++;
+            }
+
+
+        }
+        //if nothign was calculated, then x still = 0, and y = 0 => 0/1 = 0, 0/1 = 0, and we avoid an undefined
+
+        if(nodeBodyCount == 0)
+            nodeBodyCount =1;
+
+        return {x: x/nodeBodyCount, y: y/nodeBodyCount};
+    }
+
 
     this.jsonParseMINS = function(jsonDoc, documentType)
     {
