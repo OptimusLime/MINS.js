@@ -73,7 +73,35 @@ function getGenomes(genomeIDArray, bodyCallback, errorCallback)
         }
     });
 
+};
+function getGenomeEvaluations(genomeIDArray, bodyCallback, errorCallback)
+{
+    console.log('Sending multi-genomeID eval request');
 
+    $.ajax({
+        url: "http://127.0.0.1:3000/zombieEvaluation",
+        type: 'GET',
+        data: {"genomeIDArray" : genomeIDArray },
+        cache: false,
+        timeout: 30000,
+        complete: function() {
+            //called when complete
+            console.log('done with get genomeIDs request');
+        },
+
+        success: function(data) {
+
+            console.log('Multi-genome eval success');
+            bodyCallback(data);
+
+        },
+
+        error: function(err) {
+            console.log('Multibody eval error: ' + err.responseText);
+            if(errorCallback)
+                errorCallback(err);
+        }
+    });
 
 };
 function toggleSelectedBody(genomeID, successCallback, errorCallback)
