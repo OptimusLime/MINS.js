@@ -58,6 +58,46 @@
 
     <script>
 
+        var headlessEvaluateGenomeBehaviors = function(genomeBodies, finishedFunction)
+        {
+            //we're going to build a behavior dictionary, indexed by the genomeID
+            var genomeBehaviorDict = {};
+
+            //here me must assess all of the genome bodies!
+            for(var genomeID in genomeBodies){
+
+                //sequentially go through and evaluate the body
+                //parse it from string form, and send it to our world! mwahahaha
+                var genomeObject = JSON.parse(genomeBodies[genomeID]);
+
+                //Now, we're going to want to insert that object into our container, if you know what i mean
+                //and make sure the world is in zombie mode
+                var smallWorld = addGenomeObjectDiv(genomeObject, '#container', true);
+
+                //Now we have our small world, grab the ID, so that we may remove it after completing our zombie evaluation
+                var smallWorldID = smallWorld.worldID;
+
+                var behavior =  setSmallWorldProperties(smallWorld, {startEval: true,
+                    isVisible: false,
+                    drawBehavior: false,
+                    zombieMode: true});
+
+                //after evalution, kill the world
+                //then kill the div, so that zombiejs doesn't get so bloated.
+                smallWorld.stopLoop();
+                delete smallWorld;
+                $('#' + divIDFromGenome(genomeObject.GenomeID, smallWorldID)).remove();
+
+
+                //set our behavior, and be done here!
+                genomeBehaviorDict[genomeID] = behavior;
+
+            }
+
+            //we're done, make our callback with ids and behaviors!
+            finishedFunction(genomeBehaviorDict);
+        }
+
         $('.positive-integer').numeric({ decimal: false, negative: false },  function() { alert("Positive integers only"); this.value = ""; this.focus(); });
 
         function setSmallWorldProperties(smallWorld, props)
@@ -107,12 +147,14 @@
                 //we've set our body, let's set our mind to evaluating the guy!
                 var genomeID = parseInt($('#GenomeID').val());
 
+                console.log(document);
+                console.log(window);
 //                console.log('GenomeID: ' + $('#GenomeID').val());
 
                 //now we send our genome id as a parameter for our headless test!
                 getGenomeEvaluations([genomeID], function(evals){
                     //this isn't going to work, we just have to test it until it does!
-
+                    console.log(evals);
                 });
 
 
@@ -174,7 +216,6 @@
                     //now we have simulated behavior in "behavior" if you asked for an evaluation
 //                    console.log('removing:  ' + " worldidchk " + smallWorldID + " divid: " + divIDFromGenome(genomeObject.GenomeID, smallWorldID));
 
-//                    $('#' + divIDFromGenome(genomeObject.GenomeID, smallWorldID)).remove();
                 }
 
                 if(finished)

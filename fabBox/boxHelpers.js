@@ -263,6 +263,8 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
         var oBodyCount = this.bodiesList.length;
         var bodyID = this.bodiesList.length;
 
+        console.log('BodyID: ' + bodyID);
+
         var entities = {};
         var xScaled,yScaled;
 //        console.log('No prob');
@@ -297,8 +299,18 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
             }
             //}
         }
+
+        console.log('Bodies for building:');
+        for(var duh in entities)
+        {
+            console.log(entities[duh]);
+        }
+        console.log('DONE DUH');
+
         //push our bodies into the system so that our joints have bodies to connect to
         this.setBodies(entities);
+        console.log(this.bodiesList);
+        console.log(this.bodiesMap);
 //        console.log('No pro2b');
 //        var count =0;
         for(var connectionID in connections)
@@ -324,6 +336,11 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
                 catch(e)
                 {
                     console.error('HOLY POOP ERROR');
+
+                    console.log('Bodies: ');
+                    console.log(this.bodiesMap);
+
+                    console.log('error:');
                     console.log(e);
                     throw e;
                 }
@@ -371,10 +388,15 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
 
         bodyDef.position.x = entity.x;
         bodyDef.position.y = entity.y;
+
+//        bodyDef.SetUserData(entity.id);
+
         bodyDef.userData = entity.id;
         bodyDef.angle = entity.angle;
-        var body = this.world.CreateBody(bodyDef);
 
+        var body = this.world.CreateBody(bodyDef);
+        body.SetUserData(entity.id);
+        console.log('User ID yo: ' + entity.id);
 
         if (entity.radius) {
             this.fixDef.shape = new b2CircleShape(entity.radius);
@@ -412,7 +434,7 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
     };
 
     this.registerBody = function(body) {
-
+//        console.log(body.GetUserData());
         this.bodiesMap[body.GetUserData()] = body;
         this.bodiesList.push(body);
         this.addBodyCallback.call(this.callObject, body);
@@ -461,6 +483,8 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
 
 //various entities for easy world creation
 function Entity(id, x, y, angle, center, color, strength) {
+    console.log('Entity created :' +  id);
+
     this.id = id;
     this.x = x;
     this.y = y;
@@ -488,7 +512,17 @@ Entity.build = function(def) {
 
 function CircleEntity(id, x, y, angle, center, color, strength, radius) {
     color = color || 'aqua';
+
     Entity.call(this, id, x, y, angle, center, color, strength);
+    this.id = id;
+    this.x = x;
+    this.y = y;
+    this.angle = angle || 0;
+    this.center = center;
+    this.color = color || "red";
+    this.isHit = false;
+    this.strength = strength;
+    this.dead = false;
     this.radius = radius;
 }
 CircleEntity.prototype = new Entity();
@@ -496,6 +530,15 @@ CircleEntity.prototype.constructor = CircleEntity;
 
 function RectangleEntity(id, x, y, angle, center, color, strength, halfWidth, halfHeight) {
     Entity.call(this, id, x, y, angle, center, color, strength);
+    this.id = id;
+    this.x = x;
+    this.y = y;
+    this.angle = angle || 0;
+    this.center = center;
+    this.color = color || "red";
+    this.isHit = false;
+    this.strength = strength;
+    this.dead = false;
     this.halfWidth = halfWidth;
     this.halfHeight = halfHeight;
 }
@@ -504,6 +547,15 @@ RectangleEntity.prototype.constructor = RectangleEntity;
 
 function PolygonEntity(id, x, y, angle, center, color, strength, polys) {
     Entity.call(this, id, x, y, angle, center, color, strength);
+    this.id = id;
+    this.x = x;
+    this.y = y;
+    this.angle = angle || 0;
+    this.center = center;
+    this.color = color || "red";
+    this.isHit = false;
+    this.strength = strength;
+    this.dead = false;
     this.polys = polys;
 }
 PolygonEntity.prototype = new Entity();

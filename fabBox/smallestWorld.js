@@ -73,9 +73,8 @@ smallNS.SmallWorld = function(sCanvasID, canvasWidth, canvasHeight, scale, zombi
 
 
     //we grab our canvas object really
-    this.drawObject = new boxNS.DrawingObject(sCanvasID, scale);
-    //if we start in zombie mode, we won't process any added objects for drawing
-    this.drawObject.zombieMode = (zombieMode);
+    //if we start in zombie mode, we won't process any added objects for drawing, nor do we initialize canvas
+    this.drawObject = new boxNS.DrawingObject(sCanvasID, scale, zombieMode);
 
     this.drawObject.addBehavior(this.behavior);
 
@@ -93,7 +92,7 @@ smallNS.SmallWorld = function(sCanvasID, canvasWidth, canvasHeight, scale, zombi
 
 smallNS.smallWorldHtmlString = function(divID, canvasID, width, height)
 {
-    return '<div id=' + divID + ' class="element width2 height2"><canvas id=' + canvasID + ' width=' + height + ' height=' + height + ' style="border:thick solid #000000;"></canvas></div>';
+    return '<div id=' + divID + ' class="element width2 height2"><canvas id=' + canvasID + ' width=' + height + ' height=' + height + ' class="canvas"></canvas></div>';
 };
 
 smallNS.SmallWorld.prototype.draw = function() {
@@ -230,6 +229,9 @@ smallNS.SmallWorld.prototype.startLoop = function()
     var smallWorld = this;
 //    this.init();
     (function loop(animStart) {
+        if(!smallWorld)
+            return;
+
         smallWorld.update();
         smallWorld.draw();
         if(!smallWorld.interruptLoop)

@@ -14,7 +14,10 @@ li
 {
     list-style-type: none;
 }
-
+.canvas
+{
+    border:thick solid #000000;
+}
 .underPanel
 {
     width: 100%;

@@ -92,7 +92,7 @@ function addGenomeDiv(genomeJSON, containID)
 
 //takes a genomeObject, adds it to a div specified by containID,
 //and then return a small world with the object inside and ready to go
-function addGenomeObjectDiv(genomeObject, containID)
+function addGenomeObjectDiv(genomeObject, containID, zombieMode)
 {
 
     var containerID = containID || '#container';
@@ -111,7 +111,7 @@ function addGenomeObjectDiv(genomeObject, containID)
 
     $container.append(smallNS.smallWorldHtmlString(divID, id, 230,230));
 
-    var smallWorld = new smallNS.SmallWorld(id, 230, 230, 14);
+    var smallWorld = new smallNS.SmallWorld(id, 230, 230, 14, zombieMode);
     //hopefully this works!
     smallWorld.addJSONBody(genomeObject);
 

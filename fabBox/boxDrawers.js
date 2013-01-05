@@ -11,7 +11,7 @@ var b2Math = Box2D.Common.Math.b2Math,
     b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape,
     b2EdgeShape = Box2D.Collision.Shapes.b2EdgeShape;
 
-boxNS.DrawingObject = function(sDrawElementName, scale)
+boxNS.DrawingObject = function(sDrawElementName, scale, zombieMode)
 {
     //for creating IDs for our drawing objects
     this.idCount = 0;
@@ -19,12 +19,16 @@ boxNS.DrawingObject = function(sDrawElementName, scale)
     //do we actually want to draw using the fabricJS library - can toggle
     //create fabric object, render only when we call
     //and disable global selection (i.e. drag rectangle)
-    this.fabricCanvas = new fabric.Canvas(sDrawElementName, { renderOnAddition: false});
-    this.fabricCanvas.selection = false;
-
+    //if you are a zombie, YOU DO NOT SUPPORT CANVAS, DO NOT INITIALIZE THIS OBJECT
+    if(!zombieMode)
+    {
+        this.fabricCanvas = new fabric.Canvas(sDrawElementName, { renderOnAddition: false});
+        this.fabricCanvas.selection = false;
+    }
     //we set the scale, and then initialize the drawObjects
     this.drawScale = scale || 1;
     this.drawObjects = {bodies:{}, joints:{}};
+    this.zombieMode = zombieMode;
 
 };
 
@@ -171,6 +175,9 @@ boxNS.DrawingObject.prototype.drawFabricJoint = function(drawObj, alphaInterpola
 
 boxNS.DrawingObject.prototype.createAndAddBehaviorDrawObject = function(behaviorList)
 {
+    if(this.zombieMode)
+        return;
+
     //create our object without any points, and add it!
     var fabPoly  = new fabric.Polygon(behaviorList, {fill: '#55f', stroke: '#f55'});
 
@@ -184,6 +191,10 @@ boxNS.DrawingObject.prototype.createAndAddBehaviorDrawObject = function(behavior
 
 boxNS.DrawingObject.prototype.updateBehaviorJoints = function(behaviorDrawObj, behaviorJoints)
 {
+    //no behavior in zombie mode!
+    if(this.zombieMode)
+        return;
+
     if(behaviorJoints.length && !behaviorDrawObj){
         this.behaviorDrawObj = this.createAndAddBehaviorDrawObject(behaviorJoints);
         behaviorDrawObj = this.behaviorDrawObj;
@@ -201,8 +212,7 @@ boxNS.DrawingObject.prototype.updateBehaviorJoints = function(behaviorDrawObj, b
 //ADD BODY/ ADD JOINT
 boxNS.DrawingObject.prototype.addBody = function(dBody)
 {
-    if(this.zombieMode)
-        return;
+
 
     if(dBody.drawID != undefined)
     {
@@ -211,6 +221,9 @@ boxNS.DrawingObject.prototype.addBody = function(dBody)
     }
 
     dBody.drawID = this.getNextID();
+
+    if(this.zombieMode)
+        return;
 
     var shape = dBody.GetFixtureList().GetShape();
     var info = this.shapeInfo(dBody, shape);
@@ -258,8 +271,6 @@ boxNS.DrawingObject.prototype.addBody = function(dBody)
 };
 boxNS.DrawingObject.prototype.addJoint = function(joint)
 {
-    if(this.zombieMode)
-        return;
 
     if(joint.drawID != undefined)
     {
@@ -268,6 +279,10 @@ boxNS.DrawingObject.prototype.addJoint = function(joint)
     }
 
     joint.drawID = this.getNextID();
+
+    if(this.zombieMode)
+        return;
+
 
     var info = this.jointInfo(joint);
 
