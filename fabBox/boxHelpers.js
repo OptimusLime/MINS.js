@@ -55,9 +55,9 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
     );
 
     this.fixDef = new b2FixtureDef;
-    this.fixDef.density = 1.0;
-    this.fixDef.friction = 0.8;
-    this.fixDef.restitution = 0.2;
+    this.fixDef.density = 2.0;
+    this.fixDef.friction = 0.9;
+    this.fixDef.restitution = 0.1;
     var rad = 0;
 
     this.interpolation = 0;
@@ -92,8 +92,8 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
         var frameTime = (currentTime - this.lastTime)/1000;
 
         //maximum frame time, to prevent what is called the spiral of death
-        if(frameTime > .25)
-            frameTime = .25;
+        if(frameTime > .35)
+            frameTime = .35;
 
         //we don't need last time anymore, set it to the current time
         this.lastTime = currentTime;
@@ -263,7 +263,7 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
         var oBodyCount = this.bodiesList.length;
         var bodyID = this.bodiesList.length;
 
-        console.log('BodyID: ' + bodyID);
+//        console.log('BodyID: ' + bodyID);
 
         var entities = {};
         var xScaled,yScaled;
@@ -299,19 +299,9 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
             }
             //}
         }
-
-        console.log('Bodies for building:');
-        for(var duh in entities)
-        {
-            console.log(entities[duh]);
-        }
-        console.log('DONE DUH');
-
         //push our bodies into the system so that our joints have bodies to connect to
         this.setBodies(entities);
-        console.log(this.bodiesList);
-        console.log(this.bodiesMap);
-//        console.log('No pro2b');
+
 //        var count =0;
         for(var connectionID in connections)
         {
@@ -335,12 +325,7 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
                 }
                 catch(e)
                 {
-                    console.error('HOLY POOP ERROR');
-
-                    console.log('Bodies: ');
-                    console.log(this.bodiesMap);
-
-                    console.log('error:');
+                    console.error('HOLY POOP ERROR:');
                     console.log(e);
                     throw e;
                 }
@@ -396,7 +381,7 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
 
         var body = this.world.CreateBody(bodyDef);
         body.SetUserData(entity.id);
-        console.log('User ID yo: ' + entity.id);
+//        console.log('User ID yo: ' + entity.id);
 
         if (entity.radius) {
             this.fixDef.shape = new b2CircleShape(entity.radius);
@@ -483,7 +468,6 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
 
 //various entities for easy world creation
 function Entity(id, x, y, angle, center, color, strength) {
-    console.log('Entity created :' +  id);
 
     this.id = id;
     this.x = x;

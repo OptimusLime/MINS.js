@@ -61,6 +61,14 @@
 <script type="text/javascript" src="IEC.js"></script>
 
     <script>
+        var archiveOnScreen = {};
+        var archivePageLength = 12;
+
+        var doneWithLoading = function()
+        {
+            //on success, we're done loading
+            $('div#loadmoreajaxloader').hide();
+        };
         var htmlID = '#container';
         $(htmlID).scroll(function()
         {
@@ -71,21 +79,89 @@
             {
                 $('div#loadmoreajaxloader').show();
 
-                getBodies(12, function(jsonBodyArray) {
-                    //on success, we're done loading
-                    $('div#loadmoreajaxloader').hide();
+                getLatestArchive(
+                        //our successful archive check!
+                        function(archiveIDs){
 
-                    //go ahead and append our bodies as usual
-                    for(var i=0; i < jsonBodyArray.length; i++){
-                        var world = addGenomeDiv(jsonBodyArray[i]);
-                        world.shouldDrawBehavior(true);
-                        world.startLoop();
-                    }
+//                            console.log('Returned from archive');
+//                            console.log(archiveIDs);
+//                            console.log('Done archive;');
 
-                }, function(err) {
-                    //still need to hide on body error!
-                    $('div#loadmoreajaxloader').hide();
-                });
+                            if(!archiveIDs)
+                            {
+                                doneWithLoading();
+                                return;
+                            }
+
+                            var arArchiveIDs = archiveIDs;//JSON.parse(archiveIDs);
+
+//                            console.log(archiveIDs);
+
+                            var requiredBodies = [];
+
+                            //reverse the order, grab the most recent objects to display first
+                            for(var i=arArchiveIDs.length-1; i >= 0; i--)
+                            {
+                                //we haven't seen this archive object yet!
+                                if(!archiveOnScreen[arArchiveIDs[i]] && requiredBodies.length < archivePageLength){
+                                    requiredBodies.push(parseInt(arArchiveIDs[i]));
+                                    archiveOnScreen[arArchiveIDs[i]] = true;
+                                }
+                                if(requiredBodies.length >= archivePageLength)
+                                    break;
+                            }
+
+                            console.log('Fetching Archive IDs: ');
+                            console.log(requiredBodies);
+
+                            if(!requiredBodies)
+                            {
+                                console.log('Nothing new to display!');
+                                doneWithLoading();
+                                return;
+                            }
+
+                            //we have our IDs, quickly, fetch the genomes!
+                            getGenomes(requiredBodies, function(genomeBodies){
+
+                                //here me must add all our archive genome bodies!
+                                for(var genomeID in genomeBodies){
+
+                                    //parse it from string form, and send it to our world! mwahahaha
+                                    var genomeObject = JSON.parse(genomeBodies[genomeID]);
+
+                                    //Now, we're going to want to insert that object into our container, if you know what i mean
+                                    var smallWorld = addGenomeObjectDiv(genomeObject, '#container');
+
+                                    //Now we have our small world, grab the ID, so that we may reference it later?
+                                    var smallWorldID = smallWorld.worldID;
+
+                                    //start the loop, show me what you got!
+                                    smallWorld.startLoop();
+//                                    smallWorld.shouldDrawBehavior(true);
+                                }
+
+                                doneWithLoading();
+
+                            }, function(err){
+
+                                console.log('Get genome error');
+                                console.log(err);
+                                doneWithLoading();
+                                return;
+
+                            } );
+
+                        },
+                        //our error function
+                        function(err){ //still need to hide on body error!
+                            doneWithLoading();
+                            console.log('Error: ' );
+                            console.log(err);
+                        }
+                )
+
+
             }
         });
 

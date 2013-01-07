@@ -11,10 +11,13 @@ var b2Math = Box2D.Common.Math.b2Math,
     b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape,
     b2EdgeShape = Box2D.Collision.Shapes.b2EdgeShape;
 
-boxNS.DrawingObject = function(sDrawElementName, scale, zombieMode)
+boxNS.DrawingObject = function(sDrawElementName, canvasWidth, canvasHeight, scale, zombieMode)
 {
     //for creating IDs for our drawing objects
     this.idCount = 0;
+
+    this.canvasWidth = canvasWidth;
+    this.canvasHeight = canvasHeight;
 
     //do we actually want to draw using the fabricJS library - can toggle
     //create fabric object, render only when we call
@@ -24,6 +27,26 @@ boxNS.DrawingObject = function(sDrawElementName, scale, zombieMode)
     {
         this.fabricCanvas = new fabric.Canvas(sDrawElementName, { renderOnAddition: false});
         this.fabricCanvas.selection = false;
+        this.backRect = new fabric.Rect({width: 8*this.canvasWidth, height: 2*this.canvasHeight, x: -4*this.canvasWidth, y:-this.canvasHeight/2});
+
+
+
+        this.backRect.setGradientFill(this.fabricCanvas.getContext(), {
+            x1: 0,
+            y1:  this.backRect.height / 2,
+            x2:  this.backRect.width,
+            y2:  this.backRect.height / 2,
+            colorStops: {
+                0: "#000000",
+                0.2: "#222222",
+                0.4: "#444444",
+                0.6: "#888888",
+                0.8: "#BBBBBB",
+                1: "#FFFFFF"
+            }
+        });
+
+        this.fabricCanvas.add(this.backRect);
     }
     //we set the scale, and then initialize the drawObjects
     this.drawScale = scale || 1;
@@ -95,23 +118,37 @@ boxNS.DrawingObject.prototype.setWorldObjects = function(aWorldObjects)
 
 };
 
-boxNS.DrawingObject.prototype.drawWorld = function(alphaInterpolate)
+boxNS.DrawingObject.prototype.drawWorld = function(alphaInterpolate, centerOfGravity)
 {
     //don't draw or update anything in zombie mode
     if(this.zombieMode)
         return;
 
+    //if center of gravity is passed in, center around ... gravity duh!
+    centerOfGravity = (centerOfGravity ? {x: centerOfGravity.x - this.canvasWidth/2, y: centerOfGravity.y - 3*this.canvasHeight/4} : {x:0, y:0});
+//    centerOfGravity.y = 0;
+
+    if(!this.lastCenterOfGravity)
+        this.lastCenterOfGravity = centerOfGravity;
+    else{
+        this.backRect.left += ( this.lastCenterOfGravity.x-centerOfGravity.x);
+        this.lastCenterOfGravity = centerOfGravity;
+    }
+//    this.backRect.y -= centerOfGravity.y;
+//    console.log('Center of gravity: '); console.log(centerOfGravity);
+
+
     for(var jID in this.drawObjects.joints)
     {
-        this.drawFabricJoint(this.drawObjects.joints[jID], alphaInterpolate);
+        this.drawFabricJoint(this.drawObjects.joints[jID], alphaInterpolate, centerOfGravity);
     }
     for(var bID in this.drawObjects.bodies)
     {
-        this.drawFabricBody(this.drawObjects.bodies[bID],alphaInterpolate);
+        this.drawFabricBody(this.drawObjects.bodies[bID],alphaInterpolate, centerOfGravity);
     }
     if(this.drawBehavior)
     {
-        this.updateBehaviorJoints(this.behaviorDrawObj, this.behavior);
+        this.updateBehaviorJoints(this.behaviorDrawObj, this.behavior, alphaInterpolate, {x:0, y: 0});
     }
 
 
@@ -119,22 +156,23 @@ boxNS.DrawingObject.prototype.drawWorld = function(alphaInterpolate)
         this.fabricCanvas.renderAll();
 
 };
-boxNS.DrawingObject.interpolatePoint = function(pNew, pOld, alpha)
+boxNS.DrawingObject.interpolatePoint = function(pNew, pOld, alpha, centerOfGravity)
 {
-    pNew.x = alpha*pNew.x + (1-alpha)*pOld.x;
-    pNew.y = alpha*pNew.y + (1-alpha)*pOld.y;
+    pNew.x = alpha*(pNew.x - centerOfGravity.x) + (1-alpha)*pOld.x;
+    pNew.y = alpha*(pNew.y - centerOfGravity.y) + (1-alpha)*pOld.y;
+
     return pNew;
 }
-boxNS.DrawingObject.interpolatePoints = function(aCurrent, aOld, fAlpha)
+boxNS.DrawingObject.interpolatePoints = function(aCurrent, aOld, fAlpha, centerOfGravity)
 {
     for(var i=0; i < aCurrent.length; i++)
     {
-        aCurrent[i] =  boxNS.DrawingObject.interpolatePoint(aCurrent[i], aOld[i], fAlpha);
+        aCurrent[i] =  boxNS.DrawingObject.interpolatePoint(aCurrent[i], aOld[i], fAlpha, centerOfGravity);
     }
     return aCurrent;
 }
 //For updating/drawing bodies or joints
-boxNS.DrawingObject.prototype.drawFabricBody = function(drawObj,alphaInterpolate)
+boxNS.DrawingObject.prototype.drawFabricBody = function(drawObj,alphaInterpolate, centerOfGravity)
 {
     alphaInterpolate = alphaInterpolate || 1;
 
@@ -144,13 +182,13 @@ boxNS.DrawingObject.prototype.drawFabricBody = function(drawObj,alphaInterpolate
     switch (drawObj.shape.m_type) {
         case b2Shape.e_circleShape:
         {
-            fabObj.left = info.center.x*alphaInterpolate + fabObj.left*(1-alphaInterpolate);
-            fabObj.top = info.center.y*alphaInterpolate + fabObj.top*(1-alphaInterpolate);
+            fabObj.left = (info.center.x - centerOfGravity.x )*alphaInterpolate + fabObj.left*(1-alphaInterpolate);
+            fabObj.top = (info.center.y -centerOfGravity.y)*alphaInterpolate + fabObj.top*(1-alphaInterpolate);
         }
             break;
         case b2Shape.e_polygonShape:
         {
-            fabObj.points = boxNS.DrawingObject.interpolatePoints(info.vertices, fabObj.points, alphaInterpolate);  //info.vertices;
+            fabObj.points = boxNS.DrawingObject.interpolatePoints(info.vertices, fabObj.points, alphaInterpolate, centerOfGravity);  //info.vertices;
             fabObj._calcDimensions();
         }
             break;
@@ -162,13 +200,13 @@ boxNS.DrawingObject.prototype.drawFabricBody = function(drawObj,alphaInterpolate
 
 };
 
-boxNS.DrawingObject.prototype.drawFabricJoint = function(drawObj, alphaInterpolate)
+boxNS.DrawingObject.prototype.drawFabricJoint = function(drawObj, alphaInterpolate, centerOfGravity)
 {
 
     var info = this.jointInfo(drawObj.joint);
 
     var fabObj = drawObj.fabric;
-    fabObj.points = boxNS.DrawingObject.interpolatePoints(info.points, fabObj.points, alphaInterpolate);//info.points;
+    fabObj.points = boxNS.DrawingObject.interpolatePoints(info.points, fabObj.points, alphaInterpolate, centerOfGravity);//info.points;
     fabObj._calcDimensions();
 
 };
@@ -189,7 +227,7 @@ boxNS.DrawingObject.prototype.createAndAddBehaviorDrawObject = function(behavior
     return behaviorDrawObject;
 }
 
-boxNS.DrawingObject.prototype.updateBehaviorJoints = function(behaviorDrawObj, behaviorJoints)
+boxNS.DrawingObject.prototype.updateBehaviorJoints = function(behaviorDrawObj, behaviorJoints, alpha, centerOfGravity)
 {
     //no behavior in zombie mode!
     if(this.zombieMode)
@@ -203,7 +241,7 @@ boxNS.DrawingObject.prototype.updateBehaviorJoints = function(behaviorDrawObj, b
         return;
 
     var fabObj = behaviorDrawObj.fabric;
-    fabObj.points = behaviorJoints;
+    fabObj.points = behaviorJoints;// boxNS.DrawingObject.interpolatePoints(behaviorJoints, behaviorJoints, alpha, centerOfGravity);
     fabObj._calcDimensions();
 }
 
@@ -295,7 +333,7 @@ boxNS.DrawingObject.prototype.addJoint = function(joint)
     //add it to our canvas
 
     //but joints get inserted before bodies (if any exist)
-    this.fabricCanvas.insertAt(fabPolyLine,0);
+    this.fabricCanvas.insertAt(fabPolyLine,1);
 
 };
 

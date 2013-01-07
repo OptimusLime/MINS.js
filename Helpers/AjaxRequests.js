@@ -1,5 +1,4 @@
 ﻿
-
 //this is a function to grab a single body from our server
 function getBody(bodyCallback)
 {
@@ -40,9 +39,6 @@ function getBodies(numberBodies, bodyCallback, errorCallback)
                 errorCallback(err);
         }
     });
-
-
-
 };
 function getGenomes(genomeIDArray, bodyCallback, errorCallback)
 {
@@ -51,7 +47,7 @@ function getGenomes(genomeIDArray, bodyCallback, errorCallback)
     $.ajax({
         url: "http://127.0.0.1:3000/getGenomes",
         type: 'GET',
-        data: {"genomeArray" : genomeIDArray },
+        data: {"genomeIDArray" : genomeIDArray },
         cache: false,
         timeout: 30000,
         complete: function() {
@@ -104,6 +100,37 @@ function getGenomeEvaluations(genomeIDArray, bodyCallback, errorCallback)
     });
 
 };
+
+function getLatestArchive(bodyCallback, errorCallback)
+{
+    console.log('Sending Latest Archive request');
+
+    $.ajax({
+        url: "http://127.0.0.1:3000/getArchive",
+        type: 'GET',
+        cache: false,
+        timeout: 30000,
+        complete: function() {
+            //called when complete
+            console.log('done with Archive request');
+        },
+
+        success: function(archiveIDs) {
+            console.log('Archive returned');
+            bodyCallback(archiveIDs);
+
+        },
+
+        error: function(err) {
+            console.log('Archive error: ' + err.responseText);
+            if(errorCallback)
+                errorCallback(err);
+        }
+    });
+
+};
+
+
 function toggleSelectedBody(genomeID, successCallback, errorCallback)
 {
 

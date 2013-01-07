@@ -50,11 +50,11 @@ smallNS.SmallWorld = function(sCanvasID, canvasWidth, canvasHeight, scale, zombi
     this.behaviorSkipFrames = 5;
     //30 frames/sec, skip 3 frames, = 10 frames a second
     //50 behaviors = 5 seconds
-    this.behaviorTotalCount = 100;
-    this.frameCount  =0;
+    this.behaviorTotalCount = 75;
+    this.frameCount  = 0;
 
     this.initialSmallState = [
-        {id: "ground", x: canvasWidth / 2 / scale, y: canvasHeight / scale, halfHeight: 0.5, halfWidth: canvasWidth / scale, color: 'black'}
+        {id: "ground", x: canvasWidth / 2 / scale, y: canvasHeight / scale, halfHeight: 0.5, halfWidth: 4*canvasWidth / scale, color: 'black'}
         //,
         // {id: "ball1", x: 9, y: 2, radius: 0.5},
         // {id: "ball2", x: 11, y: 4, radius: 0.5}
@@ -74,7 +74,7 @@ smallNS.SmallWorld = function(sCanvasID, canvasWidth, canvasHeight, scale, zombi
 
     //we grab our canvas object really
     //if we start in zombie mode, we won't process any added objects for drawing, nor do we initialize canvas
-    this.drawObject = new boxNS.DrawingObject(sCanvasID, scale, zombieMode);
+    this.drawObject = new boxNS.DrawingObject(sCanvasID, canvasWidth, canvasHeight, scale, zombieMode);
 
     this.drawObject.addBehavior(this.behavior);
 
@@ -97,18 +97,26 @@ smallNS.smallWorldHtmlString = function(divID, canvasID, width, height)
 
 smallNS.SmallWorld.prototype.draw = function() {
     //console.log("d");
-    this.drawObject.drawWorld(this.theWorld.interpolation);
+    this.drawObject.drawWorld(this.theWorld.interpolation, this.theWorld.nodesCenterOfMass());
 }
 
 smallNS.SmallWorld.prototype.runSimulationForBehavior = function()
 {
-    var updateDeltaMS = 200;
+    var start = (new Date).getTime();
+
+    var updateDeltaMS = 320;
     this.simulating  = true;
 
     while(this.behavior.length < this.behaviorTotalCount)
         this.update(updateDeltaMS);
 
     this.simulating = false;
+
+    /* Run a test. */
+    var diff = (new Date).getTime() - start;
+
+    console.log('Eval takes: ' );
+    console.log(diff);
 
     return this.behavior;
 }
@@ -128,6 +136,7 @@ smallNS.SmallWorld.prototype.update = function(updateDeltaMS) {
 
    var updateInfo = this.theWorld.update(updateDeltaMS);
 
+//    console.log('Steps in update: ' + updateInfo.stepCount);
 
     this.calculateBehavior(updateInfo.stepCount);
 
