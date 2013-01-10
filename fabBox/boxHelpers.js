@@ -55,9 +55,10 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
     );
 
     this.fixDef = new b2FixtureDef;
-    this.fixDef.density = 2.0;
-    this.fixDef.friction = 0.9;
+    this.fixDef.density = 25.0;
+    this.fixDef.friction = 1.0;
     this.fixDef.restitution = 0.1;
+    this.fixDef.linearDamping = 1.1;
     var rad = 0;
 
     this.interpolation = 0;
@@ -144,7 +145,7 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
         var x = 0;
         var y = 0;
         var nodeBodyCount = 0;
-
+        var nodeLocations = [];
 
         //grab body and shape first
         for(var i=0; i < this.bodiesList.length;i++)
@@ -159,6 +160,7 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
 
             if(centerInfo.center)
             {
+                nodeLocations.push(centerInfo.center);
                 x += centerInfo.center.x;
                 y += centerInfo.center.y;
 
@@ -172,7 +174,7 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
         if(nodeBodyCount == 0)
             nodeBodyCount =1;
 
-        return {x: x/nodeBodyCount, y: y/nodeBodyCount};
+        return {x: x/nodeBodyCount, y: y/nodeBodyCount, nodeLocations:nodeLocations};
     }
 
 

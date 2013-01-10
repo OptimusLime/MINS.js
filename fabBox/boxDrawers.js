@@ -38,11 +38,26 @@ boxNS.DrawingObject = function(sDrawElementName, canvasWidth, canvasHeight, scal
             y2:  this.backRect.height / 2,
             colorStops: {
                 0: "#000000",
-                0.2: "#222222",
-                0.4: "#444444",
-                0.6: "#888888",
-                0.8: "#BBBBBB",
-                1: "#FFFFFF"
+                0.05: "#FFFFFF",
+                0.1: "#000000",
+                0.15: "#FFFFFF",
+                0.2: "#000000",
+                0.25: "#FFFFFF",
+                0.3: "#000000",
+                0.35: "#FFFFFF",
+                0.4: "#000000",
+                0.45: "#FFFFFF",
+                0.5: "#000000",
+                0.55: "#FFFFFF",
+                0.6: "#000000",
+                0.65: "#FFFFFF",
+                0.7: "#000000",
+                0.75: "#FFFFFF",
+                0.8: "#000000",
+                0.85: "#FFFFFF",
+                0.9: "#000000",
+                0.95: "#FFFFFF",
+                1: "#000000"
             }
         });
 
@@ -62,8 +77,9 @@ boxNS.DrawingObject.prototype.drawBehavior = false;
 boxNS.DrawingObject.prototype.zombieMode = false;
 
 
-boxNS.DrawingObject.prototype.addBehavior = function(behaviorList)
+boxNS.DrawingObject.prototype.addBehavior = function(behaviorList, behaviorType)
 {
+    this.behaviorType = behaviorType;
     //keep track of the behavior of an object!
     this.behavior = behaviorList;
 }
@@ -126,7 +142,8 @@ boxNS.DrawingObject.prototype.drawWorld = function(alphaInterpolate, centerOfGra
 
     //if center of gravity is passed in, center around ... gravity duh!
     centerOfGravity = (centerOfGravity ? {x: centerOfGravity.x - this.canvasWidth/2, y: centerOfGravity.y - 3*this.canvasHeight/4} : {x:0, y:0});
-//    centerOfGravity.y = 0;
+    centerOfGravity.y = 0;
+//    centerOfGravity = {x:0 , y:0};
 
     if(!this.lastCenterOfGravity)
         this.lastCenterOfGravity = centerOfGravity;
@@ -148,7 +165,7 @@ boxNS.DrawingObject.prototype.drawWorld = function(alphaInterpolate, centerOfGra
     }
     if(this.drawBehavior)
     {
-        this.updateBehaviorJoints(this.behaviorDrawObj, this.behavior, alphaInterpolate, {x:0, y: 0});
+        this.updateBehaviorJoints(this.behaviorDrawObj, this.behavior, this.behaviorType, alphaInterpolate, {x:0, y: 0});
     }
 
 
@@ -211,40 +228,161 @@ boxNS.DrawingObject.prototype.drawFabricJoint = function(drawObj, alphaInterpola
 
 };
 
-boxNS.DrawingObject.prototype.createAndAddBehaviorDrawObject = function(behaviorList)
+boxNS.DrawingObject.prototype.createAndAddBehaviorDrawObject = function(behaviorList, behaviorType)
 {
     if(this.zombieMode)
         return;
 
-    //create our object without any points, and add it!
-    var fabPoly  = new fabric.Polygon(behaviorList, {fill: '#55f', stroke: '#f55'});
+    var behaviorDrawObject;
 
-    var behaviorDrawObject = {index: this.fabricCanvas.getObjects().length, fabric: fabPoly};
 
-    //add it to our canvas
-    this.fabricCanvas.add(fabPoly);
+    switch(behaviorType)
+    {
+        case smallNS.BehaviorTypes.xyCenterOfMass:
+        case smallNS.BehaviorTypes.xCenterOfMass:
+        case smallNS.BehaviorTypes.yCenterOfMass:
+
+
+            //create our object without any points, and add it!
+            var fabPoly  = new fabric.Polygon(behaviorList, {fill: '#55f', stroke: '#f55'});
+
+            behaviorDrawObject = {index: this.fabricCanvas.getObjects().length, fabric: fabPoly};
+
+            //add it to our canvas
+            this.fabricCanvas.add(fabPoly);
+
+            break;
+        case smallNS.BehaviorTypes.heatMap10x10:
+
+            var fabRects = {};
+            var xSides =10;
+            var ySides = 10;
+            var startX= 0, startY = 0;
+            var deltaX = this.canvasWidth/xSides;
+            var deltaY = this.canvasHeight/ySides;
+
+            var startIndex = this.fabricCanvas.getObjects().length;
+            var endIndex;
+
+            for(var x =0; x < xSides; x++)
+            {
+                startY = 0;
+
+                if(fabRects[x] === undefined)
+                    fabRects[x] = {};
+
+                for(var y=0; y < ySides; y++)
+                {
+                    //create our object without any points, and add it!
+                    var fabRect  = new fabric.Rect({left:startX + deltaX/2, top:startY + deltaY/2, width:deltaX, height:deltaY,  fill: '#000', stroke: '#000'});
+
+//                    console.log('Starx: ' + startX + ' Starty: ' + startY);
+//                    console.log('Deltas x: ' + deltaX + ' y:' + deltaY);
+//                    console.log(fabRect);
+
+                    fabRect.heatMapCount = 0;
+
+                    //add it to our canvas
+                    this.fabricCanvas.add(fabRect);
+
+
+
+                    fabRects[x][y] = fabRect;
+
+                    startY += deltaY;
+
+                }
+                startX += deltaX;
+            }
+
+            endIndex = this.fabricCanvas.getObjects().length;
+            behaviorDrawObject = {index: startIndex, endIndex: endIndex, fabCount:0, fabric: fabRects};
+
+            break;
+    }
 
     return behaviorDrawObject;
 }
 
-boxNS.DrawingObject.prototype.updateBehaviorJoints = function(behaviorDrawObj, behaviorJoints, alpha, centerOfGravity)
+boxNS.DrawingObject.prototype.updateBehaviorJoints = function(behaviorDrawObj, behaviorJoints, behaviorType, alpha, centerOfGravity)
 {
     //no behavior in zombie mode!
     if(this.zombieMode)
         return;
 
-    if(behaviorJoints.length && !behaviorDrawObj){
-        this.behaviorDrawObj = this.createAndAddBehaviorDrawObject(behaviorJoints);
+    //if we have some valid behavior, but no object yet, add it!
+    if((behaviorJoints.length || behaviorJoints.fabCount) && !behaviorDrawObj){
+        this.behaviorDrawObj = this.createAndAddBehaviorDrawObject(behaviorJoints, behaviorType);
         behaviorDrawObj = this.behaviorDrawObj;
     }
     else if(!behaviorDrawObj)
         return;
 
-    var fabObj = behaviorDrawObj.fabric;
-    fabObj.points = behaviorJoints;// boxNS.DrawingObject.interpolatePoints(behaviorJoints, behaviorJoints, alpha, centerOfGravity);
-    fabObj._calcDimensions();
-}
 
+    switch(behaviorType)
+    {
+        case smallNS.BehaviorTypes.xyCenterOfMass:
+        case smallNS.BehaviorTypes.xCenterOfMass:
+        case smallNS.BehaviorTypes.yCenterOfMass:
+
+            var fabObj = behaviorDrawObj.fabric;
+            fabObj.points = behaviorJoints;// boxNS.DrawingObject.interpolatePoints(behaviorJoints, behaviorJoints, alpha, centerOfGravity);
+            fabObj._calcDimensions();
+
+            break;
+        case smallNS.BehaviorTypes.heatMap10x10:
+
+            var xSides =10;
+            var ySides = 10;
+            var fabObj = behaviorDrawObj.fabric;
+            var fabCount = behaviorJoints.fabCount;
+
+            //behavior joints contains heat map info we update our current heat map!
+            //skip the heat map if you are already done!
+            if(fabCount === 0 || fabCount === undefined)
+             break;
+
+            for(var x =0; x < xSides; x++)
+            {
+                for(var y=0; y < ySides; y++)
+                {
+                    var fabRect = fabObj[x][y];
+                    var heat =  behaviorJoints[x][y]/fabCount;
+
+                    if(heat >0)
+                    {
+                        //then we use the heat to calculate the color!
+                        //multiply heat by 255!
+
+//                      console.log('Heat: ' + heat);
+                        var rgb = decimalToHex(Math.floor(heat*255));
+
+                        var color = '#' + rgb + rgb + rgb;
+
+
+                        fabRect.set({
+                            fill:     color
+                        });
+
+                    }
+                }
+            }
+
+            break;
+    }
+
+
+}
+function decimalToHex(d, padding) {
+    var hex = Number(d).toString(16);
+    padding = typeof (padding) === "undefined" || padding === null ? padding = 2 : padding;
+
+    while (hex.length < padding) {
+        hex = "0" + hex;
+    }
+
+    return hex;
+}
 
 
 //ADD BODY/ ADD JOINT

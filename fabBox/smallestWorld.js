@@ -8,7 +8,8 @@ var smallNS = namespace(smallNSS);
 smallNS.BehaviorTypes = {
     xyCenterOfMass : 0,
     xCenterOfMass : 1,
-    yCenterOfMass : 2
+    yCenterOfMass : 2,
+    heatMap10x10 : 3
 }
 
 var desiredSmallRenderSpeed = 30;
@@ -43,8 +44,34 @@ smallNS.SmallWorld = function(sCanvasID, canvasWidth, canvasHeight, scale, zombi
     this.canvasWidth = canvasWidth;
     this.canvasHeight = canvasHeight;
 
-    this.behaviorType = smallNS.BehaviorTypes.xyCenterOfMass;
-    this.behavior = [];
+    this.behaviorType = smallNS.BehaviorTypes.heatMap10x10;
+
+    switch(this.behaviorType)
+    {
+        case smallNS.BehaviorTypes.xCenterOfMass:
+        case smallNS.BehaviorTypes.yCenterOfMass:
+        case smallNS.BehaviorTypes.xyCenterOfMass:
+            this.behavior = [];
+            break;
+        case smallNS.BehaviorTypes.heatMap10x10:
+            this.behavior = {};
+            var xSides = 10;
+            var ySides = 10;
+            for(var x = 0; x < xSides; x++)
+            {
+                this.behavior[x] = {};
+                for(var y=0; y < ySides;y++)
+                {
+                    this.behavior[x][y]=0;
+                }
+            }
+            this.behavior.fabCount = 0;
+            this.behavior.length = 0;
+
+            break;
+    }
+
+
 
     //measure behavior every three frames
     this.behaviorSkipFrames = 5;
@@ -76,7 +103,7 @@ smallNS.SmallWorld = function(sCanvasID, canvasWidth, canvasHeight, scale, zombi
     //if we start in zombie mode, we won't process any added objects for drawing, nor do we initialize canvas
     this.drawObject = new boxNS.DrawingObject(sCanvasID, canvasWidth, canvasHeight, scale, zombieMode);
 
-    this.drawObject.addBehavior(this.behavior);
+    this.drawObject.addBehavior(this.behavior, this.behaviorType);
 
     this.theWorld = new bHelpNS.ContainedWorld(desiredSmallSimulationSpeed, false, canvasWidth, canvasHeight, scale, 20, false,
         {object: this.drawObject, addBody: this.drawObject.addBody, removeBody: this.drawObject.removeBody,
@@ -118,7 +145,57 @@ smallNS.SmallWorld.prototype.runSimulationForBehavior = function()
     console.log('Eval takes: ' );
     console.log(diff);
 
-    return this.behavior;
+    var squishedBehavior;
+    switch(this.behaviorType)
+    {
+        case smallNS.BehaviorTypes.xCenterOfMass:
+        case smallNS.BehaviorTypes.yCenterOfMass:
+        case smallNS.BehaviorTypes.xyCenterOfMass:
+            squishedBehavior = this.behavior;
+            break;
+        case smallNS.BehaviorTypes.heatMap10x10:
+            var xSides = 10, ySides = 10;
+            var totalCount = this.behavior.fabCount;
+            squishedBehavior = [];
+
+            if(totalCount == 0)
+            {
+                squishedBehavior = [];
+                break;
+            }
+            //first, let's check the bottom row summation
+            var bottomSum = 0;
+
+            for(var x=0; x< xSides; x++)
+            {
+                bottomSum += this.behavior[x][ySides-1]/totalCount;
+            }
+
+//            console.log('Bottom sum: ' + bottomSum);
+
+            var flatten = false;
+
+            if(bottomSum > .75)
+                flatten = true;
+
+            //lets flatten our behavior
+            for(var x=0; x < xSides;x++)
+            {
+                for(var y=0; y < ySides; y++)
+                {
+                    //if you're an asshole, and spend your time on the bottom, we're going to flatten you!
+                    //that is, you'll appear like nothing happens on the bottom most layer
+                    if(flatten && y == ySides -1)
+                        squishedBehavior.push(0);
+                    else
+                        squishedBehavior.push(this.behavior[x][y]/totalCount);
+                }
+            }
+            break;
+
+    }
+
+    return squishedBehavior;
 }
 
 smallNS.SmallWorld.prototype.update = function(updateDeltaMS) {
@@ -167,7 +244,7 @@ smallNS.SmallWorld.prototype.calculateBehavior = function(stepsTaken)
         switch(this.behaviorType)
         {
             case smallNS.BehaviorTypes.xyCenterOfMass:
-                this.behavior.push(com);
+                this.behavior.push({x:com.x, y: com.y});
 
                 break;
             case smallNS.BehaviorTypes.xCenterOfMass:
@@ -176,6 +253,39 @@ smallNS.SmallWorld.prototype.calculateBehavior = function(stepsTaken)
                 break;
             case smallNS.BehaviorTypes.yCenterOfMass:
                 this.behavior.push(com.y);
+
+            case smallNS.BehaviorTypes.heatMap10x10:
+
+                this.behavior.length++;
+
+                var xSides =10;
+                var ySides = 10;
+                //this is a bit more complicated, we have to break down where every node is
+                //and increment the locations where nodes exist (relative to the center of gravity)
+                for(var i=0; i < com.nodeLocations.length; i++)
+                {
+                    var centeredLoc = {x: com.nodeLocations[i].x - com.x, y: com.nodeLocations[i].y};
+
+                    var xDim = Math.floor((centeredLoc.x/(this.canvasWidth/2) + 1)/2*xSides);
+                    var yDim = Math.floor(centeredLoc.y/this.canvasHeight*ySides);
+
+                    //outside of our heatmap, doesn't count!
+                    if(xDim < 0 || xDim > xSides-1 || yDim < 0 || yDim > ySides -1)
+                        continue;
+
+//                    xDim = Math.max(0,Math.min(xDim, xSides-1));
+//                    yDim = Math.max(0,Math.min(yDim, ySides-1));
+
+//                    console.log('Dim found- x: ' + xDim + " y: " + yDim);
+//                    console.log('X location: ' + centeredLoc.x + ' halfwidth: ' +
+//                        this.canvasWidth/2 + ' div: ' +(centeredLoc.x/(this.canvasWidth/2) + 1)/2 + ' xDim: ' +xDim);
+
+//                    console.log('Y location: ' + centeredLoc.y + ' yHeight: ' +
+//                        this.canvasHeight + ' yDim: ' +yDim);
+
+                    this.behavior[xDim][yDim]++;
+                    this.behavior.fabCount++;
+                }
 
                 break;
         }
