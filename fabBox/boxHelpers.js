@@ -284,6 +284,10 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
              //   var nodeObj = aBodies[b];
             var nodeLocation = oNodes[nodeKey];
 
+                //characterization of novelty, novlety + local search
+                //look at polar, why did i do it????
+                //bias local connectrions with leo
+
                 var maxR = Math.sqrt(this.canvasWidth*this.canvasWidth + this.canvasHeight*this.canvasHeight)/4;
 
                 var polarScaled = this.polarToCartesian(parseFloat(nodeLocation.X), parseFloat(nodeLocation.Y), maxR, {x: this.canvasWidth/2, y: this.canvasHeight/2});
@@ -304,6 +308,7 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
         //push our bodies into the system so that our joints have bodies to connect to
         this.setBodies(entities);
 
+        var amplitudeCutoff =.2;
 //        var count =0;
         for(var connectionID in connections)
         {
@@ -323,7 +328,12 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
                 }
                 try
                 {
-                     var dJoint = this.addMuscleJoint(sourceID, targetID, {frequencyHz: 3, dampingRatio:.3, phase: connectionObject.cppnOutputs[1], amplitude: connectionObject.cppnOutputs[2]});
+                    var amp = (connectionObject.cppnOutputs[2] +1 )/2;
+//                    console.log('Amplitudes: ' + amp);
+                    if(amp < amplitudeCutoff)
+                        var dJoint = this.addDistanceJoint(sourceID, targetID);
+                    else
+                        var dJoint = this.addMuscleJoint(sourceID, targetID, {frequencyHz: 3, dampingRatio:.3, phase: connectionObject.cppnOutputs[1], amplitude: amp});
                 }
                 catch(e)
                 {

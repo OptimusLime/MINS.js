@@ -145,19 +145,27 @@ smallNS.SmallWorld.prototype.runSimulationForBehavior = function()
     console.log('Eval takes: ' );
     console.log(diff);
 
+
+    return smallNS.SmallWorld.SquishBehavior(this.behavior, this.behaviorType);
+
+}
+
+smallNS.SmallWorld.SquishBehavior = function(behavior, behaviorType, maintainDataType)
+{
     var squishedBehavior;
-    switch(this.behaviorType)
+    switch(behaviorType)
     {
         case smallNS.BehaviorTypes.xCenterOfMass:
         case smallNS.BehaviorTypes.yCenterOfMass:
         case smallNS.BehaviorTypes.xyCenterOfMass:
-            squishedBehavior = this.behavior;
+            squishedBehavior = behavior;
             break;
         case smallNS.BehaviorTypes.heatMap10x10:
             var xSides = 10, ySides = 10;
-            var totalCount = this.behavior.fabCount;
-            squishedBehavior = [];
+            var totalCount = behavior.fabCount;
 
+
+            squishedBehavior = (maintainDataType) ? {} : [];
             if(totalCount == 0)
             {
                 squishedBehavior = [];
@@ -168,27 +176,43 @@ smallNS.SmallWorld.prototype.runSimulationForBehavior = function()
 
             for(var x=0; x< xSides; x++)
             {
-                bottomSum += this.behavior[x][ySides-1]/totalCount;
+                bottomSum += behavior[x][ySides-1]/totalCount;
+                bottomSum += behavior[x][ySides-2]/totalCount;
             }
 
 //            console.log('Bottom sum: ' + bottomSum);
 
             var flatten = false;
 
-            if(bottomSum > .75)
-                flatten = true;
+//            console.log('Bottom sum: ' + bottomSum);
 
+            if(bottomSum > .75)
+            {
+//                console.log('Flatten:' + bottomSum);
+                flatten = true;
+            }
             //lets flatten our behavior
             for(var x=0; x < xSides;x++)
             {
+                if(maintainDataType)
+                    squishedBehavior[x] = {};
+
                 for(var y=0; y < ySides; y++)
                 {
                     //if you're an asshole, and spend your time on the bottom, we're going to flatten you!
                     //that is, you'll appear like nothing happens on the bottom most layer
-                    if(flatten && y == ySides -1)
-                        squishedBehavior.push(0);
+                    if(flatten && y == ySides -1){
+                        (maintainDataType) ? squishedBehavior[x][y] = 0 : squishedBehavior.push(0);
+                    }
+                    //if you're in the second row and you're flattened, we take away your juice too (close to 0)
+                    else if(flatten && y == ySides-2)
+                        (maintainDataType) ? squishedBehavior[x][y] = .25*behavior[x][y]
+                            : squishedBehavior.push(.25*behavior[x][y]/totalCount);
                     else
-                        squishedBehavior.push(this.behavior[x][y]/totalCount);
+                    {
+                        (maintainDataType) ? squishedBehavior[x][y] = behavior[x][y]
+                            : squishedBehavior.push(behavior[x][y]/totalCount);
+                    }
                 }
             }
             break;
@@ -196,6 +220,7 @@ smallNS.SmallWorld.prototype.runSimulationForBehavior = function()
     }
 
     return squishedBehavior;
+
 }
 
 smallNS.SmallWorld.prototype.update = function(updateDeltaMS) {
@@ -328,10 +353,12 @@ smallNS.SmallWorld.prototype.shouldDraw = function(boolValue)
     this.drawObject.turnOffDrawing = !boolValue;
 
 }
-smallNS.SmallWorld.prototype.shouldDrawBehavior = function(boolValue)
+smallNS.SmallWorld.prototype.shouldDrawBehavior = function(boolValue, showRawBehavior)
 {
 
     this.drawObject.drawBehavior = boolValue;
+    this.drawObject.showRawBehavior = (showRawBehavior) ? true : false;
+
 }
 
 smallNS.SmallWorld.prototype.zombieMode = function(boolValue)
@@ -339,8 +366,18 @@ smallNS.SmallWorld.prototype.zombieMode = function(boolValue)
     this.drawObject.zombieMode = boolValue;
 }
 
+smallNS.SmallWorld.prototype.freezeLoop = function(boolValue)
+{
+    this.refuseStartLoop = boolValue;
+    if(boolValue)
+        this.stopLoop();
+
+}
 smallNS.SmallWorld.prototype.startLoop = function()
 {
+    if(this.refuseStartLoop)
+        return;
+
     //for a smooth transition, just make the start time be now!
     this.theWorld.lastTime = Date.now();
     this.interruptLoop = false;

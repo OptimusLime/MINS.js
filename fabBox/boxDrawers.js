@@ -74,6 +74,8 @@ boxNS.DrawingObject.prototype.turnOffDrawing = false;
 
 boxNS.DrawingObject.prototype.drawBehavior = false;
 
+boxNS.DrawingObject.prototype.showRawBehavior = true;
+
 boxNS.DrawingObject.prototype.zombieMode = false;
 
 
@@ -337,6 +339,8 @@ boxNS.DrawingObject.prototype.updateBehaviorJoints = function(behaviorDrawObj, b
             var fabObj = behaviorDrawObj.fabric;
             var fabCount = behaviorJoints.fabCount;
 
+            var fixedBehavior = (this.showRawBehavior) ? behaviorJoints : smallNS.SmallWorld.SquishBehavior(behaviorJoints, behaviorType, true);
+
             //behavior joints contains heat map info we update our current heat map!
             //skip the heat map if you are already done!
             if(fabCount === 0 || fabCount === undefined)
@@ -347,9 +351,10 @@ boxNS.DrawingObject.prototype.updateBehaviorJoints = function(behaviorDrawObj, b
                 for(var y=0; y < ySides; y++)
                 {
                     var fabRect = fabObj[x][y];
-                    var heat =  behaviorJoints[x][y]/fabCount;
+                    var heat =  fixedBehavior[x][y]/fabCount;//behaviorJoints[x][y]/fabCount;
 
-                    if(heat >0)
+                    //either we're not a 0 color, or we are a zero color, but the current color is nonzero!
+                    if(heat >0 || (heat ==0 && fabRect.get('fill') != "#000000"))
                     {
                         //then we use the heat to calculate the color!
                         //multiply heat by 255!
@@ -365,6 +370,7 @@ boxNS.DrawingObject.prototype.updateBehaviorJoints = function(behaviorDrawObj, b
                         });
 
                     }
+
                 }
             }
 
