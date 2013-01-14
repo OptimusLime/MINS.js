@@ -90,7 +90,7 @@
 
 
                 //set our behavior, and be done here!
-                genomeBehaviorDict[genomeID] = behavior;
+                genomeBehaviorDict[genomeID] = {behavior: behavior.points, fitness: behavior.fitness };
 
             }
 
@@ -139,7 +139,7 @@
             //getGenomeFromID(true, false, false, true);
 
             //we want to make a zombie request with a random genome for testing purposes
-            getBodySetProperties(true, true, true, false, function(err)
+            getBodySetProperties(true, true, false, false, function(err)
             {
                 if(err)
                     return;

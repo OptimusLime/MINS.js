@@ -258,6 +258,9 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
 
         //so let's create our bodies
 
+//        console.log('Loaded body info: ');
+//        console.log(jsonData);
+
         var oNodes = jsonData.InputLocations.concat(jsonData.HiddenLocations);
 
         var connections = jsonData.Connections;
@@ -294,8 +297,9 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
 //            console.log('Polar scaled: ');
 //                console.log( {x: parseFloat(nodeLocation.X), y: parseFloat(nodeLocation.Y)});
             xScaled = polarScaled.x;// (parseFloat(nodeLocation.X) +1)*300;
+//                xScaled = (parseFloat(nodeLocation.X) +1)*this.canvasWidth/2;
             yScaled = polarScaled.y;//(parseFloat(nodeLocation.Y) +1)*200;
-
+//                yScaled = (parseFloat(nodeLocation.Y) +1)*this.canvasHeight/2;
               //FOR each node, we make a body with certain properties, then increment count
                 entities[bodyID] = (Entity.build({id:bodyID, x: xScaled/this.scale, y: yScaled/this.scale, radius: .5 }));
 
@@ -328,12 +332,14 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
                 }
                 try
                 {
-                    var amp = (connectionObject.cppnOutputs[2] +1 )/2;
+                    var phaseIx = (connectionObject.useLEO ? 2 : 1);
+                    var ampIx =  (connectionObject.useLEO ? 3 : 2);
+                    var amp = (connectionObject.cppnOutputs[ampIx] +1 )/2;
 //                    console.log('Amplitudes: ' + amp);
                     if(amp < amplitudeCutoff)
                         var dJoint = this.addDistanceJoint(sourceID, targetID);
                     else
-                        var dJoint = this.addMuscleJoint(sourceID, targetID, {frequencyHz: 3, dampingRatio:.3, phase: connectionObject.cppnOutputs[1], amplitude: amp});
+                        var dJoint = this.addMuscleJoint(sourceID, targetID, {frequencyHz: 3, dampingRatio:.3, phase: connectionObject.cppnOutputs[phaseIx], amplitude: amp});
                 }
                 catch(e)
                 {
@@ -344,6 +350,7 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
 
             }
         }
+
 //        console.log('No 4444');
     };
     this.addDistanceJoint = function(body1Id, body2Id, params) {

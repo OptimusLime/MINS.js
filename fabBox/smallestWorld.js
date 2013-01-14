@@ -44,29 +44,34 @@ smallNS.SmallWorld = function(sCanvasID, canvasWidth, canvasHeight, scale, zombi
     this.canvasWidth = canvasWidth;
     this.canvasHeight = canvasHeight;
 
+    //we say what kind of behavior we want, then create that object -- should be a function in the future
     this.behaviorType = smallNS.BehaviorTypes.heatMap10x10;
+    this.behavior = {};
+    this.behavior.frameCount = 0;
 
     switch(this.behaviorType)
     {
         case smallNS.BehaviorTypes.xCenterOfMass:
         case smallNS.BehaviorTypes.yCenterOfMass:
         case smallNS.BehaviorTypes.xyCenterOfMass:
-            this.behavior = [];
+            this.behavior.points = [];
             break;
         case smallNS.BehaviorTypes.heatMap10x10:
-            this.behavior = {};
+
+            this.behavior.heatMap = {};
+
             var xSides = 10;
             var ySides = 10;
             for(var x = 0; x < xSides; x++)
             {
-                this.behavior[x] = {};
+                this.behavior.heatMap[x] = {};
                 for(var y=0; y < ySides;y++)
                 {
-                    this.behavior[x][y]=0;
+                    this.behavior.heatMap[x][y]=0;
                 }
             }
-            this.behavior.fabCount = 0;
-            this.behavior.length = 0;
+
+            this.behavior.heatMap.fabCount = 0;
 
             break;
     }
@@ -134,9 +139,17 @@ smallNS.SmallWorld.prototype.runSimulationForBehavior = function()
     var updateDeltaMS = 320;
     this.simulating  = true;
 
-    while(this.behavior.length < this.behaviorTotalCount)
-        this.update(updateDeltaMS);
+    var updateCount = 0;
 
+    while(this.behavior.frameCount < this.behaviorTotalCount)
+    {
+        updateCount++;
+       this.update(updateDeltaMS);
+        if(updateCount > 500){
+            console.log('Making 5 hundo updates');
+            updateCount = 0;
+        }
+    }
     this.simulating = false;
 
     /* Run a test. */
@@ -146,83 +159,104 @@ smallNS.SmallWorld.prototype.runSimulationForBehavior = function()
     console.log(diff);
 
 
-    return smallNS.SmallWorld.SquishBehavior(this.behavior, this.behaviorType);
+    return smallNS.SmallWorld.AdjustBehavior(this.behavior, this.behaviorType);
 
 }
 
-smallNS.SmallWorld.SquishBehavior = function(behavior, behaviorType, maintainDataType)
+smallNS.SmallWorld.AdjustBehavior = function(behavior, behaviorType)
 {
-    var squishedBehavior;
+
+    behavior.fitness = behavior.largestCOMDistance;
+
     switch(behaviorType)
     {
         case smallNS.BehaviorTypes.xCenterOfMass:
         case smallNS.BehaviorTypes.yCenterOfMass:
         case smallNS.BehaviorTypes.xyCenterOfMass:
-            squishedBehavior = behavior;
-            break;
+            //no adjustments to make, all data should be in behavior.points
+           return behavior;
+
         case smallNS.BehaviorTypes.heatMap10x10:
-            var xSides = 10, ySides = 10;
-            var totalCount = behavior.fabCount;
+            //number of sides sent in for adjustment
+            //along with our heat map
+            behavior.heatMap = smallNS.SmallWorld.heatMapAdjustments(behavior.heatMap, 10,10);
 
-
-            squishedBehavior = (maintainDataType) ? {} : [];
-            if(totalCount == 0)
-            {
-                squishedBehavior = [];
-                break;
-            }
-            //first, let's check the bottom row summation
-            var bottomSum = 0;
-
-            for(var x=0; x< xSides; x++)
-            {
-                bottomSum += behavior[x][ySides-1]/totalCount;
-                bottomSum += behavior[x][ySides-2]/totalCount;
-            }
-
-//            console.log('Bottom sum: ' + bottomSum);
-
-            var flatten = false;
-
-//            console.log('Bottom sum: ' + bottomSum);
-
-            if(bottomSum > .75)
-            {
-//                console.log('Flatten:' + bottomSum);
-                flatten = true;
-            }
-            //lets flatten our behavior
-            for(var x=0; x < xSides;x++)
-            {
-                if(maintainDataType)
-                    squishedBehavior[x] = {};
-
-                for(var y=0; y < ySides; y++)
-                {
-                    //if you're an asshole, and spend your time on the bottom, we're going to flatten you!
-                    //that is, you'll appear like nothing happens on the bottom most layer
-                    if(flatten && y == ySides -1){
-                        (maintainDataType) ? squishedBehavior[x][y] = 0 : squishedBehavior.push(0);
-                    }
-                    //if you're in the second row and you're flattened, we take away your juice too (close to 0)
-                    else if(flatten && y == ySides-2)
-                        (maintainDataType) ? squishedBehavior[x][y] = .25*behavior[x][y]
-                            : squishedBehavior.push(.25*behavior[x][y]/totalCount);
-                    else
-                    {
-                        (maintainDataType) ? squishedBehavior[x][y] = behavior[x][y]
-                            : squishedBehavior.push(behavior[x][y]/totalCount);
-                    }
-                }
-            }
-            break;
+            //now flatten the behavior into a list of points
+            behavior.points = smallNS.SmallWorld.flattenHeatMap(behavior.heatMap,10,10);
+            return behavior;
 
     }
+}
+smallNS.SmallWorld.heatMapAdjustments = function(heatMapBehavior, xSides, ySides)
+{
+    var totalCount = heatMapBehavior.fabCount;
+    var adjustedBehavior = {};
+    adjustedBehavior.fabCount = totalCount;
 
-    return squishedBehavior;
+    if(totalCount == 0)
+        return heatMapBehavior;
+
+    //first, let's check the bottom row summation
+    var bottomSum = 0;
+
+    for(var x=0; x< xSides; x++)
+    {
+        bottomSum += heatMapBehavior[x][ySides-1]/totalCount;
+        bottomSum += heatMapBehavior[x][ySides-2]/totalCount;
+    }
+
+    var flatten = false;
+    if(bottomSum > .75)
+    {
+        flatten = true;
+    }
+
+    //lets flatten our behavior
+    for(var x=0; x < xSides;x++)
+    {
+        adjustedBehavior[x] = {};
+
+        for(var y=0; y < ySides; y++)
+        {
+            //if you're an asshole, and spend your time on the bottom, we're going to flatten you!
+            //that is, you'll appear like nothing happens on the bottom most layer
+            if(flatten && y == ySides -1){
+                adjustedBehavior[x][y] = 0;
+            }
+            //if you're in the second row and you're flattened, we take away your juice too (close to 0)
+            else if(flatten && y == ySides-2)
+                adjustedBehavior[x][y] = .25*heatMapBehavior[x][y];
+            else
+            {
+               adjustedBehavior[x][y] = heatMapBehavior[x][y];
+            }
+        }
+    }
+
+    return adjustedBehavior;
 
 }
+smallNS.SmallWorld.flattenHeatMap = function(heatMap, xSides, ySides)
+{
+    var flatten = [];
+    var totalCount = heatMap.fabCount;
+    if(totalCount == 0)
+    {
+        for(var i=0; i < xSides*ySides; i++)
+            flatten.push(0);
 
+        return flatten;
+    }
+
+    for(var x=0; x < xSides;x++)
+    {
+        for(var y=0; y < ySides; y++)
+        {
+            flatten.push(heatMap[x][y]/totalCount);
+        }
+    }
+    return flatten;
+}
 smallNS.SmallWorld.prototype.update = function(updateDeltaMS) {
 
     if(! this.simulating)
@@ -247,7 +281,7 @@ smallNS.SmallWorld.prototype.update = function(updateDeltaMS) {
 smallNS.SmallWorld.prototype.calculateBehavior = function(stepsTaken)
 {
     //we're done with our behavior!
-    if(this.behavior.length >= this.behaviorTotalCount)
+    if(this.behavior.frameCount >= this.behaviorTotalCount)
         return;
 
     //only grab it when you wants it (depending on frames to skip)
@@ -263,25 +297,38 @@ smallNS.SmallWorld.prototype.calculateBehavior = function(stepsTaken)
     //every update, we should calculate behavior, but we keep these separate calls, since it may be expensive in some scenarios
     var com = this.theWorld.nodesCenterOfMass();
 
+    var startCom = this.behavior.startingCOM;
+    var dist = {x: (startCom.x - com.x)*(startCom.x - com.x), y: (startCom.y - com.y)*(startCom.y - com.y)};
+
+    if(!this.behavior.largestCOMDistance)
+        this.behavior.largestCOMDistance = 0.000001;
+
+    //we check to see the largest distance accumulated so far from the start
+    //we can use this in fitness or local competition calculates
+    this.behavior.largestCOMDistance =  Math.max(this.behavior.largestCOMDistance, Math.sqrt(dist.x));
+
+//    console.log('Rec dist: ');
+//    console.log(this.behavior.largestCOMDistance);
+
     //we actually will assume this body position for multiple frames if there is an accidental skip or something
     while(this.frameCount >= this.behaviorSkipFrames)
     {
+        //update framecount on behavior for all behavior types!
+        this.behavior.frameCount++;
         switch(this.behaviorType)
         {
             case smallNS.BehaviorTypes.xyCenterOfMass:
-                this.behavior.push({x:com.x, y: com.y});
+                this.behavior.points.push({x:com.x, y: com.y});
 
                 break;
             case smallNS.BehaviorTypes.xCenterOfMass:
-                this.behavior.push(com.x);
+                this.behavior.points.push(com.x);
 
                 break;
             case smallNS.BehaviorTypes.yCenterOfMass:
-                this.behavior.push(com.y);
+                this.behavior.points.push(com.y);
 
             case smallNS.BehaviorTypes.heatMap10x10:
-
-                this.behavior.length++;
 
                 var xSides =10;
                 var ySides = 10;
@@ -308,8 +355,8 @@ smallNS.SmallWorld.prototype.calculateBehavior = function(stepsTaken)
 //                    console.log('Y location: ' + centeredLoc.y + ' yHeight: ' +
 //                        this.canvasHeight + ' yDim: ' +yDim);
 
-                    this.behavior[xDim][yDim]++;
-                    this.behavior.fabCount++;
+                    this.behavior.heatMap[xDim][yDim]++;
+                    this.behavior.heatMap.fabCount++;
                 }
 
                 break;
@@ -440,6 +487,7 @@ smallNS.SmallWorld.prototype.addJSONBody = function(jsonData)
         var connections = jsonData.Connections;
 
         this.theWorld.jsonParseNodeApp(jsonData);
+        this.behavior.startingCOM = this.theWorld.nodesCenterOfMass();
 
 };
 

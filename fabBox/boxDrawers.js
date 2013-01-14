@@ -79,11 +79,11 @@ boxNS.DrawingObject.prototype.showRawBehavior = true;
 boxNS.DrawingObject.prototype.zombieMode = false;
 
 
-boxNS.DrawingObject.prototype.addBehavior = function(behaviorList, behaviorType)
+boxNS.DrawingObject.prototype.addBehavior = function(behaviorObject, behaviorType)
 {
     this.behaviorType = behaviorType;
     //keep track of the behavior of an object!
-    this.behavior = behaviorList;
+    this.behavior = behaviorObject;
 }
 
 //some helpers for the class
@@ -230,7 +230,7 @@ boxNS.DrawingObject.prototype.drawFabricJoint = function(drawObj, alphaInterpola
 
 };
 
-boxNS.DrawingObject.prototype.createAndAddBehaviorDrawObject = function(behaviorList, behaviorType)
+boxNS.DrawingObject.prototype.createAndAddBehaviorDrawObject = function(behaviorObject, behaviorType)
 {
     if(this.zombieMode)
         return;
@@ -246,7 +246,7 @@ boxNS.DrawingObject.prototype.createAndAddBehaviorDrawObject = function(behavior
 
 
             //create our object without any points, and add it!
-            var fabPoly  = new fabric.Polygon(behaviorList, {fill: '#55f', stroke: '#f55'});
+            var fabPoly  = new fabric.Polygon(behaviorObject.points, {fill: '#55f', stroke: '#f55'});
 
             behaviorDrawObject = {index: this.fabricCanvas.getObjects().length, fabric: fabPoly};
 
@@ -282,13 +282,8 @@ boxNS.DrawingObject.prototype.createAndAddBehaviorDrawObject = function(behavior
 //                    console.log('Deltas x: ' + deltaX + ' y:' + deltaY);
 //                    console.log(fabRect);
 
-                    fabRect.heatMapCount = 0;
-
                     //add it to our canvas
                     this.fabricCanvas.add(fabRect);
-
-
-
                     fabRects[x][y] = fabRect;
 
                     startY += deltaY;
@@ -306,15 +301,15 @@ boxNS.DrawingObject.prototype.createAndAddBehaviorDrawObject = function(behavior
     return behaviorDrawObject;
 }
 
-boxNS.DrawingObject.prototype.updateBehaviorJoints = function(behaviorDrawObj, behaviorJoints, behaviorType, alpha, centerOfGravity)
+boxNS.DrawingObject.prototype.updateBehaviorJoints = function(behaviorDrawObj, behaviorObject, behaviorType, alpha, centerOfGravity)
 {
     //no behavior in zombie mode!
     if(this.zombieMode)
         return;
 
     //if we have some valid behavior, but no object yet, add it!
-    if((behaviorJoints.length || behaviorJoints.fabCount) && !behaviorDrawObj){
-        this.behaviorDrawObj = this.createAndAddBehaviorDrawObject(behaviorJoints, behaviorType);
+    if((behaviorObject.length || behaviorObject.heatMap.fabCount) && !behaviorDrawObj){
+        this.behaviorDrawObj = this.createAndAddBehaviorDrawObject(behaviorObject, behaviorType);
         behaviorDrawObj = this.behaviorDrawObj;
     }
     else if(!behaviorDrawObj)
@@ -328,7 +323,7 @@ boxNS.DrawingObject.prototype.updateBehaviorJoints = function(behaviorDrawObj, b
         case smallNS.BehaviorTypes.yCenterOfMass:
 
             var fabObj = behaviorDrawObj.fabric;
-            fabObj.points = behaviorJoints;// boxNS.DrawingObject.interpolatePoints(behaviorJoints, behaviorJoints, alpha, centerOfGravity);
+            fabObj.points = behaviorObject.points;// boxNS.DrawingObject.interpolatePoints(behaviorJoints, behaviorJoints, alpha, centerOfGravity);
             fabObj._calcDimensions();
 
             break;
@@ -337,9 +332,10 @@ boxNS.DrawingObject.prototype.updateBehaviorJoints = function(behaviorDrawObj, b
             var xSides =10;
             var ySides = 10;
             var fabObj = behaviorDrawObj.fabric;
-            var fabCount = behaviorJoints.fabCount;
+            var heatMap = behaviorObject.heatMap;
+            var fabCount = heatMap.fabCount;
 
-            var fixedBehavior = (this.showRawBehavior) ? behaviorJoints : smallNS.SmallWorld.SquishBehavior(behaviorJoints, behaviorType, true);
+            var fixedBehavior = (this.showRawBehavior) ? behaviorJoints : smallNS.SmallWorld.heatMapAdjustments(heatMap, 10,10);
 
             //behavior joints contains heat map info we update our current heat map!
             //skip the heat map if you are already done!
