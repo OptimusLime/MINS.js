@@ -101,6 +101,33 @@ function getGenomeEvaluations(genomeIDArray, bodyCallback, errorCallback)
 
 };
 
+function getCurrentGeneration(bodyCallback, errorCallback)
+{
+    console.log('Sending Latest Generation request');
+
+    $.ajax({
+        url: "http://127.0.0.1:3000/getCurrentGeneration",
+        type: 'GET',
+        cache: false,
+        timeout: 30000,
+        complete: function() {
+            //called when complete
+            console.log('done with Generation request');
+        },
+
+        success: function(generationIDs) {
+            console.log('Archive returned');
+            bodyCallback(generationIDs);
+
+        },
+
+        error: function(err) {
+            console.log('Generation error: ' + err.responseText);
+            if(errorCallback)
+                errorCallback(err);
+        }
+    });
+}
 function getLatestArchive(bodyCallback, errorCallback)
 {
     console.log('Sending Latest Archive request');

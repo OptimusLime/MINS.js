@@ -66,21 +66,33 @@
             //here me must assess all of the genome bodies!
             for(var genomeID in genomeBodies){
 
+
+                console.log('evaluating' + genomeID);
+
                 //sequentially go through and evaluate the body
                 //parse it from string form, and send it to our world! mwahahaha
                 var genomeObject = JSON.parse(genomeBodies[genomeID]);
 
+
+                console.log('parse complete: ' + genomeID);
                 //Now, we're going to want to insert that object into our container, if you know what i mean
                 //and make sure the world is in zombie mode
                 var smallWorld = addGenomeObjectDiv(genomeObject, '#container', true);
 
+
+                console.log('Added genome div: ' + genomeID);
                 //Now we have our small world, grab the ID, so that we may remove it after completing our zombie evaluation
                 var smallWorldID = smallWorld.worldID;
 
+
+                console.log('begin behavior: ' + genomeID);
                 var behavior =  setSmallWorldProperties(smallWorld, {startEval: true,
                     isVisible: false,
                     drawBehavior: false,
                     zombieMode: true});
+
+
+                console.log('behavior grab complete: ' + genomeID);
 
                 //after evalution, kill the world
                 //then kill the div, so that zombiejs doesn't get so bloated.
@@ -89,13 +101,20 @@
                 $('#' + divIDFromGenome(genomeObject.GenomeID, smallWorldID)).remove();
 
 
-                //set our behavior, and be done here!
-                genomeBehaviorDict[genomeID] = {behavior: behavior.points, fitness: behavior.fitness };
+                console.log('Evaluation of ' + genomeID + ' completed!');
 
+                //set our behavior, and be done here!
+                genomeBehaviorDict[genomeID] = {behavior: behavior.points, objectives: behavior.objectives, fitness: behavior.fitness };
+
+
+                console.log('dict updated: ' + genomeID);
             }
 
+
+            console.log('Finished genome evals, returning now');
+
             //we're done, make our callback with ids and behaviors!
-            finishedFunction(genomeBehaviorDict);
+            finishedFunction(null, genomeBehaviorDict);
         }
 
         $('.positive-integer').numeric({ decimal: false, negative: false },  function() { alert("Positive integers only"); this.value = ""; this.focus(); });

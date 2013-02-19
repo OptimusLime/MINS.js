@@ -141,6 +141,8 @@ smallNS.SmallWorld.prototype.runSimulationForBehavior = function()
 
     var updateCount = 0;
 
+    console.log('behavior begining: ' + this.behavior.frameCount);
+
     while(this.behavior.frameCount < this.behaviorTotalCount)
     {
         updateCount++;
@@ -150,6 +152,8 @@ smallNS.SmallWorld.prototype.runSimulationForBehavior = function()
             updateCount = 0;
         }
     }
+
+    console.log('behavior complete: ' + this.behaviorTotalCount);
     this.simulating = false;
 
     /* Run a test. */
@@ -167,6 +171,11 @@ smallNS.SmallWorld.AdjustBehavior = function(behavior, behaviorType)
 {
 
     behavior.fitness = behavior.largestCOMDistance;
+
+    //we create our objects, the first is fitness, but we'll also have
+    //novelty, and genomic diversity
+    behavior.objectives = [];
+    behavior.objectives.push(behavior.fitness);
 
     switch(behaviorType)
     {
