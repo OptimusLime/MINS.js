@@ -128,6 +128,33 @@ function getCurrentGeneration(bodyCallback, errorCallback)
         }
     });
 }
+function getBestIndividuals(uid, bodyCallback, errorCallback)
+{
+    console.log('Sending Best Individual request');
+
+    $.ajax({
+        url: "http://127.0.0.1:3000/getBestBodies?uid="+ uid,
+        type: 'GET',
+        cache: false,
+        timeout: 30000,
+        complete: function() {
+            //called when complete
+            console.log('done with best request');
+        },
+
+        success: function(bestBodies) {
+            console.log('best returned');
+            bodyCallback(bestBodies);
+
+        },
+
+        error: function(err) {
+            console.log('Generation error: ' + err.responseText);
+            if(errorCallback)
+                errorCallback(err);
+        }
+    });
+}
 function getLatestArchive(bodyCallback, errorCallback)
 {
     console.log('Sending Latest Archive request');

@@ -64,6 +64,8 @@
         var archiveOnScreen = {};
         var archivePageLength = 12;
 
+        var uid = Math.random()*1000000;
+
         var doneWithLoading = function()
         {
             //on success, we're done loading
@@ -79,50 +81,50 @@
             {
                 $('div#loadmoreajaxloader').show();
 
-                getCurrentGeneration(
+                getBestIndividuals(uid,
                         //our successful archive check!
-                        function(generationIDs){
+                        function(genomeBodies){
 
 //                            console.log('Returned from archive');
 //                            console.log(archiveIDs);
 //                            console.log('Done archive;');
 
-                            if(!generationIDs)
-                            {
-                                doneWithLoading();
-                                return;
-                            }
-
-                            var arGenIds = generationIDs;//JSON.parse(archiveIDs);
-
-//                            console.log(archiveIDs);
-
-                            var requiredBodies = [];
-
-                            //reverse the order, grab the most recent objects to display first
-                            for(var i=arGenIds.length-1; i >= 0; i--)
-                            {
-                                //we haven't seen this archive object yet!
-                                if(!archiveOnScreen[arGenIds[i]] && requiredBodies.length < archivePageLength){
-                                    requiredBodies.push(parseInt(arGenIds[i]));
-                                    archiveOnScreen[arGenIds[i]] = true;
-                                }
-                                if(requiredBodies.length >= archivePageLength)
-                                    break;
-                            }
-
-                            console.log('Fetching Archive IDs: ');
-                            console.log(requiredBodies);
-
-                            if(!requiredBodies)
-                            {
-                                console.log('Nothing new to display!');
-                                doneWithLoading();
-                                return;
-                            }
-
-                            //we have our IDs, quickly, fetch the genomes!
-                            getGenomes(requiredBodies, function(genomeBodies){
+//                            if(!generationIDs)
+//                            {
+//                                doneWithLoading();
+//                                return;
+//                            }
+//
+//                            var arGenIds = generationIDs;//JSON.parse(archiveIDs);
+//
+////                            console.log(archiveIDs);
+//
+//                            var requiredBodies = [];
+//
+//                            //reverse the order, grab the most recent objects to display first
+//                            for(var i=arGenIds.length-1; i >= 0; i--)
+//                            {
+//                                //we haven't seen this archive object yet!
+//                                if(!archiveOnScreen[arGenIds[i]] && requiredBodies.length < archivePageLength){
+//                                    requiredBodies.push(parseInt(arGenIds[i]));
+//                                    archiveOnScreen[arGenIds[i]] = true;
+//                                }
+//                                if(requiredBodies.length >= archivePageLength)
+//                                    break;
+//                            }
+//
+//                            console.log('Fetching Archive IDs: ');
+//                            console.log(requiredBodies);
+//
+//                            if(!requiredBodies)
+//                            {
+//                                console.log('Nothing new to display!');
+//                                doneWithLoading();
+//                                return;
+//                            }
+//
+//                            //we have our IDs, quickly, fetch the genomes!
+//                            getGenomes(requiredBodies, function(genomeBodies){
 
                                 //here me must add all our archive genome bodies!
                                 for(var genomeID in genomeBodies){
@@ -144,14 +146,14 @@
 
                                 doneWithLoading();
 
-                            }, function(err){
-
-                                console.log('Get genome error');
-                                console.log(err);
-                                doneWithLoading();
-                                return;
-
-                            } );
+//                            }, function(err){
+//
+//                                console.log('Get genome error');
+//                                console.log(err);
+//                                doneWithLoading();
+//                                return;
+//
+//                            } );
 
                         },
                         //our error function
