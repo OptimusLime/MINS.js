@@ -16,6 +16,7 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
         var b2MassData = Box2D.Collision.Shapes.b2MassData;
         var b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape;
         var b2CircleShape = Box2D.Collision.Shapes.b2CircleShape;
+        var b2FilterData = Box2D.Dynamics.b2FilterData;
         var b2DebugDraw = Box2D.Dynamics.b2DebugDraw;
         var b2RevoluteJointDef = Box2D.Dynamics.Joints.b2RevoluteJointDef;
         var b2DistanceJointDef = Box2D.Dynamics.Joints.b2DistanceJointDef;
@@ -56,10 +57,11 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
 
     this.fixDef = new b2FixtureDef;
     this.fixDef.density = 25.0;
-    this.fixDef.friction = 1.0;
+//    this.fixDef.friction = 1.0;
     this.fixDef.restitution = 0.1;
-    this.fixDef.linearDamping = 1.1;
-    var rad = 0;
+    this.fixDef.fixedRotation = true;
+//    this.fixDef.linearDamping = 1.1;
+    var rad = Math.PI/3;
 
     this.interpolation = 0;
     this.lastTime = Date.now();
@@ -71,8 +73,11 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
 //based on principles in here:
 //http://gafferongames.com/game-physics/fix-your-timestep/
 
-    this.update = function(msSimRate) {
+    this.update = function(msSimRate, props) {
 
+        props = props || {};
+
+        var logEvents = '';
         var stepCount =0;
 
         if(msSimRate)
@@ -101,43 +106,61 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
 
         //we accumulate all the time we haven't rendered things in
         accumulator += frameTime;
-
+//        console.log('Pre acc');
         while(accumulator >= this.simulationRate)
         {
             stepCount++;
             //push the muscles outward a bit
-
+            var speedup = 2;
+            if(!props.visual)
+                console.log('-- pre  muscles');
+            logEvents += '--Pre muscles';
             for(var i=0; i < this.muscles.length; i++){
                 var muscle = this.muscles[i];
-                muscle.SetLength(muscle.m_length + muscle.amplitude/this.scale*Math.sin(muscle.phase*rad));
+                muscle.SetLength(muscle.m_length + muscle.amplitude/this.scale*Math.cos(rad + muscle.phase*2*Math.PI));
             }
 
             //step the physics world
-
+            if(!props.visual)
+                console.log('Post muscle, pre setep');
+            logEvents += 'Post muscle, Pre step';
             this.world.Step(
                 this.simulationRate   //frame-rate
                 ,  10       //velocity iterations
                 ,  10       //position iterations
             );
 
+            if(!props.visual)
+                console.log('Post sime');
+
+            logEvents += 'Post sime, Pre force';
             this.world.ClearForces();
 
+//            console.log('Post forces');
+            if(!props.visual)
+                console.log('Post forces');
+
+            logEvents += 'Post forces--';
             //increment the radians for the muscles
-            rad += 5*this.simulationRate;
+            rad += speedup*this.simulationRate;
 
             //decrement the accumulator - we ran a chunk just now!
             accumulator -= this.simulationRate;
-        }
 
+//            console.log(logEvents);
+        }
+        if(!props.visual)
+            console.log('Post acc');
+        logEvents += 'Post acc';
         this.interpolation = accumulator/this.simulationRate;
         //console.log("Partial: " +  this.interpolation);
         //console.log(rad*180/Math.PI);
 
-        return {stepCount: stepCount, deltaChange: (Date.now() - currentTime)};
+        return {stepCount: stepCount, deltaChange: (Date.now() - currentTime), log:logEvents};
     };
 
     //always returns SOMETHING, even if nothing is calculated
-    this.nodesCenterOfMass = function()
+    this.nodesCenterOfMass = function(print)
     {
         //grab all of the bodies that aren't static, and tell me the center of mass
         //right now, we assume 1 object per world, which is okay if it's a "small" world.
@@ -151,26 +174,47 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
         for(var i=0; i < this.bodiesList.length;i++)
         {
             var body = this.bodiesList[i];
-
+            if(print)
+            {
+//                console.log('body: ' );
+//                console.log(body);
+            }
 //            console.log('Body: ');
 //            console.log(body);
 
             var shape = body.GetFixtureList().GetShape();
+            if(print)
+            {
+//                console.log('Shape: ' );
+//                console.log(shape);
+            }
             var centerInfo = this.callObject.shapeInfo(body, shape);
-
+            if(print)
+            {
+                console.log('Centerinfo: ' );
+                console.log(centerInfo);
+                console.log(centerInfo.center);
+            }
             if(centerInfo.center)
             {
                 nodeLocations.push(centerInfo.center);
                 x += centerInfo.center.x;
                 y += centerInfo.center.y;
 
+                if(print)
+                {
+                    console.log('X: ' + x + 'Y: ' + y);
+                }
                 nodeBodyCount++;
             }
 
 
         }
         //if nothign was calculated, then x still = 0, and y = 0 => 0/1 = 0, 0/1 = 0, and we avoid an undefined
-
+        if(print)
+        {
+            console.log('Nodebodycount: ' + nodeBodyCount);
+        }
         if(nodeBodyCount == 0)
             nodeBodyCount =1;
 
@@ -198,7 +242,8 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
             for(var b=0; b < aBodies.length; b++)
             {
                 var nodeObj = aBodies[b];
-                entities[nodeObj.id] = (Entity.build({id:nodeObj.id, x: parseFloat(nodeObj.x)/this.scale, y: parseFloat(nodeObj.y)/this.scale, radius: .5 }));
+                entities[nodeObj.id] = (Entity.build({id:nodeObj.id, x: parseFloat(nodeObj.x)/this.scale - this.canvasWidth/2, y: this.canvasHeight -parseFloat(nodeObj.y)/this.scale,
+                    radius: .5 }));
             }
         }
         //push our bodies into the system so that our joints have bodies to connect to
@@ -220,7 +265,7 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
                         //need to add the spring object info -- so springyness and what have you
                         //maybe also the rest length? Does that matter?
                         var dJoint = this.addDistanceJoint(linkObj.a, linkObj.b, {frequencyHz: 3, dampingRatio:.3});
-                        //dJoint.SetLength(parseFloat(linkObj.restlength)/this.scale);
+                        dJoint.SetLength(parseFloat(linkObj.restlength)/this.scale);
                     }
 
                     break;
@@ -232,7 +277,7 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
                         //addMuscleJoint
                         //phase: parseFloat(musObj.phase), amplitude: parseFloat(musObj.amplitude)
                        var mJoint = this.addMuscleJoint(musObj.a, musObj.b, {amplitude: parseFloat(musObj.amplitude)});//, phase: parseFloat(musObj.phase)});//{frequencyHz: 5, dampingRatio:.3 });
-                       //mJoint.SetLength(parseFloat(musObj.restlength)/this.scale);
+                       mJoint.SetLength(parseFloat(musObj.restlength)/this.scale);
                     }
 
                     break;
@@ -370,7 +415,7 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
     this.addMuscleJoint = function(body1Id, body2Id, params) {
         params = params || {};
         var addedJoint = this.addDistanceJoint(body1Id, body2Id, params);
-        addedJoint.phase =  params['phase']|| 1;
+        addedJoint.phase =  params['phase']|| 0;
         addedJoint.amplitude = params['amplitude'] || 1;
         //we push our muscles onto our muscle list
         this.muscles.push(addedJoint);
@@ -393,7 +438,16 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
         bodyDef.position.x = entity.x;
         bodyDef.position.y = entity.y;
 
+//        bodyDef.linearVelocity.x = entity.vx;
+//        bodyDef.linearVelocity.y = entity.vy;
+
 //        bodyDef.SetUserData(entity.id);
+//        bodyDef.friction = 1.0;
+//        bodyDef.restitution = 0.1;
+//        bodyDef.linearDamping = 1.1;
+
+        bodyDef.linearDamping = 1.1;
+        bodyDef.fixedRotation = true;
 
         bodyDef.userData = entity.id;
         bodyDef.angle = entity.angle;
@@ -402,9 +456,16 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
         body.SetUserData(entity.id);
 //        console.log('User ID yo: ' + entity.id);
 
+        var filter = new b2FilterData();
+        filter.categoryBits = 0x0002;
+        filter.maskBits = 0x0001 ;//0xFFFF;
+        filter.groupIndex = 0;
+
         if (entity.radius) {
             this.fixDef.shape = new b2CircleShape(entity.radius);
-            body.CreateFixture(this.fixDef);
+           var fixture = body.CreateFixture(this.fixDef);
+            fixture.fixedRotation = true;
+            fixture.SetFilterData(filter);
         } else if (entity.polys) {
             for (var j = 0; j < entity.polys.length; j++) {
                 var points = entity.polys[j];

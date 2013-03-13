@@ -29,6 +29,9 @@
 <div>
     <button id='headlessButton' onclick="getHeadlessEvaluation()"> <h2>Headless Evaluation</h2> </button>
 </div>
+<div>
+    <input type="file" id="files" name="files[]"/>
+</div>
 <br/>
 <br/>
 <div id="container" class="variable-sizes clearfix infinite-scrolling">
@@ -41,11 +44,14 @@
     <script src="../Helpers/jquery.numeric.js"></script>
     <!--load the experiment script when the body gets processed, so it has access to the canvas object for styling-->
 
-<script type="text/javascript" src="../Helpers/Box2d.min.js"></script>
+<script type="text/javascript" src="../Helpers/Box2d.js"></script>
 <script type="text/javascript" src="../Helpers/fabric.js"></script>
     <!--has our getbody request logic-->
 <script type="text/javascript" src="../Helpers/Helpers.js"></script>
 <script type="text/javascript" src="../Helpers/AjaxRequests.js"></script>
+
+<script type="text/javascript" src="../Helpers/jkl-parsexml.js"></script>
+<script type="text/javascript" src="../Helpers/loadXML.js"></script>
 
 <script type="text/javascript" src="../fabBox/boxHelpers.js"></script>
 <script type="text/javascript" src="../fabBox/boxDrawers.js"></script>
@@ -58,6 +64,30 @@
 
     <script>
 
+    createXMLFileReader("files", function(jsonDoc)
+    {
+        console.log("XML converted to: ");
+        console.log(jsonDoc);
+
+
+        //Now, we're going to want to insert that object into our container, if you know what i mean
+        //and make sure the world is in zombie mode
+//        var smallWorld = addGenomeObjectDiv(genomeObject, '#container', true);
+
+        var $container = $("#container");
+        var canvasID = "canvas0";
+        var divID = "div0";
+
+        $container.append(smallNS.smallWorldHtmlString(divID, canvasID, 230,230));
+
+        var smallWorld = new smallNS.SmallWorld(canvasID, 230, 230, 14, false);
+
+        smallWorld.jsonParseMINS(jsonDoc);
+        smallWorld.startLoop();
+
+    });
+
+
         var headlessEvaluateGenomeBehaviors = function(genomeBodies, finishedFunction)
         {
             //we're going to build a behavior dictionary, indexed by the genomeID
@@ -67,32 +97,32 @@
             for(var genomeID in genomeBodies){
 
 
-                console.log('evaluating' + genomeID);
+//                console.log('evaluating' + genomeID);
 
                 //sequentially go through and evaluate the body
                 //parse it from string form, and send it to our world! mwahahaha
                 var genomeObject = JSON.parse(genomeBodies[genomeID]);
 
 
-                console.log('parse complete: ' + genomeID);
+//                console.log('parse complete: ' + genomeID);
                 //Now, we're going to want to insert that object into our container, if you know what i mean
                 //and make sure the world is in zombie mode
                 var smallWorld = addGenomeObjectDiv(genomeObject, '#container', true);
 
 
-                console.log('Added genome div: ' + genomeID);
+//                console.log('Added genome div: ' + genomeID);
                 //Now we have our small world, grab the ID, so that we may remove it after completing our zombie evaluation
                 var smallWorldID = smallWorld.worldID;
 
 
-                console.log('begin behavior: ' + genomeID);
-                var behavior =  setSmallWorldProperties(smallWorld, {startEval: true,
+//                console.log('begin behavior: ' + genomeID);
+                var behavior =  setSmallWorldProperties(smallWorld, {startEval: true, visual: false,
                     isVisible: false,
                     drawBehavior: false,
-                    zombieMode: true});
+                    zombieMode: true, genomeID: genomeID});
 
 
-                console.log('behavior grab complete: ' + genomeID);
+//                console.log('behavior grab complete: ' + genomeID);
 
                 //after evalution, kill the world
                 //then kill the div, so that zombiejs doesn't get so bloated.
@@ -101,13 +131,13 @@
                 $('#' + divIDFromGenome(genomeObject.GenomeID, smallWorldID)).remove();
 
 
-                console.log('Evaluation of ' + genomeID + ' completed!');
+//                console.log('Evaluation of ' + genomeID + ' completed!');
 
                 //set our behavior, and be done here!
                 genomeBehaviorDict[genomeID] = {behavior: behavior.points, objectives: behavior.objectives, fitness: behavior.fitness };
 
 
-                console.log('dict updated: ' + genomeID);
+//                console.log('dict updated: ' + genomeID);
             }
 
 
@@ -127,7 +157,7 @@
 
             if(props.startEval){
                 //run until simulation is done sequentially
-                behavior = smallWorld.runSimulationForBehavior();
+                behavior = smallWorld.runSimulationForBehavior(props);
 //                delete smallWorld;
             }
 //            else{

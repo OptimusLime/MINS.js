@@ -5978,7 +5978,10 @@ Box2D.postDefs = [];
    }
    b2World.prototype.ClearForces = function () {
       for (var body = this.m_bodyList; body; body = body.m_next) {
-         body.m_force.SetZero();
+
+          if(body.m_force)
+            body.m_force.SetZero();
+
          body.m_torque = 0.0;
       }
    }

@@ -57,7 +57,7 @@ smallNS.SmallWorld = function(sCanvasID, canvasWidth, canvasHeight, scale, zombi
             this.behavior.points = [];
             break;
         case smallNS.BehaviorTypes.heatMap10x10:
-
+            console.log('Making heatmap');
             this.behavior.heatMap = {};
 
             var xSides = 10;
@@ -72,6 +72,7 @@ smallNS.SmallWorld = function(sCanvasID, canvasWidth, canvasHeight, scale, zombi
             }
 
             this.behavior.heatMap.fabCount = 0;
+
 
             break;
     }
@@ -110,7 +111,7 @@ smallNS.SmallWorld = function(sCanvasID, canvasWidth, canvasHeight, scale, zombi
 
     this.drawObject.addBehavior(this.behavior, this.behaviorType);
 
-    this.theWorld = new bHelpNS.ContainedWorld(desiredSmallSimulationSpeed, false, canvasWidth, canvasHeight, scale, 20, false,
+    this.theWorld = new bHelpNS.ContainedWorld(desiredSmallSimulationSpeed, false, canvasWidth, canvasHeight, scale, 15, false,
         {object: this.drawObject, addBody: this.drawObject.addBody, removeBody: this.drawObject.removeBody,
             addJoint: this.drawObject.addJoint, removeJoint: this.drawObject.removeJoint });
 
@@ -120,6 +121,10 @@ smallNS.SmallWorld = function(sCanvasID, canvasWidth, canvasHeight, scale, zombi
     }
     //this will populate the bodies map -- thereby causing d3 to draw the data on screen
     this.theWorld.setBodies(world);
+
+
+
+
 }
 
 smallNS.smallWorldHtmlString = function(divID, canvasID, width, height)
@@ -132,7 +137,7 @@ smallNS.SmallWorld.prototype.draw = function() {
     this.drawObject.drawWorld(this.theWorld.interpolation, this.theWorld.nodesCenterOfMass());
 }
 
-smallNS.SmallWorld.prototype.runSimulationForBehavior = function()
+smallNS.SmallWorld.prototype.runSimulationForBehavior = function(props)
 {
     var start = (new Date).getTime();
 
@@ -140,26 +145,27 @@ smallNS.SmallWorld.prototype.runSimulationForBehavior = function()
     this.simulating  = true;
 
     var updateCount = 0;
-
-    console.log('behavior begining: ' + this.behavior.frameCount);
+    console.log('Eval '+ props.genomeID +' takes:');
+//    console.log('Eval Start');
+//    console.log('behavior begining: ' + this.behavior.frameCount);
 
     while(this.behavior.frameCount < this.behaviorTotalCount)
     {
         updateCount++;
-       this.update(updateDeltaMS);
+       this.update(updateDeltaMS, props);
         if(updateCount > 500){
             console.log('Making 5 hundo updates');
             updateCount = 0;
         }
     }
 
-    console.log('behavior complete: ' + this.behaviorTotalCount);
+//    console.log('behavior complete: ' + this.behaviorTotalCount);
     this.simulating = false;
 
     /* Run a test. */
     var diff = (new Date).getTime() - start;
 
-    console.log('Eval takes: ' );
+//    console.log('Eval takes: ' + diff);
     console.log(diff);
 
 
@@ -266,7 +272,14 @@ smallNS.SmallWorld.flattenHeatMap = function(heatMap, xSides, ySides)
     }
     return flatten;
 }
-smallNS.SmallWorld.prototype.update = function(updateDeltaMS) {
+smallNS.SmallWorld.prototype.update = function(updateDeltaMS, props) {
+
+//    if(typeof updateDeltaMS != 'number' && props != undefined)
+//    {
+//        props = updateDeltaMS;
+//        updateDeltaMS = undefined;
+//    }
+    try{
 
     if(! this.simulating)
     {
@@ -279,11 +292,29 @@ smallNS.SmallWorld.prototype.update = function(updateDeltaMS) {
 
 //    console.log('Update?');
 
-   var updateInfo = this.theWorld.update(updateDeltaMS);
+//        console.log('Update the world');
+     var updateInfo = this.theWorld.update(updateDeltaMS, props);
 
 //    console.log('Steps in update: ' + updateInfo.stepCount);
 
-    this.calculateBehavior(updateInfo.stepCount);
+        if(!props.visual)
+            console.log('Update the behavior');
+
+
+        this.calculateBehavior(updateInfo.stepCount);
+
+        if(!props.visual)
+             console.log('Done the behavior');
+    }
+
+    catch(e)
+    {
+        console.log('Major error: ');
+        console.log(e);
+        console.log(e.message);
+//        console.log(e.getStackTrace());
+        throw e;
+    }
 
 }
 
@@ -339,6 +370,8 @@ smallNS.SmallWorld.prototype.calculateBehavior = function(stepsTaken)
 
             case smallNS.BehaviorTypes.heatMap10x10:
 
+                var killEverything = 0;
+
                 var xSides =10;
                 var ySides = 10;
                 //this is a bit more complicated, we have to break down where every node is
@@ -346,6 +379,17 @@ smallNS.SmallWorld.prototype.calculateBehavior = function(stepsTaken)
                 for(var i=0; i < com.nodeLocations.length; i++)
                 {
                     var centeredLoc = {x: com.nodeLocations[i].x - com.x, y: com.nodeLocations[i].y};
+
+                    if(isNaN(centeredLoc) || isNaN(centeredLoc.x) || isNaN(centeredLoc.y))
+                    {
+                        killEverything = true;
+
+                        for(var x = 0; x <xSides; x++ )
+                            for(var y=0; y < ySides; y++)
+                               this.behavior.heatMap[x][y] = 0;
+
+                        break;
+                    }
 
                     var xDim = Math.floor((centeredLoc.x/(this.canvasWidth/2) + 1)/2*xSides);
                     var yDim = Math.floor(centeredLoc.y/this.canvasHeight*ySides);
@@ -363,9 +407,27 @@ smallNS.SmallWorld.prototype.calculateBehavior = function(stepsTaken)
 
 //                    console.log('Y location: ' + centeredLoc.y + ' yHeight: ' +
 //                        this.canvasHeight + ' yDim: ' +yDim);
-
+                    try
+                    {
                     this.behavior.heatMap[xDim][yDim]++;
                     this.behavior.heatMap.fabCount++;
+                    }
+                    catch(e)
+                    {
+                        console.log('Printing com: ');
+                        this.theWorld.nodesCenterOfMass(true);
+                        console.log('Center: ' + centeredLoc.x);
+                        console.log('Canvas width: ' + this.canvasWidth);
+                        console.log('Com :'); console.log(com);
+                        console.log('Xdim: ' + xDim + ' yDim: ' + yDim);
+//                        console.log('Node loc: ');
+//                        console.log(com.nodeLocations);
+//                        console.log('Node behavior');
+//                        console.log(this.behavior.heatMap);
+                        console.log(e.message);
+                        throw e;
+                    }
+
                 }
 
                 break;
@@ -434,6 +496,8 @@ smallNS.SmallWorld.prototype.startLoop = function()
     if(this.refuseStartLoop)
         return;
 
+    var props = {visual: true};
+
     //for a smooth transition, just make the start time be now!
     this.theWorld.lastTime = Date.now();
     this.interruptLoop = false;
@@ -444,7 +508,7 @@ smallNS.SmallWorld.prototype.startLoop = function()
         if(!smallWorld)
             return;
 
-        smallWorld.update();
+        smallWorld.update(undefined, {visual:true});
         smallWorld.draw();
         if(!smallWorld.interruptLoop)
             requestAnimFrame(loop);
@@ -510,4 +574,84 @@ smallNS.SmallWorld.prototype.pad = function(scale, k) {
 //        var range = scale.range();
 //        if (range[0] > range[1]) k *= -1;
 //        return scale.domain([range[0] - k, range[1] + k].map(scale.invert)).nice();
-}
+};
+smallNS.SmallWorld.prototype.jsonParseMINS = function(jsonDoc, documentType)
+{
+    //The structure of the json is as follows
+
+    //All the bodies are inside of nodes
+    //should all be of type "mass" or "node"
+
+    //so let's create our bodies
+    var oNodes = jsonDoc.model.nodes;
+
+    var entities = {};
+    for(var nodeType in oNodes)
+    {
+        //node type doesn't matter as much as our documentType
+
+        var aBodies = oNodes[nodeType];
+
+        for(var b=0; b < aBodies.length; b++)
+        {
+            var nodeObj = aBodies[b];
+            entities[nodeObj.id] = (Entity.build({id:nodeObj.id,
+                x: (parseFloat(nodeObj.x)- this.canvasWidth/1.3)/this.scale,
+                y: (this.canvasHeight -parseFloat(nodeObj.y))/this.scale - this.canvasHeight/(2*this.scale),
+                vx: parseFloat(nodeObj.vx)/this.scale,
+                vy: parseFloat(nodeObj.vy)/this.scale,
+                radius: .5
+
+            }));
+        }
+    }
+    //push our bodies into the system so that our joints have bodies to connect to
+    this.theWorld.setBodies(entities);
+
+    var oLinks = jsonDoc.model.links;
+    for(var linkType in oLinks)
+    {
+        //link type matters for generating muscles or distance joints
+
+        var aLinks = oLinks[linkType];
+
+        switch(linkType)
+        {
+            case "spring":
+                for(var l=0; l < aLinks.length; l++)
+                {
+                    var linkObj = aLinks[l];
+                    //need to add the spring object info -- so springyness and what have you
+                    //maybe also the rest length? Does that matter?
+                    var dJoint = this.theWorld.addDistanceJoint(linkObj.a, linkObj.b, {frequencyHz: 15, dampingRatio:.1});
+
+                    dJoint.SetLength(parseFloat(linkObj.restlength)/this.scale);
+                }
+
+                break;
+            case "muscle":
+                for(var s=0; s < aLinks.length; s++)
+                {
+                    var musObj = aLinks[s];
+                    //need to add into the muscle object-- concept of rest location?
+                    //addMuscleJoint
+                    //phase: parseFloat(musObj.phase), amplitude: parseFloat(musObj.amplitude)
+                    var mJoint = this.theWorld.addMuscleJoint(musObj.a, musObj.b, {amplitude: 1.6*parseFloat(musObj.amplitude), phase: parseFloat(musObj.phase)});//, frequencyHz: 15, dampingRatio:.1 });
+
+                    var aCenter = this.theWorld.bodiesMap[musObj.a].GetWorldCenter();
+                    var bCenter =  this.theWorld.bodiesMap[musObj.b].GetWorldCenter();
+                    console.log('A center: ' + aCenter);
+                    console.log('B center: ' + bCenter);
+
+                    console.log('Dist dif: ' + 14*Math.sqrt(Math.pow(aCenter.x- bCenter.x,2) + Math.pow(aCenter.y - bCenter.y, 2) ));
+                    console.log('Amp: ' + parseFloat(musObj.amplitude) + ' Rest: ' +  parseFloat(musObj.restlength));
+
+                    mJoint.SetLength(parseFloat(musObj.restlength)/this.scale);
+                }
+
+                break;
+        }
+
+    }
+    this.behavior.startingCOM = this.theWorld.nodesCenterOfMass();
+};
