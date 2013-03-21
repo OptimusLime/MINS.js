@@ -297,14 +297,14 @@ smallNS.SmallWorld.prototype.update = function(updateDeltaMS, props) {
 
 //    console.log('Steps in update: ' + updateInfo.stepCount);
 
-        if(!props.visual)
-            console.log('Update the behavior');
+//        if(!props.visual)
+//            console.log('Update the behavior');
 
 
         this.calculateBehavior(updateInfo.stepCount);
 
-        if(!props.visual)
-             console.log('Done the behavior');
+//        if(!props.visual)
+//             console.log('Done the behavior');
     }
 
     catch(e)

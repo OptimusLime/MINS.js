@@ -5708,7 +5708,7 @@ Box2D.postDefs = [];
       this.m_jointCount = 0;
       this.m_controllerCount = 0;
       b2World.m_warmStarting = true;
-      b2World.m_continuousPhysics = true;
+      b2World.m_continuousPhysics = false;
       this.m_allowSleep = doSleep;
       this.m_gravity = gravity;
       this.m_inv_dt0 = 0.0;
@@ -5966,10 +5966,14 @@ Box2D.postDefs = [];
       step.warmStarting = b2World.m_warmStarting;
       this.m_contactManager.Collide();
       if (step.dt > 0.0) {
+//         console.log('pre solve');
          this.Solve(step);
+//          console.log('post solve');
       }
       if (b2World.m_continuousPhysics && step.dt > 0.0) {
-         this.SolveTOI(step);
+          console.log('pre solvetoi');
+          this.SolveTOI(step);
+          console.log('post solvetoi');
       }
       if (step.dt > 0.0) {
          this.m_inv_dt0 = step.inv_dt;

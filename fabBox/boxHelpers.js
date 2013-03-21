@@ -112,8 +112,8 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
             stepCount++;
             //push the muscles outward a bit
             var speedup = 2;
-            if(!props.visual)
-                console.log('-- pre  muscles');
+//            if(!props.visual)
+//                console.log('-- pre  muscles');
             logEvents += '--Pre muscles';
             for(var i=0; i < this.muscles.length; i++){
                 var muscle = this.muscles[i];
@@ -121,8 +121,8 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
             }
 
             //step the physics world
-            if(!props.visual)
-                console.log('Post muscle, pre setep');
+//            if(!props.visual)
+//                console.log('Post muscle, pre setep');
             logEvents += 'Post muscle, Pre step';
             this.world.Step(
                 this.simulationRate   //frame-rate
@@ -130,15 +130,15 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
                 ,  10       //position iterations
             );
 
-            if(!props.visual)
-                console.log('Post sime');
+//            if(!props.visual)
+//                console.log('Post sime');
 
             logEvents += 'Post sime, Pre force';
             this.world.ClearForces();
 
 //            console.log('Post forces');
-            if(!props.visual)
-                console.log('Post forces');
+//            if(!props.visual)
+//                console.log('Post forces');
 
             logEvents += 'Post forces--';
             //increment the radians for the muscles
@@ -149,8 +149,8 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
 
 //            console.log(logEvents);
         }
-        if(!props.visual)
-            console.log('Post acc');
+//        if(!props.visual)
+//            console.log('Post acc');
         logEvents += 'Post acc';
         this.interpolation = accumulator/this.simulationRate;
         //console.log("Partial: " +  this.interpolation);
@@ -341,10 +341,10 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
                 var polarScaled = this.polarToCartesian(parseFloat(nodeLocation.X), parseFloat(nodeLocation.Y), maxR, {x: this.canvasWidth/2, y: this.canvasHeight/2});
 //            console.log('Polar scaled: ');
 //                console.log( {x: parseFloat(nodeLocation.X), y: parseFloat(nodeLocation.Y)});
-            xScaled = polarScaled.x;// (parseFloat(nodeLocation.X) +1)*300;
-//                xScaled = (parseFloat(nodeLocation.X) +1)*this.canvasWidth/2;
-            yScaled = polarScaled.y;//(parseFloat(nodeLocation.Y) +1)*200;
-//                yScaled = (parseFloat(nodeLocation.Y) +1)*this.canvasHeight/2;
+//            xScaled = polarScaled.x;// (parseFloat(nodeLocation.X) +1)*300;
+                xScaled = (parseFloat(nodeLocation.X) +1)*this.canvasWidth/2;
+//            yScaled = polarScaled.y;//(parseFloat(nodeLocation.Y) +1)*200;
+                yScaled = (parseFloat(nodeLocation.Y) +1)*this.canvasHeight/2;
               //FOR each node, we make a body with certain properties, then increment count
                 entities[bodyID] = (Entity.build({id:bodyID, x: xScaled/this.scale, y: yScaled/this.scale, radius: .5 }));
 
