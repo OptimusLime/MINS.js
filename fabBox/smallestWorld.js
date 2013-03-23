@@ -380,15 +380,20 @@ smallNS.SmallWorld.prototype.calculateBehavior = function(stepsTaken)
                 {
                     var centeredLoc = {x: com.nodeLocations[i].x - com.x, y: com.nodeLocations[i].y};
 
-                    if(isNaN(centeredLoc) || isNaN(centeredLoc.x) || isNaN(centeredLoc.y))
+                    if(isNaN(centeredLoc.x) || isNaN(centeredLoc.y))
                     {
-                        killEverything = true;
-
-                        for(var x = 0; x <xSides; x++ )
-                            for(var y=0; y < ySides; y++)
-                               this.behavior.heatMap[x][y] = 0;
-
-                        break;
+//                        console.log('skip a lot ' + i);
+                        //don't process
+                        continue;
+//                        killEverything = true;
+//
+//                        for(var x = 0; x <xSides; x++ )
+//                            for(var y=0; y < ySides; y++)
+//                               this.behavior.heatMap[x][y] = 0;
+//
+//                        console.log('Everything died');
+//
+//                        break;
                     }
 
                     var xDim = Math.floor((centeredLoc.x/(this.canvasWidth/2) + 1)/2*xSides);

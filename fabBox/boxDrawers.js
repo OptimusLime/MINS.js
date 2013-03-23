@@ -167,6 +167,7 @@ boxNS.DrawingObject.prototype.drawWorld = function(alphaInterpolate, centerOfGra
     }
     if(this.drawBehavior)
     {
+//        console.log('Drawing behavior ');
         this.updateBehaviorJoints(this.behaviorDrawObj, this.behavior, this.behaviorType, alphaInterpolate, {x:0, y: 0});
     }
 
@@ -303,14 +304,22 @@ boxNS.DrawingObject.prototype.createAndAddBehaviorDrawObject = function(behavior
 
 boxNS.DrawingObject.prototype.updateBehaviorJoints = function(behaviorDrawObj, behaviorObject, behaviorType, alpha, centerOfGravity)
 {
+
     //no behavior in zombie mode!
     if(this.zombieMode)
         return;
 
+//    console.log(//'bobj len: ' + behaviorObject.points.length +
+//        ' bObj heat: ' + behaviorObject.heatMap.fabCount);
+
     //if we have some valid behavior, but no object yet, add it!
-    if((behaviorObject.length || behaviorObject.heatMap.fabCount) && !behaviorDrawObj){
+    if(((behaviorObject.points && behaviorObject.points.length) || behaviorObject.heatMap.fabCount) && !behaviorDrawObj){
+
+//        console.log('creating draw obj');
         this.behaviorDrawObj = this.createAndAddBehaviorDrawObject(behaviorObject, behaviorType);
         behaviorDrawObj = this.behaviorDrawObj;
+
+//        console.log(behaviorDrawObj);
     }
     else if(!behaviorDrawObj)
         return;

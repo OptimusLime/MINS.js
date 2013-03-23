@@ -57,7 +57,7 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
 
     this.fixDef = new b2FixtureDef;
     this.fixDef.density = 25.0;
-//    this.fixDef.friction = 1.0;
+    this.fixDef.friction = 1.0;
     this.fixDef.restitution = 0.1;
     this.fixDef.fixedRotation = true;
 //    this.fixDef.linearDamping = 1.1;
@@ -313,7 +313,11 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
         var oBodyCount = this.bodiesList.length;
         var bodyID = this.bodiesList.length;
 
-//        console.log('BodyID: ' + bodyID);
+
+        var useLEO = jsonData.useLEO;
+
+//        console.log('JSON Data: ');
+//        console.log(jsonData);
 
         var entities = {};
         var xScaled,yScaled;
@@ -377,9 +381,11 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
                 }
                 try
                 {
-                    var phaseIx = (connectionObject.useLEO ? 2 : 1);
-                    var ampIx =  (connectionObject.useLEO ? 3 : 2);
+                    var phaseIx = (useLEO ? 2 : 1);
+                    var ampIx =  (useLEO ? 3 : 2);
                     var amp = (connectionObject.cppnOutputs[ampIx] +1 )/2;
+//                    console.log('Phaseix: ' + phaseIx + ' AmpIx: ' + ampIx + ' useleo: ' + useLEO);
+
 //                    console.log('Amplitudes: ' + amp);
                     if(amp < amplitudeCutoff)
                         var dJoint = this.addDistanceJoint(sourceID, targetID);
@@ -415,6 +421,7 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
     this.addMuscleJoint = function(body1Id, body2Id, params) {
         params = params || {};
         var addedJoint = this.addDistanceJoint(body1Id, body2Id, params);
+//        console.log('Phase: ' + params['phase'] + ' amp: ' + params['amplitude']);
         addedJoint.phase =  params['phase']|| 0;
         addedJoint.amplitude = params['amplitude'] || 1;
         //we push our muscles onto our muscle list
