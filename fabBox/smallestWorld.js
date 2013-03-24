@@ -9,7 +9,8 @@ smallNS.BehaviorTypes = {
     xyCenterOfMass : 0,
     xCenterOfMass : 1,
     yCenterOfMass : 2,
-    heatMap10x10 : 3
+    heatMap10x10 : 3,
+    nodeMovements : 4
 }
 
 var desiredSmallRenderSpeed = 30;
@@ -49,6 +50,9 @@ smallNS.SmallWorld = function(sCanvasID, canvasWidth, canvasHeight, scale, zombi
     this.behavior = {};
     this.behavior.frameCount = 0;
 
+
+
+
     switch(this.behaviorType)
     {
         case smallNS.BehaviorTypes.xCenterOfMass:
@@ -56,6 +60,37 @@ smallNS.SmallWorld = function(sCanvasID, canvasWidth, canvasHeight, scale, zombi
         case smallNS.BehaviorTypes.xyCenterOfMass:
             this.behavior.points = [];
             break;
+        case smallNS.BehaviorTypes.nodeMovements:
+
+            console.log('Making node movement map');
+            this.behavior.heatMap = {};
+
+            //determines the effects of structural differences in the behavior metric.
+            this.noNodeMultiplier = .2;
+
+            var xSides = 9;
+            var ySides = 9;
+
+            var moveDirections = 9;
+
+            for(var x = 0; x < xSides; x++)
+            {
+                this.behavior.heatMap[x] = {};
+                for(var y=0; y < ySides;y++)
+                {
+                    this.behavior.heatMap[x][y] = {};
+                    this.behavior.heatMap[x][y].bCount = 0;
+                    for(var w =0; w < moveDirections; w ++)
+                    {
+                        this.behavior.heatMap[x][y][w] = 0;
+                    }
+                }
+            }
+
+//            this.behavior.heatMap.fabCount = 0;
+
+            break;
+
         case smallNS.BehaviorTypes.heatMap10x10:
             console.log('Making heatmap');
             this.behavior.heatMap = {};
@@ -81,6 +116,10 @@ smallNS.SmallWorld = function(sCanvasID, canvasWidth, canvasHeight, scale, zombi
 
     //measure behavior every three frames
     this.behaviorSkipFrames = 5;
+    this.beginEvaluation = true;
+    //go for about a second?
+    this.waitToStartFrames = 45;
+
     //30 frames/sec, skip 3 frames, = 10 frames a second
     //50 behaviors = 5 seconds
     this.behaviorTotalCount = 75;
@@ -200,6 +239,12 @@ smallNS.SmallWorld.AdjustBehavior = function(behavior, behaviorType)
             behavior.points = smallNS.SmallWorld.flattenHeatMap(behavior.heatMap,10,10);
             return behavior;
 
+        case smallNS.BehaviorTypes.nodeMovements:
+
+            behavior.points = smallNS.SmallWorld.flattenNodeMovements(behavior.heatMap,9,9,9);
+
+            return behavior;
+
     }
 }
 smallNS.SmallWorld.heatMapAdjustments = function(heatMapBehavior, xSides, ySides)
@@ -272,6 +317,43 @@ smallNS.SmallWorld.flattenHeatMap = function(heatMap, xSides, ySides)
     }
     return flatten;
 }
+smallNS.SmallWorld.flattenNodeMovements = function(heatMap, xSides, ySides, moveDirections)
+{
+    var flatten = [];
+
+//    var totalCount = heatMap.fabCount;
+//    if(totalCount == 0)
+//    {
+//        for(var i=0; i < xSides*ySides*moveDirections; i++)
+//            flatten.push(0);
+//
+//        return flatten;
+//    }
+
+    for(var x=0; x < xSides;x++)
+    {
+        for(var y=0; y < ySides; y++)
+        {
+            var totalCount = heatMap[x][y].bCount;
+
+            if(totalCount ==0)
+            {
+                var flatten = [];
+                for(var i=0; i < xSides*ySides*moveDirections; i++)
+                    flatten.push(0);
+
+                return flatten;
+            }
+
+            for(var w =0; w < moveDirections; w++)
+            {
+               flatten.push(heatMap[x][y][w]/totalCount);
+            }
+        }
+    }
+    return flatten;
+}
+
 smallNS.SmallWorld.prototype.update = function(updateDeltaMS, props) {
 
 //    if(typeof updateDeltaMS != 'number' && props != undefined)
@@ -329,6 +411,16 @@ smallNS.SmallWorld.prototype.calculateBehavior = function(stepsTaken)
     //this tells us how many frames we've seen
     this.frameCount += stepsTaken;
 
+
+    //need to make sure we don't start evaluating until a certain number of frames occurs (i.e. the object is falling from the skies!)
+    if(this.beginEvaluation && this.frameCount < this.waitToStartFrames)
+        return;
+    else if(this.beginEvaluation && this.frameCount >= this.waitToStartFrames)
+    {
+        this.frameCount -= this.waitToStartFrames;
+        this.beginEvaluation = false;
+    }
+
     //we want to take a snapshot every 3 frames for instance
     //if we've only gone two simulation steps, ignore this!
     if(this.frameCount < this.behaviorSkipFrames)
@@ -367,6 +459,87 @@ smallNS.SmallWorld.prototype.calculateBehavior = function(stepsTaken)
                 break;
             case smallNS.BehaviorTypes.yCenterOfMass:
                 this.behavior.points.push(com.y);
+                break;
+
+
+            case smallNS.BehaviorTypes.nodeMovements:
+
+                //we don't have a difference in node locations, skip it!
+                if(!com.lastNodeLocations)
+                    break;
+
+                var killEverything = 0;
+
+                var xSides =9;
+                var ySides = 9;
+                var moveDirections = 9;
+                //this is a bit more complicated, we have to break down where every node is
+                //and increment the locations where nodes exist (relative to the center of gravity)
+                for(var i=0; i < xSides*ySides; i++)
+                {
+                    if(i >= com.nodeLocations.length)
+                    {
+                        var xIx = Math.floor(i%xSides);//Math.floor((centeredLoc.x/(this.canvasWidth/2) + 1)/2*xSides);
+                        var yIx = Math.floor(i/ySides);//Math.floor(centeredLoc.y/this.canvasHeight*ySides);
+
+                        for(var w =0; w < moveDirections; w++)
+                            this.behavior.heatMap[xIx][yIx][w] = -1*this.noNodeMultiplier;
+
+                        //i don't think we mess with fabCounts
+//                        this.behavior.heatMap.fabCount++;
+
+                        //on to the next please!
+                        continue;
+                    }
+//                    var prevCentered = {x: com.lastNodeLocations[i].x - com.x, y: com.lastNodeLocations[i].y - com.y};
+//                    var centeredLoc = {x: com.nodeLocations[i].x - com.x, y: com.nodeLocations[i].y-com.y};
+
+                    var difference = {x: com.nodeLocations[i].x - com.lastNodeLocations[i].x, y: com.nodeLocations[i].y - com.lastNodeLocations[i].y};
+
+                    if(isNaN(difference.x) || isNaN(difference.y)) //|| isNaN(prevCentered.x) || isNaN(prevCentered.y))
+                    {
+                        continue;
+                    }
+
+                    var xDim = Math.floor(i%xSides);//Math.floor((centeredLoc.x/(this.canvasWidth/2) + 1)/2*xSides);
+                    var yDim = Math.floor(i/ySides);//Math.floor(centeredLoc.y/this.canvasHeight*ySides);
+
+
+                    if(difference.x == 0 && difference.y == 0)
+                    {
+                        this.behavior.heatMap[xDim][yDim][moveDirections-1]++;
+                        this.behavior.heatMap.fabCount++;
+                        continue;
+                    }
+
+                    var angle = Math.atan2(difference.y, difference.x);
+
+                    //angle between -pi and pi,
+
+                    //find out where we are in fractional terms -- i.e. 45 degrees = pi/4 = 1/8 of 2PI -- implies first index in array of 8
+                    angle = (angle + Math.PI)/(2*Math.PI);
+                    //you shouldn't select the last index ever, but you can get up to
+                    //i.e. if i have 8 divisions, angle*8 goes from 0 to 8 -- but in reality, we have indexes from 0 to 7.
+                    //it only can be eight if we equal exactly PI, so we just make sure not to do that by accident.
+                    var ix = Math.max(0, Math.min(moveDirections-2,  Math.floor(angle*(moveDirections-1))));
+
+                    try
+                    {
+
+                       this.behavior.heatMap[xDim][yDim][ix]++;
+                       this.behavior.heatMap[xDim][yDim].bCount++;
+
+                    }
+                    catch(e)
+                    {
+                        console.log('Printing com error: ');
+                        console.log(e.message);
+                        throw e;
+                    }
+
+                }
+
+                break;
 
             case smallNS.BehaviorTypes.heatMap10x10:
 
@@ -437,6 +610,8 @@ smallNS.SmallWorld.prototype.calculateBehavior = function(stepsTaken)
 
                 break;
         }
+
+        this.behavior.lastNodeLocations = com;
 
         this.frameCount -= this.behaviorSkipFrames;
     }

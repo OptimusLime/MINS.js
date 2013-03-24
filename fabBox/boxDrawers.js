@@ -255,6 +255,71 @@ boxNS.DrawingObject.prototype.createAndAddBehaviorDrawObject = function(behavior
             this.fabricCanvas.add(fabPoly);
 
             break;
+
+        case smallNS.BehaviorTypes.nodeMovements:
+
+            var fabLines = {};
+
+            var xSides =9;
+            var ySides = 9;
+            var startX= 0, startY = 0;
+            var deltaX = this.canvasWidth/xSides;
+            var deltaY = this.canvasHeight/ySides;
+
+
+            var moveDirections = 9;
+            var angleDx = 2*Math.PI/(moveDirections-1);
+
+            var startAngle = 0;
+
+            var startIndex = this.fabricCanvas.getObjects().length;
+            var endIndex;
+            for(var x =0; x < xSides; x++)
+            {
+
+                startY = 0;
+                if(fabLines[x] === undefined)
+                    fabLines[x] = {};
+
+                for(var y=0; y < ySides; y++)
+                {
+                    startAngle =0;
+
+                    //for each move direction, we add angleDx, calc vector and add it to current startx.starty
+                    for(var w =0; w < moveDirections; w++)
+                    {
+                        var dist = 25;
+                        var addVector = {x: dist*Math.cos(startAngle), y:dist*Math.sin(startAngle)};
+
+                    //create our object without any points, and add it!
+                    var fabRect  = new fabric.Line( [startX, startY, startX+addVector.x, startY + addVector.y], {fill: '#000', stroke: '#000'});
+
+//                    console.log('Starx: ' + startX + ' Starty: ' + startY);
+//                    console.log('Deltas x: ' + deltaX + ' y:' + deltaY);
+//                    console.log(fabRect);
+
+
+
+
+                        //add it to our canvas
+                        this.fabricCanvas.add(fabRect);
+                        fabLines[x][y] = fabRect;
+
+                        startAngle += angleDx;
+                    }
+
+                    startY += deltaY;
+
+
+                }
+                startX += deltaX;
+
+            }
+
+            endIndex = this.fabricCanvas.getObjects().length;
+            behaviorDrawObject = {index: startIndex, endIndex: endIndex, fabCount:0, fabric: fabLines};
+
+            break;
         case smallNS.BehaviorTypes.heatMap10x10:
 
             var fabRects = {};
@@ -336,6 +401,65 @@ boxNS.DrawingObject.prototype.updateBehaviorJoints = function(behaviorDrawObj, b
             fabObj._calcDimensions();
 
             break;
+        case smallNS.BehaviorTypes.nodeMovements:
+            var xSides = 9;
+            var ySides = 9;
+            var moveDirections = 9;
+            var fabObj = behaviorDrawObj.fabric;
+            var heatMap = behaviorObject.heatMap;
+//            var fabCount = heatMap.fabCount;
+
+//            var fixedBehavior = (this.showRawBehavior) ? behaviorJoints : smallNS.SmallWorld.heatMapAdjustments(heatMap, 10,10);
+
+            //don't correct joints here, just use them directly
+            var fixedBehavior = heatMap;
+
+            //behavior joints contains heat map info we update our current heat map!
+            //skip the heat map if you are already done!
+            if(fabCount === 0 || fabCount === undefined)
+                break;
+
+            for(var x =0; x < xSides; x++)
+            {
+                for(var y=0; y < ySides; y++)
+                {
+                    var bCount = fixedBehavior[x][y].bCount;
+                    for(var w =0; w < moveDirections; w++)
+                    {
+                            var fabRect = fabObj[x][y][w];
+                            var heat =  fixedBehavior[x][y][w]/bCount;//behaviorJoints[x][y]/fabCount;
+
+                            //either we're not a 0 color, or we are a zero color, but the current color is nonzero!
+
+                            if(heat >0 || (heat ==0 && fabRect.get('fill') != "#000000"))
+                            {
+                                //then we use the heat to calculate the color!
+                                //multiply heat by 255!
+
+                                var rgb = decimalToHex(Math.floor(heat*255));
+
+                                var color = '#' + rgb + rgb + rgb;
+
+
+                                fabRect.set({
+                                    fill:     color
+                                });
+
+                            }
+
+                    }
+
+
+
+
+
+                }
+            }
+
+
+
+            break;
+
         case smallNS.BehaviorTypes.heatMap10x10:
 
             var xSides =10;
@@ -344,7 +468,7 @@ boxNS.DrawingObject.prototype.updateBehaviorJoints = function(behaviorDrawObj, b
             var heatMap = behaviorObject.heatMap;
             var fabCount = heatMap.fabCount;
 
-            var fixedBehavior = (this.showRawBehavior) ? behaviorJoints : smallNS.SmallWorld.heatMapAdjustments(heatMap, 10,10);
+            var fixedBehavior = (this.showRawBehavior) ? heatMap : smallNS.SmallWorld.heatMapAdjustments(heatMap, 10,10);
 
             //behavior joints contains heat map info we update our current heat map!
             //skip the heat map if you are already done!
