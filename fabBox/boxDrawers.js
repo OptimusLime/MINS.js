@@ -19,6 +19,14 @@ boxNS.DrawingObject = function(sDrawElementName, canvasWidth, canvasHeight, scal
     this.canvasWidth = canvasWidth;
     this.canvasHeight = canvasHeight;
 
+    this.lineColor = '#FFC704';// '#B2B212';
+    this.lineWidth = 3;
+
+    this.nodeColor = '#FE0000'; //'#B20C09';
+    this.nodeOutlineColor = '#222';
+
+    this.groundColor = '#008188';// '#199EFF';
+
     //do we actually want to draw using the fabricJS library - can toggle
     //create fabric object, render only when we call
     //and disable global selection (i.e. drag rectangle)
@@ -30,6 +38,8 @@ boxNS.DrawingObject = function(sDrawElementName, canvasWidth, canvasHeight, scal
         this.backRect = new fabric.Rect({width: 8*this.canvasWidth, height: 2*this.canvasHeight, x: -4*this.canvasWidth, y:-this.canvasHeight/2});
 
 
+        var lowerColor = '#555555';
+        var higherColor = '#AAAAAA';
 
         this.backRect.setGradientFill(this.fabricCanvas.getContext(), {
             x1: 0,
@@ -37,27 +47,27 @@ boxNS.DrawingObject = function(sDrawElementName, canvasWidth, canvasHeight, scal
             x2:  this.backRect.width,
             y2:  this.backRect.height / 2,
             colorStops: {
-                0: "#000000",
-                0.05: "#FFFFFF",
-                0.1: "#000000",
-                0.15: "#FFFFFF",
-                0.2: "#000000",
-                0.25: "#FFFFFF",
-                0.3: "#000000",
-                0.35: "#FFFFFF",
-                0.4: "#000000",
-                0.45: "#FFFFFF",
-                0.5: "#000000",
-                0.55: "#FFFFFF",
-                0.6: "#000000",
-                0.65: "#FFFFFF",
-                0.7: "#000000",
-                0.75: "#FFFFFF",
-                0.8: "#000000",
-                0.85: "#FFFFFF",
-                0.9: "#000000",
-                0.95: "#FFFFFF",
-                1: "#000000"
+                0: lowerColor,
+                0.05: higherColor,
+                0.1: lowerColor,
+                0.15: higherColor,
+                0.2: lowerColor,
+                0.25: higherColor,
+                0.3:lowerColor,
+                0.35:higherColor,
+                0.4: lowerColor,
+                0.45:higherColor,
+                0.5: lowerColor,
+                0.55:higherColor,
+                0.6:lowerColor,
+                0.65: higherColor,
+                0.7: lowerColor,
+                0.75: higherColor,
+                0.8: lowerColor,
+                0.85: higherColor,
+                0.9: lowerColor,
+                0.95: higherColor,
+                1: lowerColor
             }
         });
 
@@ -236,63 +246,70 @@ boxNS.DrawingObject.prototype.createAndAddBehaviorDrawObject = function(behavior
     if(this.zombieMode)
         return;
 
-    var behaviorDrawObject;
+
+        var behaviorDrawObject;
+
+        switch(behaviorType)
+        {
+            case smallNS.BehaviorTypes.xyCenterOfMass:
+            case smallNS.BehaviorTypes.xCenterOfMass:
+            case smallNS.BehaviorTypes.yCenterOfMass:
+            case smallNS.BehaviorTypes.avgXYCenterOfMass:
+
+                //create our object without any points, and add it!
+                var fabPoly  = new fabric.Polygon(behaviorObject.points, {fill: '#55f', stroke: '#f55'});
+
+                behaviorDrawObject = {index: this.fabricCanvas.getObjects().length, fabric: fabPoly};
+
+                //add it to our canvas
+                this.fabricCanvas.add(fabPoly);
+
+                break;
+
+            case smallNS.BehaviorTypes.nodeMovements:
+
+                console.log('Fabbing lines');
+                var fabLines = {};
+
+                var xSides =9;
+                var ySides = 9;
+                var startX= 0, startY = 0;
+                var deltaX = this.canvasWidth/xSides;
+                var deltaY = this.canvasHeight/ySides;
 
 
-    switch(behaviorType)
-    {
-        case smallNS.BehaviorTypes.xyCenterOfMass:
-        case smallNS.BehaviorTypes.xCenterOfMass:
-        case smallNS.BehaviorTypes.yCenterOfMass:
+                var moveDirections = 9;
+                var angleDx = 2*Math.PI/(moveDirections-1);
 
+                var startAngle = 0;
 
-            //create our object without any points, and add it!
-            var fabPoly  = new fabric.Polygon(behaviorObject.points, {fill: '#55f', stroke: '#f55'});
-
-            behaviorDrawObject = {index: this.fabricCanvas.getObjects().length, fabric: fabPoly};
-
-            //add it to our canvas
-            this.fabricCanvas.add(fabPoly);
-
-            break;
-
-        case smallNS.BehaviorTypes.nodeMovements:
-
-            var fabLines = {};
-
-            var xSides =9;
-            var ySides = 9;
-            var startX= 0, startY = 0;
-            var deltaX = this.canvasWidth/xSides;
-            var deltaY = this.canvasHeight/ySides;
-
-
-            var moveDirections = 9;
-            var angleDx = 2*Math.PI/(moveDirections-1);
-
-            var startAngle = 0;
-
-            var startIndex = this.fabricCanvas.getObjects().length;
-            var endIndex;
-            for(var x =0; x < xSides; x++)
-            {
-
-                startY = 0;
-                if(fabLines[x] === undefined)
-                    fabLines[x] = {};
-
-                for(var y=0; y < ySides; y++)
+                var startIndex = this.fabricCanvas.getObjects().length;
+                var endIndex;
+                for(var x =0; x < xSides; x++)
                 {
-                    startAngle =0;
 
-                    //for each move direction, we add angleDx, calc vector and add it to current startx.starty
-                    for(var w =0; w < moveDirections; w++)
+                    startY = 0;
+                    if(fabLines[x] === undefined)
+                        fabLines[x] = {};
+
+                    for(var y=0; y < ySides; y++)
                     {
-                        var dist = 25;
-                        var addVector = {x: dist*Math.cos(startAngle), y:dist*Math.sin(startAngle)};
+                        startAngle =0;
 
-                    //create our object without any points, and add it!
-                    var fabRect  = new fabric.Line( [startX, startY, startX+addVector.x, startY + addVector.y], {fill: '#000', stroke: '#000'});
+                        if(fabLines[x][y] === undefined)
+                            fabLines[x][y] = {};
+
+                        if(!behaviorObject.heatMap[x][y].bCount)
+                            continue;
+
+                        //for each move direction, we add angleDx, calc vector and add it to current startx.starty
+                        for(var w =0; w < moveDirections; w++)
+                        {
+                            var dist = 15;
+                            var addVector = {x: dist*Math.cos(startAngle), y:dist*Math.sin(startAngle)};
+
+                            //create our object without any points, and add it!
+                            var fabRect  = new fabric.Line( [startX, startY, startX+addVector.x, startY + addVector.y], {fill: '#000', stroke: '#000', strokeWidth: 2});
 
 //                    console.log('Starx: ' + startX + ' Starty: ' + startY);
 //                    console.log('Deltas x: ' + deltaX + ' y:' + deltaY);
@@ -300,69 +317,70 @@ boxNS.DrawingObject.prototype.createAndAddBehaviorDrawObject = function(behavior
 
 
 
+//                        console.log('Creating line: ' + startX + ' y: ' + startY + ' eX: ' + (startX + addVector.x) + ' ey: ' + (startY + addVector.y));
+
+                            //add it to our canvas
+                            this.fabricCanvas.add(fabRect);
+                            fabLines[x][y][w] = fabRect;
+
+                            startAngle += angleDx;
+                        }
+
+                        startY += deltaY;
+
+
+                    }
+                    startX += deltaX;
+
+                }
+
+                endIndex = this.fabricCanvas.getObjects().length;
+                behaviorDrawObject = {index: startIndex, endIndex: endIndex, fabCount:0, fabric: fabLines};
+
+                break;
+            case smallNS.BehaviorTypes.heatMap10x10:
+
+                var fabRects = {};
+                var xSides =10;
+                var ySides = 10;
+                var startX= 0, startY = 0;
+                var deltaX = this.canvasWidth/xSides;
+                var deltaY = this.canvasHeight/ySides;
+
+                var startIndex = this.fabricCanvas.getObjects().length;
+                var endIndex;
+
+                for(var x =0; x < xSides; x++)
+                {
+                    startY = 0;
+
+                    if(fabRects[x] === undefined)
+                        fabRects[x] = {};
+
+                    for(var y=0; y < ySides; y++)
+                    {
+                        //create our object without any points, and add it!
+                        var fabRect  = new fabric.Rect({left:startX + deltaX/2, top:startY + deltaY/2, width:deltaX, height:deltaY,  fill: '#000', stroke: '#000'});
+
+//                    console.log('Starx: ' + startX + ' Starty: ' + startY);
+//                    console.log('Deltas x: ' + deltaX + ' y:' + deltaY);
+//                    console.log(fabRect);
 
                         //add it to our canvas
                         this.fabricCanvas.add(fabRect);
-                        fabLines[x][y] = fabRect;
+                        fabRects[x][y] = fabRect;
 
-                        startAngle += angleDx;
+                        startY += deltaY;
+
                     }
-
-                    startY += deltaY;
-
-
+                    startX += deltaX;
                 }
-                startX += deltaX;
 
-            }
+                endIndex = this.fabricCanvas.getObjects().length;
+                behaviorDrawObject = {index: startIndex, endIndex: endIndex, fabCount:0, fabric: fabRects};
 
-            endIndex = this.fabricCanvas.getObjects().length;
-            behaviorDrawObject = {index: startIndex, endIndex: endIndex, fabCount:0, fabric: fabLines};
-
-            break;
-        case smallNS.BehaviorTypes.heatMap10x10:
-
-            var fabRects = {};
-            var xSides =10;
-            var ySides = 10;
-            var startX= 0, startY = 0;
-            var deltaX = this.canvasWidth/xSides;
-            var deltaY = this.canvasHeight/ySides;
-
-            var startIndex = this.fabricCanvas.getObjects().length;
-            var endIndex;
-
-            for(var x =0; x < xSides; x++)
-            {
-                startY = 0;
-
-                if(fabRects[x] === undefined)
-                    fabRects[x] = {};
-
-                for(var y=0; y < ySides; y++)
-                {
-                    //create our object without any points, and add it!
-                    var fabRect  = new fabric.Rect({left:startX + deltaX/2, top:startY + deltaY/2, width:deltaX, height:deltaY,  fill: '#000', stroke: '#000'});
-
-//                    console.log('Starx: ' + startX + ' Starty: ' + startY);
-//                    console.log('Deltas x: ' + deltaX + ' y:' + deltaY);
-//                    console.log(fabRect);
-
-                    //add it to our canvas
-                    this.fabricCanvas.add(fabRect);
-                    fabRects[x][y] = fabRect;
-
-                    startY += deltaY;
-
-                }
-                startX += deltaX;
-            }
-
-            endIndex = this.fabricCanvas.getObjects().length;
-            behaviorDrawObject = {index: startIndex, endIndex: endIndex, fabCount:0, fabric: fabRects};
-
-            break;
-    }
+                break;
+        }
 
     return behaviorDrawObject;
 }
@@ -378,7 +396,7 @@ boxNS.DrawingObject.prototype.updateBehaviorJoints = function(behaviorDrawObj, b
 //        ' bObj heat: ' + behaviorObject.heatMap.fabCount);
 
     //if we have some valid behavior, but no object yet, add it!
-    if(((behaviorObject.points && behaviorObject.points.length) || behaviorObject.heatMap.fabCount) && !behaviorDrawObj){
+    if(((behaviorObject.points && behaviorObject.points.length) || (behaviorObject.heatMap && behaviorObject.heatMap.fabCount)) && !behaviorDrawObj){
 
 //        console.log('creating draw obj');
         this.behaviorDrawObj = this.createAndAddBehaviorDrawObject(behaviorObject, behaviorType);
@@ -401,13 +419,20 @@ boxNS.DrawingObject.prototype.updateBehaviorJoints = function(behaviorDrawObj, b
             fabObj._calcDimensions();
 
             break;
+        case smallNS.BehaviorTypes.avgXYCenterOfMass:
+
+            var fabObj = behaviorDrawObj.fabric;
+            fabObj.points = smallNS.SmallWorld.condenseAvgCOM(behaviorObject.points);
+            fabObj._calcDimensions();
+
+            break;
         case smallNS.BehaviorTypes.nodeMovements:
             var xSides = 9;
             var ySides = 9;
             var moveDirections = 9;
             var fabObj = behaviorDrawObj.fabric;
             var heatMap = behaviorObject.heatMap;
-//            var fabCount = heatMap.fabCount;
+            var fabCount = heatMap.fabCount;
 
 //            var fixedBehavior = (this.showRawBehavior) ? behaviorJoints : smallNS.SmallWorld.heatMapAdjustments(heatMap, 10,10);
 
@@ -424,13 +449,17 @@ boxNS.DrawingObject.prototype.updateBehaviorJoints = function(behaviorDrawObj, b
                 for(var y=0; y < ySides; y++)
                 {
                     var bCount = fixedBehavior[x][y].bCount;
+//                    console.log('bc: ' + bCount);
+                    if(!bCount)
+                        continue;
+
                     for(var w =0; w < moveDirections; w++)
                     {
                             var fabRect = fabObj[x][y][w];
                             var heat =  fixedBehavior[x][y][w]/bCount;//behaviorJoints[x][y]/fabCount;
 
                             //either we're not a 0 color, or we are a zero color, but the current color is nonzero!
-
+//                            console.log('Heat: ' + heat);
                             if(heat >0 || (heat ==0 && fabRect.get('fill') != "#000000"))
                             {
                                 //then we use the heat to calculate the color!
@@ -543,7 +572,7 @@ boxNS.DrawingObject.prototype.addBody = function(dBody)
         case b2Shape.e_circleShape:
         {
 
-            var fabCircle  = new fabric.Circle({ radius: info.radius, fill: '#f55', left: info.center.x, top:  info.center.y });
+            var fabCircle  = new fabric.Circle({ radius: info.radius, fill: this.nodeColor, stroke: this.nodeOutlineColor,  left: info.center.x, top:  info.center.y });
 
             //we've created a drawID already, link the two
             fabCircle.drawID = dBody.drawID;
@@ -560,7 +589,7 @@ boxNS.DrawingObject.prototype.addBody = function(dBody)
             //the info object has the vertices in it already - scaled up by drawscale
 
             //this.m_debugDraw.DrawSolidPolygon(vertices, vertexCount, color);
-            var fabPoly  = new fabric.Polygon(info.vertices, {fill: '#5f5'});
+            var fabPoly  = new fabric.Polygon(info.vertices, {fill: this.groundColor});
             //we've created a drawID already, link the two
             fabPoly.drawID = dBody.drawID;
 
@@ -598,8 +627,21 @@ boxNS.DrawingObject.prototype.addJoint = function(joint)
     var info = this.jointInfo(joint);
 
     //create our poly line for this joint (normally just 2 points really)
-    var fabPolyLine =  new fabric.Polyline(info.points, {fill: '#55f', stroke: '#55f'});
+    var fabPolyLine =  new fabric.Polyline(info.points, {fill: this.lineColor, stroke:this.lineColor, strokeWidth:this.lineWidth, opacity: .7});
     fabPolyLine.drawID = joint.drawID;
+
+//    fabPolyLine.setGradientFill(this.fabricCanvas.getContext(),{
+//        x1: info.points[0].x,
+//        y1: info.points[0].y,
+//        x2: info.points[info.points.length-1].x,
+//        y2: info.points[info.points.length-1].y,
+//        colorStops: {
+//            0: '#000',
+//            1: '#fff'
+//        }
+//    });
+
+
 
     this.drawObjects.joints[joint.drawID] = {index: this.fabricCanvas.getObjects().length, fabric: fabPolyLine, joint: joint, jointType: joint.m_type};
 

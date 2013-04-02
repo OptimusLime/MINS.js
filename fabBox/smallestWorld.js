@@ -10,7 +10,8 @@ smallNS.BehaviorTypes = {
     xCenterOfMass : 1,
     yCenterOfMass : 2,
     heatMap10x10 : 3,
-    nodeMovements : 4
+    nodeMovements : 4,
+    avgXYCenterOfMass: 5
 }
 
 var desiredSmallRenderSpeed = 30;
@@ -28,7 +29,6 @@ window.requestAnimFrame = (function(callback){
             window.setTimeout(callback, 1000/desiredSmallRenderSpeed);
         };
 })();
-
 
 
 
@@ -58,6 +58,7 @@ smallNS.SmallWorld = function(sCanvasID, canvasWidth, canvasHeight, scale, zombi
         case smallNS.BehaviorTypes.xCenterOfMass:
         case smallNS.BehaviorTypes.yCenterOfMass:
         case smallNS.BehaviorTypes.xyCenterOfMass:
+        case smallNS.BehaviorTypes.avgXYCenterOfMass:
             this.behavior.points = [];
             break;
         case smallNS.BehaviorTypes.nodeMovements:
@@ -65,8 +66,6 @@ smallNS.SmallWorld = function(sCanvasID, canvasWidth, canvasHeight, scale, zombi
             console.log('Making node movement map');
             this.behavior.heatMap = {};
 
-            //determines the effects of structural differences in the behavior metric.
-            this.noNodeMultiplier = .2;
 
             var xSides = 9;
             var ySides = 9;
@@ -166,6 +165,9 @@ smallNS.SmallWorld = function(sCanvasID, canvasWidth, canvasHeight, scale, zombi
 
 }
 
+//determines the effects of structural differences in the behavior metric.
+smallNS.SmallWorld.noNodeMultiplier = .2;
+
 smallNS.smallWorldHtmlString = function(divID, canvasID, width, height)
 {
     return '<div id=' + divID + ' class="element width2 height2"><canvas id=' + canvasID + ' width=' + height + ' height=' + height + ' class="canvas"></canvas></div>';
@@ -212,6 +214,68 @@ smallNS.SmallWorld.prototype.runSimulationForBehavior = function(props)
 
 }
 
+smallNS.SmallWorld.BehaviorAvgCOMDivisor = 5;
+
+smallNS.SmallWorld.EmptyBehavior = function(behavior, behaviorType, desiredBehaviors)
+{
+    behavior.fitness = 0.000001;
+
+    //we create our objects, the first is fitness, but we'll also have
+    //novelty, and genomic diversity
+    behavior.objectives = [];
+    behavior.objectives.push(behavior.fitness);
+
+    switch(behaviorType)
+    {
+        case smallNS.BehaviorTypes.xCenterOfMass:
+        case smallNS.BehaviorTypes.yCenterOfMass:
+        case smallNS.BehaviorTypes.xyCenterOfMass:
+
+            behavior.points = [];
+             for(var i=0; i < desiredBehaviors; i++)
+            {
+                behavior.points.push({x: 0, y:0});
+            }
+
+            //return empty behavior
+            return behavior;
+
+        case smallNS.BehaviorTypes.avgXYCenterOfMass:
+
+            behavior.points = [];
+            for(var i=0; i < desiredBehaviors; i++)
+            {
+                behavior.points.push({x: 0, y:0});
+            }
+            behavior.points = smallNS.SmallWorld.condenseAvgCOM(behavior.points);
+
+            //return empty behavior
+            return behavior;
+
+
+        case smallNS.BehaviorTypes.heatMap10x10:
+
+            behavior.points = [];
+            for(var i=0; i < 10*10; i++)
+            {
+                behavior.points.push(0);
+            }
+
+            return behavior;
+
+        case smallNS.BehaviorTypes.nodeMovements:
+
+            behavior.points = [];
+
+            for(var i=0; i < 9*9*9; i++)
+            {
+                behavior.points.push(-1*smallNS.SmallWorld.noNodeMultiplier);
+            }
+
+            return behavior;
+
+    }
+}
 smallNS.SmallWorld.AdjustBehavior = function(behavior, behaviorType)
 {
 
@@ -230,6 +294,13 @@ smallNS.SmallWorld.AdjustBehavior = function(behavior, behaviorType)
             //no adjustments to make, all data should be in behavior.points
            return behavior;
 
+        case smallNS.BehaviorTypes.avgXYCenterOfMass:
+
+            behavior.points = smallNS.SmallWorld.condenseAvgCOM(behavior.points);
+
+            //return empty behavior
+            return behavior;
+
         case smallNS.BehaviorTypes.heatMap10x10:
             //number of sides sent in for adjustment
             //along with our heat map
@@ -246,6 +317,45 @@ smallNS.SmallWorld.AdjustBehavior = function(behavior, behaviorType)
             return behavior;
 
     }
+}
+
+smallNS.SmallWorld.condenseAvgCOM = function(points)
+{
+    var condensedPoints = [];
+
+    var modOut = smallNS.SmallWorld.BehaviorAvgCOMDivisor;
+    var lastPoint = points[0];
+    var sumAdd = {x:0, y:0};
+    var currentIx = 0;
+    condensedPoints.push(lastPoint);
+
+    for(var i=1; i < points.length; i++)
+    {
+        if(i && i%modOut === 0)
+        {
+            lastPoint = {x: lastPoint.x + sumAdd.x/currentIx, y: lastPoint.y + sumAdd.y/currentIx};
+            condensedPoints.push(lastPoint);
+            sumAdd = {x:0, y:0};
+            currentIx = 0;
+        }
+        else
+        {
+            var point = points[i];
+            sumAdd.x += point.x;
+            sumAdd.y += point.y;
+            currentIx++;
+        }
+    }
+
+    if(currentIx != 0)
+    {
+        lastPoint = {x: lastPoint.x + sumAdd.x/currentIx, y: lastPoint.y + sumAdd.y/currentIx};
+        condensedPoints.push(lastPoint);
+    }
+
+    return condensedPoints;
+
+
 }
 smallNS.SmallWorld.heatMapAdjustments = function(heatMapBehavior, xSides, ySides)
 {
@@ -336,18 +446,17 @@ smallNS.SmallWorld.flattenNodeMovements = function(heatMap, xSides, ySides, move
         {
             var totalCount = heatMap[x][y].bCount;
 
-            if(totalCount ==0)
-            {
-                var flatten = [];
-                for(var i=0; i < xSides*ySides*moveDirections; i++)
-                    flatten.push(0);
-
-                return flatten;
-            }
-
             for(var w =0; w < moveDirections; w++)
             {
-               flatten.push(heatMap[x][y][w]/totalCount);
+                var pushValue = (totalCount == 0 ? heatMap[x][y][w] : heatMap[x][y][w]/totalCount);
+
+                if(!pushValue)
+                    pushValue = 0;
+
+//                console.log('x: ' + x + ' y: ' + y + ' TotalCount: ' + totalCount + ' heat ' + heatMap[x][y][w]);
+
+
+               flatten.push(pushValue);
             }
         }
     }
@@ -383,7 +492,8 @@ smallNS.SmallWorld.prototype.update = function(updateDeltaMS, props) {
 //            console.log('Update the behavior');
 
 
-        this.calculateBehavior(updateInfo.stepCount);
+//        if(this.drawObject.drawBehavior)
+            this.calculateBehavior(updateInfo.stepCount);
 
 //        if(!props.visual)
 //             console.log('Done the behavior');
@@ -402,6 +512,7 @@ smallNS.SmallWorld.prototype.update = function(updateDeltaMS, props) {
 
 smallNS.SmallWorld.prototype.calculateBehavior = function(stepsTaken)
 {
+//    console.log('Behaqvioring!');
     //we're done with our behavior!
     if(this.behavior.frameCount >= this.behaviorTotalCount)
         return;
@@ -461,11 +572,26 @@ smallNS.SmallWorld.prototype.calculateBehavior = function(stepsTaken)
                 this.behavior.points.push(com.y);
                 break;
 
+            case smallNS.BehaviorTypes.avgXYCenterOfMass:
+
+                if(!this.behavior.lastCom)
+                {
+                    this.behavior.points.push({x: com.x, y: com.y});
+                }
+                else
+                {
+                    this.behavior.points.push({x: com.x - this.behavior.lastCom.x, y: com.y - this.behavior.lastCom.y});
+                }
+
+                //set last center of mass
+                this.behavior.lastCom = com;
+
+                break;
 
             case smallNS.BehaviorTypes.nodeMovements:
 
                 //we don't have a difference in node locations, skip it!
-                if(!com.lastNodeLocations)
+                if(!this.behavior.lastNodeLocations)
                     break;
 
                 var killEverything = 0;
@@ -482,8 +608,11 @@ smallNS.SmallWorld.prototype.calculateBehavior = function(stepsTaken)
                         var xIx = Math.floor(i%xSides);//Math.floor((centeredLoc.x/(this.canvasWidth/2) + 1)/2*xSides);
                         var yIx = Math.floor(i/ySides);//Math.floor(centeredLoc.y/this.canvasHeight*ySides);
 
+
+//                        console.log('Node locs ' + i);
+
                         for(var w =0; w < moveDirections; w++)
-                            this.behavior.heatMap[xIx][yIx][w] = -1*this.noNodeMultiplier;
+                            this.behavior.heatMap[xIx][yIx][w] = -1*smallNS.SmallWorld.noNodeMultiplier;
 
                         //i don't think we mess with fabCounts
 //                        this.behavior.heatMap.fabCount++;
@@ -491,10 +620,14 @@ smallNS.SmallWorld.prototype.calculateBehavior = function(stepsTaken)
                         //on to the next please!
                         continue;
                     }
+
+                    this.behavior.heatMap.fabCount = 1;
+
 //                    var prevCentered = {x: com.lastNodeLocations[i].x - com.x, y: com.lastNodeLocations[i].y - com.y};
 //                    var centeredLoc = {x: com.nodeLocations[i].x - com.x, y: com.nodeLocations[i].y-com.y};
+//                    console.log('Node dif');
 
-                    var difference = {x: com.nodeLocations[i].x - com.lastNodeLocations[i].x, y: com.nodeLocations[i].y - com.lastNodeLocations[i].y};
+                    var difference = {x: com.nodeLocations[i].x - this.behavior.lastNodeLocations[i].x, y: com.nodeLocations[i].y - this.behavior.lastNodeLocations[i].y};
 
                     if(isNaN(difference.x) || isNaN(difference.y)) //|| isNaN(prevCentered.x) || isNaN(prevCentered.y))
                     {
@@ -508,7 +641,8 @@ smallNS.SmallWorld.prototype.calculateBehavior = function(stepsTaken)
                     if(difference.x == 0 && difference.y == 0)
                     {
                         this.behavior.heatMap[xDim][yDim][moveDirections-1]++;
-                        this.behavior.heatMap.fabCount++;
+                        this.behavior.heatMap[xDim][yDim].bCount++;
+
                         continue;
                     }
 
@@ -526,8 +660,11 @@ smallNS.SmallWorld.prototype.calculateBehavior = function(stepsTaken)
                     try
                     {
 
-                       this.behavior.heatMap[xDim][yDim][ix]++;
+                        this.behavior.heatMap[xDim][yDim][ix]++;
                        this.behavior.heatMap[xDim][yDim].bCount++;
+
+//                        console.log('Bmap : ' + this.behavior.heatMap[xDim][yDim][ix]);
+//                        console.log(' bcount: ' + this.behavior.heatMap[xDim][yDim].bCount);
 
                     }
                     catch(e)
@@ -611,7 +748,7 @@ smallNS.SmallWorld.prototype.calculateBehavior = function(stepsTaken)
                 break;
         }
 
-        this.behavior.lastNodeLocations = com;
+        this.behavior.lastNodeLocations = com.nodeLocations;
 
         this.frameCount -= this.behaviorSkipFrames;
     }

@@ -104,12 +104,23 @@
                 var genomeObject = JSON.parse(genomeBodies[genomeID]);
 
 
+
 //                console.log('parse complete: ' + genomeID);
                 //Now, we're going to want to insert that object into our container, if you know what i mean
                 //and make sure the world is in zombie mode
                 var smallWorld = addGenomeObjectDiv(genomeObject, '#container', true);
 
+                if(!genomeObject.HiddenLocations.length)
+                {
+                    //don't evaluate empty objects
+                    //get empty behavior and return
+                    var emptyBehavior = smallNS.SmallWorld.EmptyBehavior({}, smallWorld.behaviorType, smallWorld.behaviorTotalCount);
 
+                    //ideally, we wouldn't send empty objects, but for now this hack works enough
+                    genomeBehaviorDict[genomeID] = {behavior: emptyBehavior.points, objectives: emptyBehavior.objectives, fitness: emptyBehavior.fitness };
+
+                    continue;
+                }
 //                console.log('Added genome div: ' + genomeID);
                 //Now we have our small world, grab the ID, so that we may remove it after completing our zombie evaluation
                 var smallWorldID = smallWorld.worldID;

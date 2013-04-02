@@ -157,6 +157,9 @@
                                     //parse it from string form, and send it to our world! mwahahaha
                                     var genomeObject = JSON.parse(genomeBodies[genomeID]);
 
+                                    console.log('Genome object best: ' );
+                                    console.log(genomeObject);
+
                                     requiredBodies.push(genomeObject);
 
                                     //Now, we're going to want to insert that object into our container, if you know what i mean
@@ -168,7 +171,7 @@
                                     //start the loop, show me what you got!
 //                                    smallWorld.freezeLoop(true);
                                     smallWorld.startLoop();
-                                    smallWorld.shouldDrawBehavior(true, false);
+//                                    smallWorld.shouldDrawBehavior(true, false);
                                 }
 
                                 doneWithLoading();
