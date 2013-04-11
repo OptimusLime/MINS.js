@@ -155,6 +155,35 @@ function getBestIndividuals(uid, bodyCallback, errorCallback)
         }
     });
 }
+function runPCA(bodyCallback, errorCallback)
+{
+    console.log('Sending Latest PCA request');
+
+    $.ajax({
+        url: "http://127.0.0.1:3000/runPCA",
+        type: 'GET',
+        cache: false,
+        timeout: 30000,
+        complete: function() {
+            //called when complete
+            console.log('done with Archive request');
+        },
+
+        success: function(pcaResults) {
+            console.log('PCA Results returned');
+            bodyCallback(pcaResults);
+
+        },
+
+        error: function(err) {
+            console.log('Archive error: ' + err.responseText);
+            if(errorCallback)
+                errorCallback(err);
+        }
+    });
+
+};
+
 function getLatestArchive(bodyCallback, errorCallback)
 {
     console.log('Sending Latest Archive request');

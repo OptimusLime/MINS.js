@@ -1,0 +1,108 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>IEC Framework- Infinite</title>
+
+    <link rel="stylesheet" href="IECInfinite.css" type="text/css" />
+    <!--<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>-->
+    <!--<script src="../Helpers/jquery.isotope.js"></script>-->
+</head>
+
+<body class="demos" >
+
+<nav id="site-nav">
+
+
+</nav> <!-- #site-nav -->
+
+<section id="content">
+
+<h1>Infinite Genomes</h1>
+
+
+<section id="copy">
+</section>
+
+
+    <div id="container" class="variable-sizes clearfix infinite-scrolling">
+
+
+</div> <!-- #container -->
+
+
+<nav id="page_nav">
+    <a href="http://localhost:3000/getBodies"></a>
+</nav>
+
+<script src="../Helpers/jquery-1.7.1.min.js"></script>
+<script src="../Helpers/jquery.isotope.js"></script>
+    <script src="../Helpers/jquery.inview.js"></script>
+<!--load the experiment script when the body gets processed, so it has access to the canvas object for styling-->
+
+<script type="text/javascript" src="../Helpers/d3.v2.js"></script>
+<script type="text/javascript" src="../Helpers/jkl-parsexml.js"></script>
+<script type="text/javascript" src="../Helpers/loadXML.js"></script>
+
+<script type="text/javascript" src="../Helpers/Box2d.min.js"></script>
+<script type="text/javascript" src="../Helpers/fabric.js"></script>
+    <!--has our getbody request logic-->
+<script type="text/javascript" src="../Helpers/Helpers.js"></script>
+<script type="text/javascript" src="../Helpers/AjaxRequests.js"></script>
+
+<script type="text/javascript" src="../fabBox/boxHelpers.js"></script>
+<script type="text/javascript" src="../fabBox/boxDrawers.js"></script>
+
+<script type="text/javascript" src="../fabBox/smallestWorld.js"></script>
+
+<script type="text/javascript" src="IEC.js"></script>
+
+    <script>
+        var archiveOnScreen = {};
+        var cachedObjects = {};
+        var archivePageLength = 2;
+
+        var uid = Math.random()*1000000;
+
+        var htmlID = '#container';
+
+        //set up d3
+        runPCA(
+                function(uidToPoints)
+                {
+                    //should already be converted into dictionary/points
+
+                    var $container = $(htmlID);
+//                    var divID = divIDFromGenome(genomeObject.GenomeID);
+//                    var id =  canvasIDFromGenome(genomeObject.GenomeID);
+
+
+//                    $container.append(smallNS.smallWorldHtmlString(divID, id, 230,230));
+
+//                    var smallWorld = new smallNS.SmallWorld(id, 230, 230, 14, false);
+
+//                    var smallWorld = addGenomeObjectDiv(genomeObject, '#container');
+
+//                    smallWorld.addJSONBody(genomeObject);
+
+                },
+                function(err){ //still need to hide on body error!
+
+                    console.log('Error: ' );
+                    console.log(err);
+                }
+        );
+
+
+        </script>
+
+<footer>
+   WIN Interactive set up by <a href="http://designforcode.com">Paul Szerlip</a> / and <a href="http://eplex.cs.ucf.edu">Eplex</a>
+</footer>
+
+</section> <!-- #content -->
+
+</body>
+
+</html>

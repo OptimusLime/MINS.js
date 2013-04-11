@@ -46,7 +46,7 @@ smallNS.SmallWorld = function(sCanvasID, canvasWidth, canvasHeight, scale, zombi
     this.canvasHeight = canvasHeight;
 
     //we say what kind of behavior we want, then create that object -- should be a function in the future
-    this.behaviorType = smallNS.BehaviorTypes.heatMap10x10;
+    this.behaviorType = smallNS.BehaviorTypes.xCenterOfMass;
     this.behavior = {};
     this.behavior.frameCount = 0;
 
@@ -228,7 +228,19 @@ smallNS.SmallWorld.EmptyBehavior = function(behavior, behaviorType, desiredBehav
     switch(behaviorType)
     {
         case smallNS.BehaviorTypes.xCenterOfMass:
+            behavior.points = [];
+            for(var i=0; i < desiredBehaviors; i++)
+            {
+                behavior.points.push(0);
+            }
+            return behavior;
         case smallNS.BehaviorTypes.yCenterOfMass:
+            behavior.points = [];
+            for(var i=0; i < desiredBehaviors; i++)
+            {
+                behavior.points.push(0);
+            }
+            return behavior;
         case smallNS.BehaviorTypes.xyCenterOfMass:
 
             behavior.points = [];
