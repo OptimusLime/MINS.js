@@ -843,3 +843,13 @@ code .nd { color: #9FAD7E; } /* CSS pseudo selector */
 .clearfix:before, .clearfix:after { content: ""; display: table; }
 .clearfix:after { clear: both; }
 .clearfix { zoom: 1; }
+
+
+#pcaViewer
+{
+    display: inline-block;
+    border: 1px solid #666;
+    padding: 5px;
+    margin-bottom: 20px;
+
+}

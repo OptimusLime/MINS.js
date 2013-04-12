@@ -90,6 +90,37 @@ function addGenomeDiv(genomeJSON, containID)
     return addGenomeObjectDiv(genomeObject, containID);
 }
 
+function addGenomeToSizedDiv(genomeObject, params)
+{
+    var containerID = params.containID || '#container';
+    var $container = $(containerID);
+
+    var divID = divIDFromGenome(genomeObject.GenomeID);
+    var id =  canvasIDFromGenome(genomeObject.GenomeID);
+
+    var def = 230;
+    $container.append(smallNS.smallWorldHtmlString(divID, id, params.width || def, params.height || def));
+    var sizedWorld = new smallNS.SmallWorld(id, params.width || def, params.height || def, 14, params.zombieMode);
+
+    //hopefully this works!
+    sizedWorld.addJSONBody(genomeObject);
+
+    $('#' + divID).bind('inview', function (event, visible) {
+        if (visible == true) {
+            // element is now visible in the viewport
+//            console.log('Visible: ' + divID)
+            sizedWorld.startLoop();
+
+        } else {
+            // element has gone out of viewport
+//            console.log('Became invisible: ' + divID )
+            sizedWorld.stopLoop();
+        }
+    });
+
+    return sizedWorld;
+}
+
 //takes a genomeObject, adds it to a div specified by containID,
 //and then return a small world with the object inside and ready to go
 function addGenomeObjectDiv(genomeObject, containID, zombieMode)

@@ -155,18 +155,28 @@ function getBestIndividuals(uid, bodyCallback, errorCallback)
         }
     });
 }
+function runFullPCA(xBin, yBin, bodyCallback, errorCallback)
+{
+    //request pca with a certain percentage
+    ajaxWIN('runFullPCA?xBins=' + xBin + '&yBins=' + yBin, bodyCallback, errorCallback);
+}
+
 function runPCA(bodyCallback, errorCallback)
+{
+    ajaxWIN('runPCA',bodyCallback, errorCallback);
+}
+function ajaxWIN(route, bodyCallback, errorCallback)
 {
     console.log('Sending Latest PCA request');
 
     $.ajax({
-        url: "http://127.0.0.1:3000/runPCA",
+        url: "http://127.0.0.1:3000/" + route,
         type: 'GET',
         cache: false,
-        timeout: 30000,
+        timeout: 60000,
         complete: function() {
             //called when complete
-            console.log('done with Archive request');
+            console.log('done with PCA request');
         },
 
         success: function(pcaResults) {
@@ -176,7 +186,7 @@ function runPCA(bodyCallback, errorCallback)
         },
 
         error: function(err) {
-            console.log('Archive error: ' + err.responseText);
+            console.log('PCA error: ' + err.responseText);
             if(errorCallback)
                 errorCallback(err);
         }
