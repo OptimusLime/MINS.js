@@ -36,6 +36,8 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
     this.canvasWidth = width;
     this.canvasHeight = height;
 
+    this.scaleUp = Math.sqrt(this.canvasWidth*this.canvasWidth+ this.canvasHeight*this.canvasHeight)/Math.sqrt(2*230*230);
+
     this.intervalRate = parseInt(intervalRate);
 
     this.simulationRate = 1/parseInt(intervalRate);
@@ -101,17 +103,21 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
         if(frameTime > .35)
             frameTime = .35;
 
+
         //we don't need last time anymore, set it to the current time
         this.lastTime = currentTime;
 
         //we accumulate all the time we haven't rendered things in
         accumulator += frameTime;
+
+//        console.log('Frame time: ' + frameTime + ' accumulator: ' + accumulator);
+
 //        console.log('Pre acc');
         while(accumulator >= this.simulationRate)
         {
             stepCount++;
             //push the muscles outward a bit
-            var speedup = 2;
+            var speedup = 3;
 //            if(!props.visual)
 //                console.log('-- pre  muscles');
             logEvents += '--Pre muscles';
@@ -155,6 +161,8 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
         this.interpolation = accumulator/this.simulationRate;
         //console.log("Partial: " +  this.interpolation);
         //console.log(rad*180/Math.PI);
+//        console.log('Step count: ' + stepCount + ' dTime: ' + (Date.now() - currentTime));
+//        console.log(logEvents);
 
         return {stepCount: stepCount, deltaChange: (Date.now() - currentTime), log:logEvents};
     };
@@ -294,6 +302,7 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
     {
         return {x:  (r+1)/2*Math.cos(theta*Math.PI)*rScale + shift.x, y: (r+1)/2*Math.sin(theta*Math.PI)*rScale + shift.y };
     };
+
     this.jsonParseNodeApp = function(jsonData)
     {
         //The structure of the json is as follows
@@ -313,6 +322,9 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
         var oBodyCount = this.bodiesList.length;
         var bodyID = this.bodiesList.length;
 
+        console.log('Conns: ' + connections.length);
+        console.log('Nodes: ' + oNodes.length);
+
 
         var useLEO = jsonData.useLEO;
 
@@ -321,6 +333,15 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
 
         var entities = {};
         var xScaled,yScaled;
+        var divideForMax = 2.2;
+        var divideForMaxHeight = 2.5;
+        var maxAllowedWidth = this.canvasWidth/divideForMax;
+        var maxAllowedHeight = this.canvasHeight/divideForMaxHeight;
+
+        var minX = this.canvasWidth; var maxX = 0;
+        var minY = this.canvasHeight; var maxY = 0;
+
+
 //        console.log('No prob');
         for(var nodeKey in oNodes)
         {
@@ -340,17 +361,23 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
                 //look at polar, why did i do it????
                 //bias local connectrions with leo
 
-                var maxR = Math.sqrt(this.canvasWidth*this.canvasWidth + this.canvasHeight*this.canvasHeight)/4;
+//                var maxR = Math.sqrt(this.canvasWidth*this.canvasWidth + this.canvasHeight*this.canvasHeight)/4;
 
-                var polarScaled = this.polarToCartesian(parseFloat(nodeLocation.X), parseFloat(nodeLocation.Y), maxR, {x: this.canvasWidth/2, y: this.canvasHeight/2});
+//                var polarScaled = this.polarToCartesian(parseFloat(nodeLocation.X), parseFloat(nodeLocation.Y), maxR, {x: this.canvasWidth/2, y: this.canvasHeight/2});
 //            console.log('Polar scaled: ');
 //                console.log( {x: parseFloat(nodeLocation.X), y: parseFloat(nodeLocation.Y)});
 //            xScaled = polarScaled.x;// (parseFloat(nodeLocation.X) +1)*300;
-                xScaled = (parseFloat(nodeLocation.X) +1)*this.canvasWidth/2;
+                xScaled = (parseFloat(nodeLocation.X) +1)*maxAllowedWidth;
 //            yScaled = polarScaled.y;//(parseFloat(nodeLocation.Y) +1)*200;
-                yScaled = (parseFloat(nodeLocation.Y) +1)*this.canvasHeight/2;
+                yScaled = (parseFloat(nodeLocation.Y) +1)*maxAllowedHeight;
               //FOR each node, we make a body with certain properties, then increment count
-                entities[bodyID] = (Entity.build({id:bodyID, x: xScaled/this.scale, y: yScaled/this.scale, radius: .5 }));
+                entities[bodyID] = (Entity.build({id:bodyID, x: xScaled, y: yScaled, radius: .5 }));
+
+                minX = Math.min(minX, xScaled);
+                maxX = Math.max(maxX, xScaled);
+
+                minY = Math.min(minY, yScaled);
+                maxY = Math.max(maxY, yScaled);
 
             //need to increment the body id so we don't overwrite previous object
             bodyID++;
@@ -358,10 +385,30 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
             }
             //}
         }
+
+        var moveX = (maxX- minX)/2;
+        var moveY = (maxY- minY)/2;
+
+        //need to rescale and move x,y coordinates for entities
+        //have to divide by scale, and also center the object, no one should get an unfair advantage
+        for(var bid in entities)
+        {
+            var entity = entities[bid];
+
+//            console.log('Xbefore: ' + entity.x + ' ybefore: ' + entity.y + ' Min/Max X: (' + minX + ', ' + maxX + ') '  + ' Min/Max Y: (' + minY+ ', ' + maxY+ ') ');
+            entity.x = (entity.x - minX + this.canvasWidth/2 - moveX);
+            entity.x /= this.scale;
+
+            entity.y = (entity.y - minY + this.canvasHeight/2 - moveY);
+            entity.y /= this.scale;
+//            console.log('Xafter: ' + entity.x + ' yafter: ' + entity.y);
+        }
+
         //push our bodies into the system so that our joints have bodies to connect to
         this.setBodies(entities);
 
         var amplitudeCutoff =.2;
+
 //        var count =0;
         for(var connectionID in connections)
         {
@@ -386,11 +433,14 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
                     var amp = (connectionObject.cppnOutputs[ampIx] +1 )/2;
 //                    console.log('Phaseix: ' + phaseIx + ' AmpIx: ' + ampIx + ' useleo: ' + useLEO);
 
+                    var connectionDistance = Math.sqrt(Math.pow(entities[sourceID].x - entities[targetID].x, 2) +  Math.pow(entities[sourceID].y - entities[targetID].y, 2));
+//                    console.log('Amp dist: ' +.6*connectionDistance*amp + ' before: '+ this.scaleUp*amp);
 //                    console.log('Amplitudes: ' + amp);
                     if(amp < amplitudeCutoff)
                         var dJoint = this.addDistanceJoint(sourceID, targetID);
                     else
-                        var dJoint = this.addMuscleJoint(sourceID, targetID, {frequencyHz: 3, dampingRatio:.3, phase: connectionObject.cppnOutputs[phaseIx], amplitude: amp});
+                    //need to scale joints based on size of the screen - this is a bit odd, but should help multiple sizes behave the same!
+                        var dJoint = this.addMuscleJoint(sourceID, targetID, {frequencyHz: 3, dampingRatio:.3, phase: connectionObject.cppnOutputs[phaseIx], amplitude:.6*connectionDistance*amp});
                 }
                 catch(e)
                 {
@@ -402,7 +452,10 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
             }
         }
 
-//        console.log('No 4444');
+
+//        var startMorphology =
+        return {width: maxX - minX, height: maxY - minY, startX: minX, startY: minY, mass: oNodes.length + connections.length/2 };
+
     };
     this.addDistanceJoint = function(body1Id, body2Id, params) {
         var body1 = this.bodiesMap[body1Id];

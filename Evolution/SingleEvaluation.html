@@ -78,9 +78,11 @@
         var canvasID = "canvas0";
         var divID = "div0";
 
-        $container.append(smallNS.smallWorldHtmlString(divID, canvasID, 230,230));
+        var worldSize = {width: 400, height: 400};//was 230 x 230
 
-        var smallWorld = new smallNS.SmallWorld(canvasID, 230, 230, 14, false);
+        $container.append(smallNS.smallWorldHtmlString(divID, canvasID, worldSize.width,worldSize.height));
+
+        var smallWorld = new smallNS.SmallWorld(canvasID, worldSize.width, worldSize.height, 14, false);
 
         smallWorld.jsonParseMINS(jsonDoc);
         smallWorld.startLoop();
@@ -90,6 +92,7 @@
 
         var headlessEvaluateGenomeBehaviors = function(genomeBodies, finishedFunction)
         {
+            var worldSize = {width: 400, height: 400};//was 230 x 230
             //we're going to build a behavior dictionary, indexed by the genomeID
             var genomeBehaviorDict = {};
 
@@ -108,7 +111,7 @@
 //                console.log('parse complete: ' + genomeID);
                 //Now, we're going to want to insert that object into our container, if you know what i mean
                 //and make sure the world is in zombie mode
-                var smallWorld = addGenomeObjectDiv(genomeObject, '#container', true);
+                var smallWorld = addGenomeToSizedDiv(genomeObject, {containID: '#container', width: worldSize.width, height: worldSize.height, zombieMode:true});//addGenomeObjectDiv(genomeObject, '#container', true);
 
                 if(!genomeObject.HiddenLocations.length)
                 {
@@ -116,8 +119,11 @@
                     //get empty behavior and return
                     var emptyBehavior = smallNS.SmallWorld.EmptyBehavior({}, smallWorld.behaviorType, smallWorld.behaviorTotalCount);
 
+                    //either it's empty or it has our second behavior
+                    var emptySecond = (smallWorld.secondBehavior ?  smallNS.SmallWorld.EmptyBehavior({}, smallWorld.secondBehaviorType, smallWorld.behaviorTotalCount) : {points:{}});
+
                     //ideally, we wouldn't send empty objects, but for now this hack works enough
-                    genomeBehaviorDict[genomeID] = {behavior: emptyBehavior.points, objectives: emptyBehavior.objectives, fitness: emptyBehavior.fitness };
+                    genomeBehaviorDict[genomeID] = {behavior: emptyBehavior.points, objectives: emptyBehavior.objectives, fitness: emptyBehavior.fitness, secondBehavior: emptySecond.points};
 
                     continue;
                 }
@@ -127,7 +133,7 @@
 
 
 //                console.log('begin behavior: ' + genomeID);
-                var behavior =  setSmallWorldProperties(smallWorld, {startEval: true, visual: false,
+                var behaviorObject =  setSmallWorldProperties(smallWorld, {startEval: true, visual: false,
                     isVisible: false,
                     drawBehavior: false,
                     zombieMode: true, genomeID: genomeID});
@@ -141,11 +147,15 @@
                 delete smallWorld;
                 $('#' + divIDFromGenome(genomeObject.GenomeID, smallWorldID)).remove();
 
+                var behavior = behaviorObject.behavior;
+                //if we don't have second behavior, just use empty with empty points
+                var secondBehavior = behaviorObject.secondBehavior || {points:{}};
+
 
 //                console.log('Evaluation of ' + genomeID + ' completed!');
 
                 //set our behavior, and be done here!
-                genomeBehaviorDict[genomeID] = {behavior: behavior.points, objectives: behavior.objectives, fitness: behavior.fitness };
+                genomeBehaviorDict[genomeID] = {behavior: behavior.points, objectives: behavior.objectives, fitness: behavior.fitness, secondBehavior: secondBehavior.points};
 
 
 //                console.log('dict updated: ' + genomeID);
@@ -237,7 +247,7 @@
                 var smallWorld = addGenomeObjectDiv(genomeObject);
 
 
-                var behavior = setSmallWorldProperties(smallWorld, {startEval: startEval,
+                setSmallWorldProperties(smallWorld, {startEval: startEval,
                     isVisible: isVisible,
                     drawBehavior: drawBehavior,
                     zombieMode: zombieMode});
@@ -268,7 +278,7 @@
 
 //                    console.log(smallWorld);
                     var smallWorldID = smallWorld.worldID;
-                    var behavior =  setSmallWorldProperties(smallWorld, {startEval: startEval,
+                    setSmallWorldProperties(smallWorld, {startEval: startEval,
                         isVisible: isVisible,
                         drawBehavior: drawBehavior,
                         zombieMode: zombieMode});

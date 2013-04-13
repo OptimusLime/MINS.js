@@ -155,10 +155,10 @@ function getBestIndividuals(uid, bodyCallback, errorCallback)
         }
     });
 }
-function runFullPCA(xBin, yBin, bodyCallback, errorCallback)
+function runFullPCA(firstBehavior, xBin, yBin, bodyCallback, errorCallback)
 {
     //request pca with a certain percentage
-    ajaxWIN('runFullPCA?xBins=' + xBin + '&yBins=' + yBin, bodyCallback, errorCallback);
+    ajaxWIN('runFullPCA?firstBehavior=' + firstBehavior + '&xBins=' + xBin + '&yBins=' + yBin, bodyCallback, errorCallback);
 }
 
 function runPCA(bodyCallback, errorCallback)

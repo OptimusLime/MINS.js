@@ -74,7 +74,8 @@ fieldset, form, label, legend,
 table, caption, tbody, tfoot, thead, tr, th, td,
 article, aside, canvas, details, figcaption, figure,
 footer, header, hgroup, menu, nav, section, summary,
-time, mark, audio, video {
+time, mark, audio, video
+{
   margin: 0;
   padding: 0;
   border: 0;
@@ -163,7 +164,7 @@ body {
   border: 1px solid #666;
   padding: 5px;
   margin-bottom: 20px;
-    max-width: 740px;
+    /*max-width: 1260px;*/
     max-height: 740px;
     overflow-y: scroll;
 }
@@ -852,4 +853,9 @@ code .nd { color: #9FAD7E; } /* CSS pseudo selector */
     padding: 5px;
     margin-bottom: 20px;
 
+}
+
+h2, form
+{
+    display: inline;
 }

@@ -79,6 +79,54 @@
 //            if($(htmlID).scrollTop() == $(htmlID).height() - $(htmlID).offset().top)
             if($(htmlID)[0].scrollHeight - $(htmlID).scrollTop() <= $(htmlID).outerHeight())
             {
+
+                if(!$.isEmptyObject(cachedObjects))
+                {
+                    //we have cached objects, just display them first
+
+                    var removeFromCachedObjects = [];
+
+                    for(var genomeID in cachedObjects){
+
+                        if(archiveOnScreen[genomeID])
+                            continue;
+
+                        if(removeFromCachedObjects.length >= archivePageLength)
+                        {
+                            //cache objects
+                           break;
+                        }
+
+                        archiveOnScreen[genomeID] = true;
+
+                        //parse it from string form, and send it to our world! mwahahaha
+                        var genomeObject = JSON.parse(cachedObjects[genomeID]);
+
+                        //Now, we're going to want to insert that object into our container, if you know what i mean
+                        var smallWorld = addGenomeToSizedDiv(genomeObject, {containID:'#container', width: 400, height: 400, zombieMode:false});
+
+                        //Now we have our small world, grab the ID, so that we may reference it later?
+                        var smallWorldID = smallWorld.worldID;
+
+                        //start the loop, show me what you got!
+//                                    smallWorld.freezeLoop(true);
+                        smallWorld.startLoop();
+
+                        removeFromCachedObjects.push(genomeID);
+
+//                                    smallWorld.shouldDrawBehavior(true, false);
+                    }
+
+                    //remove from cache
+                    for(var i=0; i <removeFromCachedObjects.length; i++)
+                        delete cachedObjects[removeFromCachedObjects[i]];
+
+                    if(removeFromCachedObjects.length >= archivePageLength)
+                        return;
+
+                    //if that wasn't enough, fetch more from server!
+                }
+
                 $('div#loadmoreajaxloader').show();
 
                 getBestIndividuals(uid,
@@ -162,7 +210,7 @@
                                     requiredBodies.push(genomeObject);
 
                                     //Now, we're going to want to insert that object into our container, if you know what i mean
-                                    var smallWorld = addGenomeObjectDiv(genomeObject, '#container');
+                                    var smallWorld = addGenomeToSizedDiv(genomeObject, {containID:'#container', width: 400, height: 400, zombieMode:false});
 
                                     //Now we have our small world, grab the ID, so that we may reference it later?
                                     var smallWorldID = smallWorld.worldID;

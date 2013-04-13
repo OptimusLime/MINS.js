@@ -1,0 +1,333 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>IEC Framework- Infinite</title>
+
+    <link rel="stylesheet" href="IECInfinite.css" type="text/css" />
+    <!--<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>-->
+    <!--<script src="../Helpers/jquery.isotope.js"></script>-->
+</head>
+
+<body class="demos" >
+
+<h1>PCA Graph and Genomes</h1>
+
+
+<!--<select id="pcaTarget" name="selectBehavior" >-->
+    <!--<option value="true">X Center</option>-->
+    <!--<option value="false">Heatmap</option>-->
+<!--</select>-->
+
+<div id="d3" style="clear:left; display: inline-block;">
+
+
+</div>
+
+<script src="../Helpers/jquery-1.7.1.min.js"></script>
+<script src="../Helpers/jquery.isotope.js"></script>
+    <script src="../Helpers/jquery.inview.js"></script>
+<!--load the experiment script when the body gets processed, so it has access to the canvas object for styling-->
+
+<script type="text/javascript" src="../Helpers/d3.v2.js"></script>
+<script type="text/javascript" src="../Helpers/jkl-parsexml.js"></script>
+<script type="text/javascript" src="../Helpers/loadXML.js"></script>
+
+<script type="text/javascript" src="../Helpers/Box2d.min.js"></script>
+<script type="text/javascript" src="../Helpers/fabric.js"></script>
+    <!--has our getbody request logic-->
+<script type="text/javascript" src="../Helpers/Helpers.js"></script>
+<script type="text/javascript" src="../Helpers/AjaxRequests.js"></script>
+
+<script type="text/javascript" src="../fabBox/boxHelpers.js"></script>
+<script type="text/javascript" src="../fabBox/boxDrawers.js"></script>
+
+<script type="text/javascript" src="../Helpers/Blob.js"></script>
+<script type="text/javascript" src="../Helpers/FileSaver.js"></script>
+
+<script type="text/javascript" src="../fabBox/smallestWorld.js"></script>
+
+    <style>
+
+        body {
+            font: 10px sans-serif;
+        }
+
+        .number
+        {
+        }
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: #FFF;
+            shape-rendering: crispEdges;
+        }
+
+        .dot {
+            stroke: #000;
+        }
+
+        .legend {
+            padding: 5px;
+            font: 10px sans-serif;
+            background: yellow;
+            box-shadow: 2px 2px 1px #888;
+        }
+
+        .grid .tick {
+            stroke: lightgrey;
+            opacity: 0.7;
+        }
+        .grid path {
+            stroke-width: 0;
+        }
+
+    </style>
+<script type="text/javascript" src="IEC.js"></script>
+
+<script>
+    //d3 setup
+
+    var setupCount = 0;
+    var margin, x, fitness, y, color, xAxis, yAxis, width, height, svg;
+
+    var setupSVG = function()
+    {
+        margin = {top: 20, right: 20, bottom: 30, left: 40},
+                width = 900 - margin.left - margin.right,
+                height = 500 - margin.top - margin.bottom;
+
+        x = d3.scale.linear()
+                .range([0, width]);
+
+        fitness = d3.scale.linear()
+                .range([3, 10]);
+
+        y = d3.scale.linear()
+                .range([height, 0]);
+
+        color = d3.scale.category10();
+
+        xAxis = d3.svg.axis()
+                .scale(x)
+                .orient("bottom")
+                .ticks(25);
+
+
+
+        yAxis = d3.svg.axis()
+                .scale(y)
+                .orient("left")
+                .ticks(25);
+
+        svg = d3.select("#d3").append("svg")//insert("svg", ":first-child")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .attr("class", "svgClass" + setupCount++)
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    };
+
+    var deleteSVG = function(svgElement)
+    {
+        //delete svgElement;
+//        $('#d3').remove('svg');
+        $('#pcaViewer').remove();//append('<div id="pcaViewer"></div>');
+    };
+
+
+
+//    svg.selectAll("path.xgrid").data(ticks).enter()
+//            .append("path")
+//            .attr("d", function(d) {
+//                return "M" + xScale(d) + " " + padding + "L" + xScale(d) + " " + (h-padding);
+//            });
+
+</script>
+
+<script>
+    var archiveOnScreen = {};
+    var cachedObjects = {};
+    var archivePageLength = 2;
+
+    var uid = Math.random()*1000000;
+
+    var lastSelectedIx;
+
+    var lastGenomeID;
+    var previousSizedWorld;
+    var previousSizedWorldID;
+
+//    var lastSmallGenome;
+//    var prevSmallWorld;
+//    var prevSmallID;
+
+    var htmlID = '#container';
+
+
+    var svgPCA = function()
+    {
+        console.log('Loading svg pca');
+        setupSVG();
+
+        $.getJSON('data.json',
+                function(objects)
+                {
+                    cachedObjects = objects;
+
+                    $.getJSON('pcaData.json'
+                            , function(data)
+                            {
+                                //should already be converted into dictionary/points
+
+                                //data has 3 params
+                                //uid, x, y
+                                var $container = $(htmlID);
+
+                                console.log('Setting up d3');
+
+
+                                x.domain(d3.extent(data, function(d) { return d.x; })).nice();
+                                y.domain(d3.extent(data, function(d) { return d.y; })).nice();
+                                fitness.domain(d3.extent(data, function(d) { return d.absoluteFitness; })).nice();
+
+                                svg.append("g")
+                                        .attr("class", "x axis")
+                                        .attr("transform", "translate(0," + height + ")")
+                                        .call(xAxis)
+                                        .append("text")
+                                        .attr("class", "label")
+                                        .attr("x", width)
+                                        .attr("y", -6)
+                                        .style("text-anchor", "end")
+                                        .style("fill", "#DDD")
+                                        .text("Sepal Width (cm)");
+
+
+                                svg.append("g")
+                                        .attr("class", "y axis")
+                                        .call(yAxis)
+                                        .append("text")
+                                        .attr("class", "label")
+                                        .attr("transform", "rotate(-90)")
+                                        .attr("y", 6)
+                                        .attr("dy", ".71em")
+                                        .style("text-anchor", "end")
+                                        .style("fill", "#DDD")
+                                        .text("Sepal Length (cm)")
+
+
+                                svg.selectAll(".dot")
+                                        .data(data)
+                                        .enter().append("circle")
+                                        .attr("class", "dot")
+                                        .attr("r", function(d){
+                                            //scale based on the fitness ranges!
+                                            return fitness(d.absoluteFitness);
+                                        })
+                                        .attr("cx", function(d) {
+                                            console.log('Dealing with d'); console.log(d); return x(d.x); })
+                                        .attr("cy", function(d) { return y(d.y); })
+                                        .style("fill", "#DDD")
+                                        .on('click',function(d, i){
+                                            //check if we have the object cached so far
+
+
+                                            d3.select("#rect-" + lastSelectedIx).style("fill", "#DDD");
+
+
+                                            if(cachedObjects[d.uid])
+                                            {
+                                                d3.select("#rect-" + i).style("fill", "#02D");
+                                                lastSelectedIx = i;
+
+                                                if(previousSizedWorld)
+                                                {
+                                                    previousSizedWorld.stopLoop();
+                                                    delete previousSizedWorld;
+                                                    $('#' + divIDFromGenome(lastGenomeID, previousSizedWorldID)).remove();
+
+//                                        prevSmallWorld.stopLoop();
+//                                        delete prevSmallWorld;
+//                                        $('#' + divIDFromGenome(lastSmallGenome, prevSmallID)).remove();
+//
+                                                    $('#stats').remove();
+
+                                                }
+                                                //now we want to set up our genome inside viewer below the PCA Chart (or to the side)
+                                                var sizedWorld = addGenomeToSizedDiv(cachedObjects[d.uid], {containID: '#pcaViewer', width: 400, height: 400, zombieMode: false});
+                                                $('#pcaViewer').append('<div id="stats"> Distance: ' + d.absoluteFitness + ' COM Distance: <div id="com"></div></div>');
+
+                                                sizedWorld.startLoop($('#com'));
+//                                    var behavior = sizedWorld.runSimulationForBehavior( {startEval: true, visual: true,
+//                                        isVisible: true,
+//                                        drawBehavior: false,
+//                                        zombieMode: true, genomeID:d.uid});
+
+//                                    sizedWorld.stopLoop();
+                                                sizedWorld.shouldDrawBehavior(true,false);
+                                                previousSizedWorld = sizedWorld;
+                                                previousSizedWorldID = sizedWorld.worldID;
+                                                lastGenomeID = d.uid;
+
+//                                    var smallWorld = addGenomeObjectDiv(cachedObjects[d.uid], '#pcaViewer');
+//                                    smallWorld.startLoop();
+//                                    smallWorld.shouldDrawBehavior(true,false);
+//                                    prevSmallWorld = smallWorld;
+//                                    prevSmallID = smallWorld.worldID;
+//                                    lastSmallGenome = d.uid;
+
+
+
+
+                                            }
+
+                                        });
+//                        .style("fill", function(d) { return color(d.uid % 10); });
+
+                                var legend = svg.selectAll(".legend")
+                                        .data(color.domain())
+                                        .enter().append("g")
+                                        .attr("class", "legend")
+                                        .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; })
+
+
+                                legend.append("rect")
+                                        .attr("x", width - 18)
+                                        .attr("width", 18)
+                                        .attr("height", 18)
+
+                                legend.append("text")
+                                        .attr("x", width - 24)
+                                        .attr("y", 9)
+                                        .attr("dy", ".35em")
+                                        .style("text-anchor", "end")
+                                        .text(function(d) { return d; })
+
+                                $('<div id="pcaViewer"></div>').insertAfter(('.svgClass' + (setupCount-1)));
+
+                            });
+
+                });
+        };
+
+    //run the svg code
+    svgPCA();
+
+
+</script>
+
+
+
+
+<footer>
+   WIN Interactive set up by <a href="http://designforcode.com">Paul Szerlip</a> / and <a href="http://eplex.cs.ucf.edu">Eplex</a>
+</footer>
+
+
+
+</body>
+
+</html>

@@ -251,6 +251,20 @@ boxNS.DrawingObject.prototype.createAndAddBehaviorDrawObject = function(behavior
 
         switch(behaviorType)
         {
+            case smallNS.BehaviorTypes.widthHeightMass:
+
+                //don't yet have a way to draw this guy
+//                width: maxX - minX, height: maxY - minY, startX: minX, startY: minY
+
+                //create our object without any points, and add it!
+                var fabPoly  = new fabric.Rect({left: behaviorObject.startX, top: behaviorObject.startY, width: behaviorObject.width, height: behaviorObject.height},{opacity:.3, fill: '#55f', stroke: '#f55'});
+
+                behaviorDrawObject = {index: this.fabricCanvas.getObjects().length, fabric: fabPoly};
+
+                //add it to our canvas
+                this.fabricCanvas.add(fabPoly);
+
+                break;
             case smallNS.BehaviorTypes.xyCenterOfMass:
             case smallNS.BehaviorTypes.xCenterOfMass:
             case smallNS.BehaviorTypes.yCenterOfMass:
@@ -396,7 +410,7 @@ boxNS.DrawingObject.prototype.updateBehaviorJoints = function(behaviorDrawObj, b
 //        ' bObj heat: ' + behaviorObject.heatMap.fabCount);
 
     //if we have some valid behavior, but no object yet, add it!
-    if(((behaviorObject.points && behaviorObject.points.length) || (behaviorObject.heatMap && behaviorObject.heatMap.fabCount)) && !behaviorDrawObj){
+    if(behaviorObject.totalBehaviorFrames && !behaviorDrawObj){//((behaviorObject.points && behaviorObject.points.length) || (behaviorObject.heatMap && behaviorObject.heatMap.fabCount)) && !behaviorDrawObj){
 
 //        console.log('creating draw obj');
         this.behaviorDrawObj = this.createAndAddBehaviorDrawObject(behaviorObject, behaviorType);
@@ -410,6 +424,9 @@ boxNS.DrawingObject.prototype.updateBehaviorJoints = function(behaviorDrawObj, b
 
     switch(behaviorType)
     {
+        case smallNS.BehaviorTypes.widthHeightMass:
+            //fabobj doesn't change yay!
+            break;
         case smallNS.BehaviorTypes.xyCenterOfMass:
         case smallNS.BehaviorTypes.xCenterOfMass:
         case smallNS.BehaviorTypes.yCenterOfMass:
