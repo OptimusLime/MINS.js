@@ -2,15 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="e0d5e3ed-53be-40cd-8070-10d843a8e471" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Evolution/IECInfinite.css" afterPath="$PROJECT_DIR$/Evolution/IECInfinite.css" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Evolution/PCA.html" afterPath="$PROJECT_DIR$/Evolution/PCA.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Evolution/SingleEvaluation.html" afterPath="$PROJECT_DIR$/Evolution/SingleEvaluation.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Helpers/AjaxRequests.js" afterPath="$PROJECT_DIR$/Helpers/AjaxRequests.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/fabBox/boxDrawers.js" afterPath="$PROJECT_DIR$/fabBox/boxDrawers.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/fabBox/boxHelpers.js" afterPath="$PROJECT_DIR$/fabBox/boxHelpers.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/fabBox/smallestWorld.js" afterPath="$PROJECT_DIR$/fabBox/smallestWorld.js" />
-      <change type="MOVED" beforePath="F:\Users\Paul\Eplex\WIN\WINTest\MINS.js\Evolution\ECAL_PSA.html" afterPath="$PROJECT_DIR$/Evolution/ECAL_PCA.html" />
     </list>
     <ignored path="MINS.js.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -35,7 +28,7 @@
       <file leaf-file-name="smallestWorld.js" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/fabBox/smallestWorld.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="196" column="29" selection-start="6306" selection-end="6306" vertical-scroll-proportion="0.0">
+            <state line="159" column="37" selection-start="4865" selection-end="4865" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -53,7 +46,7 @@
       <file leaf-file-name="boxDrawers.js" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/fabBox/boxDrawers.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="636" column="0" selection-start="21577" selection-end="21577" vertical-scroll-proportion="0.0">
+            <state line="37" column="160" selection-start="1602" selection-end="1602" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -86,19 +79,19 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Box2D.js" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Helpers/Box2D.js">
+      <file leaf-file-name="PCA.html" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/Evolution/PCA.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="5807" column="21" selection-start="218410" selection-end="218410" vertical-scroll-proportion="0.0">
+            <state line="464" column="37" selection-start="14243" selection-end="14243" vertical-scroll-proportion="0.56113905">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="PCA.html" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/Evolution/PCA.html">
+      <file leaf-file-name="fabric.js" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Helpers/fabric.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="307" column="0" selection-start="9259" selection-end="9259" vertical-scroll-proportion="0.6881029">
+            <state line="5448" column="4" selection-start="158741" selection-end="158741" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -148,11 +141,11 @@
         <option value="$PROJECT_DIR$/Evolution/ECAL_PSA.html" />
         <option value="$PROJECT_DIR$/fabBox/smallestWorld.js" />
         <option value="$PROJECT_DIR$/Evolution/IECInfinite.css" />
-        <option value="$PROJECT_DIR$/fabBox/boxDrawers.js" />
         <option value="$PROJECT_DIR$/Evolution/SingleEvaluation.html" />
         <option value="$PROJECT_DIR$/fabBox/boxHelpers.js" />
         <option value="$PROJECT_DIR$/Evolution/ECAL_PCA.html" />
         <option value="$PROJECT_DIR$/Helpers/AjaxRequests.js" />
+        <option value="$PROJECT_DIR$/fabBox/boxDrawers.js" />
         <option value="$PROJECT_DIR$/Evolution/PCA.html" />
       </list>
     </option>
@@ -339,7 +332,7 @@
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.31764707" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24888393" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24888393" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="true" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.110173956" sideWeight="0.7511161" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -411,13 +404,6 @@
     <breakpoint-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="jar://$APPLICATION_HOME_DIR$/plugins/JavaScriptLanguage/lib/JavascriptLanguage.jar!/com/intellij/lang/javascript/index/predefined/HTML5.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="125" column="0" selection-start="2046" selection-end="2046" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Helpers/loadXML.js">
       <provider selected="true" editor-type-id="text-editor">
         <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
@@ -467,13 +453,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/fabBox/boxDrawers.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="636" column="0" selection-start="21577" selection-end="21577" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Evolution/IEC.js">
       <provider selected="true" editor-type-id="text-editor">
         <state line="111" column="26" selection-start="3569" selection-end="3569" vertical-scroll-proportion="0.0">
@@ -502,13 +481,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/fabBox/smallestWorld.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="196" column="29" selection-start="6306" selection-end="6306" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Helpers/AjaxRequests.js">
       <provider selected="true" editor-type-id="text-editor">
         <state line="169" column="46" selection-start="4552" selection-end="4552" vertical-scroll-proportion="-15.08">
@@ -516,9 +488,30 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/fabBox/smallestWorld.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="159" column="37" selection-start="4865" selection-end="4865" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Helpers/fabric.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="5448" column="4" selection-start="158741" selection-end="158741" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/fabBox/boxDrawers.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="37" column="160" selection-start="1602" selection-end="1602" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/Evolution/PCA.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="307" column="0" selection-start="9259" selection-end="9259" vertical-scroll-proportion="0.6881029">
+        <state line="464" column="37" selection-start="14243" selection-end="14243" vertical-scroll-proportion="0.56113905">
           <folding />
         </state>
       </provider>
