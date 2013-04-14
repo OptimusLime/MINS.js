@@ -565,7 +565,7 @@ function decimalToHex(d, padding) {
     return hex;
 }
 
-
+boxNS.DrawingObject.prototype.defaultRadius = 0;
 //ADD BODY/ ADD JOINT
 boxNS.DrawingObject.prototype.addBody = function(dBody)
 {
@@ -642,6 +642,8 @@ boxNS.DrawingObject.prototype.addJoint = function(joint)
 
 
     var info = this.jointInfo(joint);
+
+
 
     //create our poly line for this joint (normally just 2 points really)
     var fabPolyLine =  new fabric.Polyline(info.points, {fill: this.lineColor, stroke:this.lineColor, strokeWidth:this.lineWidth, opacity: .7});

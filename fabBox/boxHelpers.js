@@ -63,7 +63,7 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
     this.fixDef.restitution = 0.1;
     this.fixDef.fixedRotation = true;
 //    this.fixDef.linearDamping = 1.1;
-    var rad = Math.PI/3;
+    var rad = Math.PI;
 
     this.interpolation = 0;
     this.lastTime = Date.now();
@@ -322,8 +322,8 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
         var oBodyCount = this.bodiesList.length;
         var bodyID = this.bodiesList.length;
 
-        console.log('Conns: ' + connections.length);
-        console.log('Nodes: ' + oNodes.length);
+        console.log('Conns: ' + connections.length +
+            ' Nodes: ' + oNodes.length);
 
 
         var useLEO = jsonData.useLEO;
@@ -373,6 +373,7 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
               //FOR each node, we make a body with certain properties, then increment count
                 entities[bodyID] = (Entity.build({id:bodyID, x: xScaled, y: yScaled, radius: .5 }));
 
+
                 minX = Math.min(minX, xScaled);
                 maxX = Math.max(maxX, xScaled);
 
@@ -397,9 +398,12 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
 
 //            console.log('Xbefore: ' + entity.x + ' ybefore: ' + entity.y + ' Min/Max X: (' + minX + ', ' + maxX + ') '  + ' Min/Max Y: (' + minY+ ', ' + maxY+ ') ');
             entity.x = (entity.x - minX + this.canvasWidth/2 - moveX);
-            entity.x /= this.scale;
-
             entity.y = (entity.y - minY + this.canvasHeight/2 - moveY);
+
+//            console.log('Xscale: ' + entity.x + ' Yscal: ' + entity.y);
+
+
+            entity.x /= this.scale;
             entity.y /= this.scale;
 //            console.log('Xafter: ' + entity.x + ' yafter: ' + entity.y);
         }
@@ -408,6 +412,8 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
         this.setBodies(entities);
 
         var amplitudeCutoff =.2;
+
+        var connectionDistanceSum = 0;
 
 //        var count =0;
         for(var connectionID in connections)
@@ -434,13 +440,19 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
 //                    console.log('Phaseix: ' + phaseIx + ' AmpIx: ' + ampIx + ' useleo: ' + useLEO);
 
                     var connectionDistance = Math.sqrt(Math.pow(entities[sourceID].x - entities[targetID].x, 2) +  Math.pow(entities[sourceID].y - entities[targetID].y, 2));
+                    connectionDistanceSum += connectionDistance;
 //                    console.log('Amp dist: ' +.6*connectionDistance*amp + ' before: '+ this.scaleUp*amp);
 //                    console.log('Amplitudes: ' + amp);
                     if(amp < amplitudeCutoff)
-                        var dJoint = this.addDistanceJoint(sourceID, targetID);
+                        var dJoint = this.addDistanceJoint(sourceID, targetID, {frequencyHz: 3, dampingRatio:.3});
                     else
                     //need to scale joints based on size of the screen - this is a bit odd, but should help multiple sizes behave the same!
-                        var dJoint = this.addMuscleJoint(sourceID, targetID, {frequencyHz: 3, dampingRatio:.3, phase: connectionObject.cppnOutputs[phaseIx], amplitude:.6*connectionDistance*amp});
+                        var dJoint = this.addMuscleJoint(sourceID, targetID, {frequencyHz: 3, dampingRatio:.3, phase: connectionObject.cppnOutputs[phaseIx], amplitude:.3*connectionDistance*amp});
+
+//                    var info = this.callObject.jointInfo(dJoint);
+
+//                    console.log(info);
+
                 }
                 catch(e)
                 {
@@ -454,7 +466,7 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
 
 
 //        var startMorphology =
-        return {width: maxX - minX, height: maxY - minY, startX: minX, startY: minY, mass: oNodes.length + connections.length/2 };
+        return {width: maxX - minX, height: maxY - minY, startX: minX, startY: minY, mass: oNodes.length + connectionDistanceSum/2 };
 
     };
     this.addDistanceJoint = function(body1Id, body2Id, params) {

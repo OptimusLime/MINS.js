@@ -144,6 +144,7 @@
                 //after evalution, kill the world
                 //then kill the div, so that zombiejs doesn't get so bloated.
                 smallWorld.stopLoop();
+
                 delete smallWorld;
                 $('#' + divIDFromGenome(genomeObject.GenomeID, smallWorldID)).remove();
 
@@ -173,7 +174,7 @@
         function setSmallWorldProperties(smallWorld, props)
         {
             //start up our guy
-            smallWorld.startLoop();
+
             var behavior;
 
             if(props.startEval){
@@ -181,6 +182,8 @@
                 behavior = smallWorld.runSimulationForBehavior(props);
 //                delete smallWorld;
             }
+            else
+                smallWorld.startLoop();
 //            else{
                 smallWorld.shouldDraw(props.isVisible);
                 smallWorld.zombieMode(props.zombieMode);

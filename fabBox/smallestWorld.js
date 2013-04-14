@@ -182,7 +182,11 @@ smallNS.SmallWorld.noNodeMultiplier = .2;
 
 smallNS.smallWorldHtmlString = function(divID, canvasID, width, height)
 {
-    return '<div id=' + divID + ' class="element"' + 'style="width: ' + width + 'px;' + ' height: ' + height + 'px;"' + '><canvas id=' + canvasID + ' width=' + height + ' height=' + height + ' class="canvas"></canvas></div>';
+    return '<div id=' + divID + ' class="element"' + 'style="width: ' + width + 'px;' + ' height: ' + height + 'px;"' + '>'
+        +
+        '<div><canvas id=' + canvasID + ' width=' + height + ' height=' + height + ' class="canvas"></canvas></div>' +
+
+        '</div>';
 };
 
 smallNS.SmallWorld.prototype.draw = function() {

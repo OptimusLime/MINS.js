@@ -19,11 +19,25 @@
     <input type="number" id="xbins" name="xbins" min="10" max="50" value="25" class="number" >
     <h2 >YBin Count:</h2>
     <input type="number" id="ybins" name="ybins" min="10" max="50" value="25" class="number">
+    <h2 >Selector:</h2>
+    <input type="number" id="selector" name="selector" min="0" max="1" value="1" class="number">
+    <h2 >Percent:</h2>
+    <input type="number" id="percent" name="percent" min="0" max="100" value="20" class="number">
+
     <button value="Reset" onclick="svgPCA()">Re-Run PCA</button>
+    <button value="Sanitize" onclick="sanitizePCA()">Sanitize PCA</button>
     <form id="text-options">
         <label>Filename: <input type="text" class="filename" id="text-filename" placeholder="a plain document"/>.txt</label>
         <input id="save-button" type="submit" value="Save"/>
     </form>
+
+    <div id="">
+        <div id="slider-value">
+        </div>
+
+         <div id="slider">
+        </div>
+    </div>
 
     <!--<button value="SaveToFile" onclick="savePCAToFile()">Save To File</button>-->
 </div>
@@ -39,9 +53,14 @@
 
 </div>
 
+
 <script src="../Helpers/jquery-1.7.1.min.js"></script>
 <script src="../Helpers/jquery.isotope.js"></script>
     <script src="../Helpers/jquery.inview.js"></script>
+
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.9.0/themes/base/jquery-ui.css" />
+
+<script src="http://code.jquery.com/ui/1.9.0/jquery-ui.js"></script>
 <!--load the experiment script when the body gets processed, so it has access to the canvas object for styling-->
 
 <script type="text/javascript" src="../Helpers/d3.v2.js"></script>
@@ -61,6 +80,7 @@
 <script type="text/javascript" src="../Helpers/FileSaver.js"></script>
 
 <script type="text/javascript" src="../fabBox/smallestWorld.js"></script>
+
 
     <style>
 
@@ -138,7 +158,8 @@
         svg = d3.select("#d3").append("svg")//insert("svg", ":first-child")
                 .attr("width", width + margin.left + margin.right)
                 .attr("height", height + margin.top + margin.bottom)
-                .attr("class", "svgClass" + setupCount++)
+                .attr("class", "svgClass" + setupCount)
+                .attr("id", "mainSVG" + setupCount++)
                 .append("g")
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -147,7 +168,7 @@
     var deleteSVG = function(svgElement)
     {
         //delete svgElement;
-//        $('#d3').remove('svg');
+        //$('#d3').remove('.svg');
         $('#pcaViewer').remove();//append('<div id="pcaViewer"></div>');
     };
 
@@ -234,136 +255,83 @@
           //  window.open( "data:text/json;charset=utf-8," + escape(JSON.stringify(cachedObjects)));
     }
 
-    var svgPCA = function()
+    var shouldFetchCache = true;
+
+
+    var legend;
+
+
+    var setGenomeBodyInViewer = function(uid, absoluteFitness, prepend)
     {
-        console.log('Running svg pca');
-        deleteSVG();
-        setupSVG();
-
-        var useXCom = true;//$("#pcaTarget").val();
-
-        var xBins = $('#xbins').val();
-        var yBins = $('#ybins').val();
-
-        //set up d3
-        runFullPCA(useXCom, xBins, yBins,
-                function(data)
-                {
-
-                    dataObjects = data;
-                    var bodyRequest = [];
-                    for(var i=0; i < data.length; i++)
-                    {
-                        bodyRequest.push(data[i].uid);
-                    }
-
-                    getGenomes(bodyRequest, function(bodies){
-
-                                for(var gid in bodies){
-                                    cachedObjects[gid] = JSON.parse(bodies[gid]);
-                                }
-
-                                console.log('Cached returned bodies');
-
-                            },
-                            function(error)
-                            {
-                                console.log('Could not get bodies from PCA request');
-                                console.log(error);
-                            });
-
-
-                    //should already be converted into dictionary/points
-
-                    //data has 3 params
-                    //uid, x, y
-                    var $container = $(htmlID);
-
-                    console.log('Setting up d3');
-
-
-                    x.domain(d3.extent(data, function(d) { return d.x; })).nice();
-                    y.domain(d3.extent(data, function(d) { return d.y; })).nice();
-                    fitness.domain(d3.extent(data, function(d) { return d.absoluteFitness; })).nice();
-
-                    svg.append("g")
-                            .attr("class", "x axis")
-                            .attr("transform", "translate(0," + height + ")")
-                            .call(xAxis)
-                            .append("text")
-                            .attr("class", "label")
-                            .attr("x", width)
-                            .attr("y", -6)
-                            .style("text-anchor", "end")
-                            .style("fill", "#DDD")
-                            .text("Sepal Width (cm)");
-
-
-                    svg.append("g")
-                            .attr("class", "y axis")
-                            .call(yAxis)
-                            .append("text")
-                            .attr("class", "label")
-                            .attr("transform", "rotate(-90)")
-                            .attr("y", 6)
-                            .attr("dy", ".71em")
-                            .style("text-anchor", "end")
-                            .style("fill", "#DDD")
-                            .text("Sepal Length (cm)")
-
-
-                    svg.selectAll(".dot")
-                            .data(data)
-                            .enter().append("circle")
-                            .attr("class", "dot")
-                            .attr("r", function(d){
-                                //scale based on the fitness ranges!
-                                return fitness(d.absoluteFitness);
-                            })
-                            .attr("cx", function(d) {
-                                console.log('Dealing with d'); console.log(d); return x(d.x); })
-                            .attr("cy", function(d) { return y(d.y); })
-                            .style("fill", "#DDD")
-                            .on('click',function(d, i){
-                                //check if we have the object cached so far
-
-
-                                d3.select("#rect-" + lastSelectedIx).style("fill", "#DDD");
-
-
-                                if(cachedObjects[d.uid])
-                                {
-                                    d3.select("#rect-" + i).style("fill", "#02D");
-                                    lastSelectedIx = i;
-
-                                    if(previousSizedWorld)
-                                    {
-                                        previousSizedWorld.stopLoop();
-                                        delete previousSizedWorld;
-                                        $('#' + divIDFromGenome(lastGenomeID, previousSizedWorldID)).remove();
+        if(previousSizedWorld)
+        {
+            previousSizedWorld.stopLoop();
+            delete previousSizedWorld;
+            $('#' + divIDFromGenome(lastGenomeID, previousSizedWorldID)).remove();
 
 //                                        prevSmallWorld.stopLoop();
 //                                        delete prevSmallWorld;
 //                                        $('#' + divIDFromGenome(lastSmallGenome, prevSmallID)).remove();
 //
-                                        $('#stats').remove();
+            if(!prepend)
+                $('#stats').remove();
 
-                                    }
-                                    //now we want to set up our genome inside viewer below the PCA Chart (or to the side)
-                                    var sizedWorld = addGenomeToSizedDiv(cachedObjects[d.uid], {containID: '#pcaViewer', width: 400, height: 400, zombieMode: false});
-                                    $('#pcaViewer').append('<div id="stats"> Distance: ' + d.absoluteFitness + ' COM Distance: <div id="com"></div></div>');
+        }
+        //now we want to set up our genome inside viewer below the PCA Chart (or to the side)
+        var sizedWorld = addGenomeToSizedDiv(cachedObjects[uid], {containID: '#pcaViewer', width: 400, height: 400, zombieMode: false});
 
-                                    sizedWorld.startLoop($('#com'));
-//                                    var behavior = sizedWorld.runSimulationForBehavior( {startEval: true, visual: true,
-//                                        isVisible: true,
-//                                        drawBehavior: false,
-//                                        zombieMode: true, genomeID:d.uid});
+
+
+
 
 //                                    sizedWorld.stopLoop();
-                                    sizedWorld.shouldDrawBehavior(true,false);
-                                    previousSizedWorld = sizedWorld;
-                                    previousSizedWorldID = sizedWorld.worldID;
-                                    lastGenomeID = d.uid;
+        sizedWorld.shouldDrawBehavior(true,false);
+        previousSizedWorld = sizedWorld;
+        previousSizedWorldID = sizedWorld.worldID;
+        lastGenomeID = uid;
+
+
+        if(!prepend){
+            $('#pcaViewer').prepend('<div id="stats">' +
+                    '<input type="button" id="playPause" class="worldOverlay" value="Play/Pause"/>' +
+                    '<input type="button" id="reset" class="worldOverlay" value="Reset"/>' +
+                    '<input type="button" id="saveToSVG" class="worldOverlay" value="Save SVG"/>' +
+                    ' Distance: ' + absoluteFitness + ' COM Distance: <div id="com"></div></div>');
+
+
+//            var behavior = sizedWorld.runSimulationForBehavior( {startEval: true, visual: true,
+//                isVisible: true,
+//                drawBehavior: false,
+//                zombieMode: true, genomeID:uid});
+
+//            console.log('Behavior Fit: ' + behavior.behavior.fitness);
+
+            $('#playPause').click(function()
+            {
+                if(previousSizedWorld)
+                {
+                    console.log('Play paused!')
+                    if(previousSizedWorld.interruptLoop)
+                        previousSizedWorld.startLoop($('#com'));
+                    else
+                        previousSizedWorld.stopLoop();
+                }
+            });
+
+            $('#reset').click(function()
+            {
+                console.log('Reset!')
+                if(previousSizedWorld)
+                {
+                    setGenomeBodyInViewer(lastGenomeID, 0, true);
+                    previousSizedWorld.stopLoop();
+                }
+            });
+
+        }
+
+        sizedWorld.startLoop($('#com'));
+
 
 //                                    var smallWorld = addGenomeObjectDiv(cachedObjects[d.uid], '#pcaViewer');
 //                                    smallWorld.startLoop();
@@ -371,35 +339,132 @@
 //                                    prevSmallWorld = smallWorld;
 //                                    prevSmallID = smallWorld.worldID;
 //                                    lastSmallGenome = d.uid;
+    }
+
+    var enterDataD3 = function(data)
+    {
 
 
 
+        if(shouldFetchCache)
+        {
+            dataObjects = data;
 
-                                }
+            var bodyRequest = [];
+            for(var i=0; i < data.length; i++)
+            {
+                bodyRequest.push(data[i].uid);
+            }
 
-                            });
+
+            getGenomes(bodyRequest, function(bodies){
+
+                        for(var gid in bodies){
+                            cachedObjects[gid] = JSON.parse(bodies[gid]);
+                        }
+
+                        console.log('Cached returned bodies');
+
+                    },
+                    function(error)
+                    {
+                        console.log('Could not get bodies from PCA request');
+                        console.log(error);
+                    });
+
+        }
+        //should already be converted into dictionary/points
+
+        //data has 3 params
+        //uid, x, y
+        var $container = $(htmlID);
+
+        console.log('Setting up d3');
+
+
+        x.domain(d3.extent(data, function(d) { return d.x; })).nice();
+        y.domain(d3.extent(data, function(d) { return d.y; })).nice();
+        fitness.domain(d3.extent(data, function(d) { return d.absoluteFitness; })).nice();
+
+        svg.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + height + ")")
+                .call(xAxis)
+                .append("text")
+                .attr("class", "label")
+                .attr("x", width)
+                .attr("y", -6)
+                .style("text-anchor", "end")
+                .style("fill", "#DDD")
+                .text("Sepal Width (cm)");
+
+
+        svg.append("g")
+                .attr("class", "y axis")
+                .call(yAxis)
+                .append("text")
+                .attr("class", "label")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 6)
+                .attr("dy", ".71em")
+                .style("text-anchor", "end")
+                .style("fill", "#DDD")
+                .text("Sepal Length (cm)")
+
+
+        svg.selectAll(".dot")
+                .data(data)
+                .enter().append("circle")
+                .attr("class", "dot")
+                .attr("r", function(d){
+                    //scale based on the fitness ranges!
+                    return fitness(d.absoluteFitness);
+                })
+                .attr("cx", function(d) {
+//                    console.log('Dealing with d'); console.log(d);
+                    return x(d.x); })
+                .attr("cy", function(d) { return y(d.y); })
+                .style("fill", "#DDD")
+                .on('click',function(d, i){
+                    //check if we have the object cached so far
+
+
+                    d3.select("#dot-" + lastSelectedIx).style("fill", "#DDD");
+
+
+                    if(cachedObjects[d.uid])
+                    {
+
+                        d3.select("#dot-" + i).style("fill", "#02D");
+                        lastSelectedIx = i;
+
+                        setGenomeBodyInViewer(d.uid, d.absoluteFitness);
+
+                    }
+
+                });
 //                        .style("fill", function(d) { return color(d.uid % 10); });
 
-                    var legend = svg.selectAll(".legend")
-                            .data(color.domain())
-                            .enter().append("g")
-                            .attr("class", "legend")
-                            .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; })
+        legend = svg.selectAll(".legend")
+                .data(color.domain())
+                .enter().append("g")
+                .attr("class", "legend")
+                .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; })
 
 
-                    legend.append("rect")
-                            .attr("x", width - 18)
-                            .attr("width", 18)
-                            .attr("height", 18)
+        legend.append("rect")
+                .attr("x", width - 18)
+                .attr("width", 18)
+                .attr("height", 18)
 
-                    legend.append("text")
-                            .attr("x", width - 24)
-                            .attr("y", 9)
-                            .attr("dy", ".35em")
-                            .style("text-anchor", "end")
-                            .text(function(d) { return d; })
+        legend.append("text")
+                .attr("x", width - 24)
+                .attr("y", 9)
+                .attr("dy", ".35em")
+                .style("text-anchor", "end")
+                .text(function(d) { return d; })
 
-                    $('<div id="pcaViewer"></div>').insertAfter(('.svgClass' + (setupCount-1)));
+        $('<div id="pcaViewer"></div>').insertAfter(('.svgClass' + (setupCount-1)));
 
 
 //                    var divID = divIDFromGenome(genomeObject.GenomeID);
@@ -414,7 +479,26 @@
 
 //                    smallWorld.addJSONBody(genomeObject);
 
-                },
+    };
+
+
+    var svgPCA = function()
+    {
+        console.log('Running svg pca');
+        deleteSVG();
+        setupSVG();
+
+        var useXCom = true;//$("#pcaTarget").val();
+
+        var xBins = $('#xbins').val();
+        var yBins = $('#ybins').val();
+
+        var selector = $('#selector').val();
+        var percent = $('#percent').val()/100.0;
+
+        //set up d3
+        runFullPCA(useXCom, xBins, yBins, selector, percent,
+                enterDataD3,
                 function(err){ //still need to hide on body error!
 
                     console.log('Error: ' );
@@ -424,8 +508,78 @@
 
     }
 
+    var sanitizePCA = function()
+    {
+        $('#d3').append('<div id="temporary"></div>');
+
+
+        if(!$.isEmptyObject(cachedObjects)){
+
+            var replaceData = [];
+
+            for(var i=0; i< dataObjects.length; i++)
+            {
+
+                var data  = dataObjects[i];
+
+                var uid = data.uid;
+                //now we want to set up our genome inside viewer below the PCA Chart (or to the side)
+                var sizedWorld = addGenomeToSizedDiv(cachedObjects[uid], {containID: '#temporary', width: 400, height: 400, zombieMode: true});
+
+                var behavior = sizedWorld.runSimulationForBehavior( {startEval: true, visual: true,
+                    isVisible: true,
+                    drawBehavior: false,
+                    zombieMode: true, genomeID:uid});
+
+                //fix the fitness and move one!
+                data.absoluteFitness = behavior.behavior.fitness;
+
+                replaceData.push(data);
+            }
+
+            dataObjects = replaceData;
+            console.log('Replaced data objects!')
+
+            var prevFetch = shouldFetchCache;
+            shouldFetchCache = false;
+
+            deleteSVG();
+            $('#mainSVG' +(setupCount -1)).remove();
+            setupSVG();
+            enterDataD3(replaceData);
+
+            shouldFetchCache = prevFetch;
+
+        }
+
+        $('#temporary').remove();
+
+
+
+    }
+
+//    var updateSVGData = function(data)
+//    {
+//        x.domain(d3.extent(data, function(d) { return d.x; })).nice();
+//        y.domain(d3.extent(data, function(d) { return d.y; })).nice();
+//        fitness.domain(d3.extent(data, function(d) { return d.absoluteFitness; })).nice();
+//
+//        //update dots
+//        svg.selectAll(".dot")
+//                .data(data);
+//
+//        //update legend
+//        legend.data(data);
+//
+//    }
+
     //run the svg code
     svgPCA();
+
+
+
+
+
 
 
 
@@ -434,10 +588,80 @@
     });
 
 
-
-
 </script>
 
+<!--setting up the slider-->
+<script type="text/javascript">
+    $(function() {
+        var startValue = 0;
+        $( "#slider" ).slider({
+            range: "min",
+            min: 0,
+            max: 500,
+            value: startValue,
+            slide: function( event, ui ) {
+
+                $("#slider-value").text("Cutoff: " + ui.value);
+
+                if(dataObjects)
+                {
+                    var prevFetch = shouldFetchCache;
+                    shouldFetchCache = false;
+
+                    var dataCopy = [];
+
+                    for(var i=0; i< dataObjects.length; i++)
+                    {
+
+//                        console.log('Cutoff: ' + ui.value);
+                        if(dataObjects[i].absoluteFitness >= ui.value)//ui.values[0])
+                        {
+                            dataCopy.push(dataObjects[i]);
+                        }
+
+                    }
+
+                    deleteSVG();
+                    $('#mainSVG' +(setupCount -1)).remove();
+                    setupSVG();
+                    enterDataD3(dataCopy);
+
+                    shouldFetchCache = prevFetch;
+                    //updateSVGData(dataCopy);
+
+
+
+
+//                    var prevFetch = shouldFetchCache;
+//                    shouldFetchCache = false;
+//                    //we already have data, let's do some filtering
+//
+//                    deleteSVG();
+//                    setupSVG();
+//
+//
+//
+//
+//                    shouldFetchCache = prevFetch;
+
+                }
+
+
+//                        var maxv = d3.min([ui.values[1], data.length]);
+//                        var minv = d3.max([ui.values[0], 0]);;
+//
+//
+//
+//                        x.domain([minv, maxv-1]);
+//                        graph.transition().duration(750)
+//                                .select(".x.axis").call(xAxis);
+//                        graph.transition().duration(750)
+//                                .select(".path").attr("d", line(data));
+            }});
+
+        $("#slider-value").text("Cutoff: " + startValue);
+    });
+</script>
 
 
 

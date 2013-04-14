@@ -848,6 +848,7 @@ code .nd { color: #9FAD7E; } /* CSS pseudo selector */
 
 #pcaViewer
 {
+    float: right;
     display: inline-block;
     border: 1px solid #666;
     padding: 5px;
@@ -858,4 +859,10 @@ code .nd { color: #9FAD7E; } /* CSS pseudo selector */
 h2, form
 {
     display: inline;
+}
+
+.worldOverlay
+{
+    float:left;
+    display: inline-block;
 }
