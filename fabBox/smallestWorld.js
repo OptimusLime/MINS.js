@@ -898,6 +898,9 @@ smallNS.SmallWorld.prototype.startLoop = function(statObject)
     this.interruptLoop = false;
     //closure should allow for this variable to be called from the loop. Hoo-ray?
     var smallWorld = this;
+    var frameCount = 0;
+    var printCount = 90;
+
 //    this.init();
     (function loop(animStart) {
         if(!smallWorld)
@@ -906,7 +909,7 @@ smallNS.SmallWorld.prototype.startLoop = function(statObject)
         smallWorld.update(undefined, {visual:true});
         smallWorld.draw();
 
-        if(statObject)
+        if(statObject && (++frameCount % printCount == 0))
             statObject.text(smallWorld.behavior.largestCOMDistance);
 
         if(!smallWorld.interruptLoop)

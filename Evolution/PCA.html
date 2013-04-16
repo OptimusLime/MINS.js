@@ -435,6 +435,7 @@
                 .data(data)
                 .enter().append("circle")
                 .attr("class", "dot")
+                .attr("id", function(d,i){ return "dot-" + i;})
                 .attr("r", function(d){
                     //scale based on the fitness ranges!
                     return fitness(d.absoluteFitness);
@@ -461,6 +462,16 @@
 
                     }
 
+                })
+                .on('mouseover', function(d,i) {
+
+                    if(i != lastSelectedIx)
+                        d3.select("#dot-" + i).style("fill", "#D20");
+
+                })
+                .on('mouseout', function(d,i) {
+                    if(i != lastSelectedIx)
+                        d3.select("#dot-" + i).style("fill", "#DDD");
                 });
 //                        .style("fill", function(d) { return color(d.uid % 10); });
 

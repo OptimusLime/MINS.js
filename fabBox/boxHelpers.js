@@ -444,8 +444,8 @@ bHelpNS.ContainedWorld = function(intervalRate, adaptive, width, height, scale, 
 //                    console.log('Amp dist: ' +.6*connectionDistance*amp + ' before: '+ this.scaleUp*amp);
 //                    console.log('Amplitudes: ' + amp);
                     if(amp < amplitudeCutoff)
-                        var dJoint = this.addDistanceJoint(sourceID, targetID, {frequencyHz: 3, dampingRatio:.3});
-                    else
+                        var dJoint = this.addDistanceJoint(sourceID, targetID);//, {frequencyHz: 3, dampingRatio:.3});
+                    else//frequencyHz: 3, dampingRatio:.3,
                     //need to scale joints based on size of the screen - this is a bit odd, but should help multiple sizes behave the same!
                         var dJoint = this.addMuscleJoint(sourceID, targetID, {frequencyHz: 3, dampingRatio:.3, phase: connectionObject.cppnOutputs[phaseIx], amplitude:.3*connectionDistance*amp});
 
