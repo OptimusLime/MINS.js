@@ -861,6 +861,14 @@ h2, form
     display: inline;
 }
 
+.axisLabel
+{
+    fill: #DDD;
+}
+i
+{
+    font-style: italic;
+}
 .worldOverlay
 {
     float:left;

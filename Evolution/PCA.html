@@ -14,24 +14,11 @@
 
 <h1>PCA Graph and Genomes</h1>
 
-<div >
-  <h2 > XBin Count: </h2>
-    <input type="number" id="xbins" name="xbins" min="10" max="50" value="40" class="number" >
-    <h2 >YBin Count:</h2>
-    <input type="number" id="ybins" name="ybins" min="10" max="50" value="40" class="number">
-    <h2 >Selector:</h2>
-    <input type="number" id="selector" name="selector" min="0" max="1" value="1" class="number">
-    <h2 >Percent:</h2>
-    <input type="number" id="percent" name="percent" min="0" max="100" value="25" class="number">
+<div id="base">
 
-    <button value="Reset" onclick="svgPCA()">Re-Run PCA</button>
-    <button value="Sanitize" onclick="sanitizePCA()">Sanitize PCA</button>
-    <form id="text-options">
-        <label>Filename: <input type="text" class="filename" id="text-filename" placeholder="a plain document"/>.txt</label>
-        <input id="save-button" type="submit" value="Save"/>
-    </form>
 
-    <div id="">
+
+    <div id="slides">
         <div id="slider-value">
         </div>
 
@@ -39,7 +26,6 @@
         </div>
     </div>
 
-    <!--<button value="SaveToFile" onclick="savePCAToFile()">Save To File</button>-->
 </div>
 
 
@@ -76,8 +62,6 @@
 <script type="text/javascript" src="../fabBox/boxHelpers.js"></script>
 <script type="text/javascript" src="../fabBox/boxDrawers.js"></script>
 
-<script type="text/javascript" src="../Helpers/Blob.js"></script>
-<script type="text/javascript" src="../Helpers/FileSaver.js"></script>
 
 <script type="text/javascript" src="../fabBox/smallestWorld.js"></script>
 
@@ -119,70 +103,59 @@
 
     </style>
 <script type="text/javascript" src="IEC.js"></script>
+<script type="text/javascript" src="d3PCA.js"></script>
+
+<!--remove for eplex demo-->
+<script type="text/javascript" src="../Helpers/Blob.js"></script>
+<script type="text/javascript" src="../Helpers/FileSaver.js"></script>
+<script type="text/javascript" src="../Helpers/pcaPrivate.js"></script>
 
 <script>
-    //d3 setup
+//    var lastSmallGenome;
+//    var prevSmallWorld;
+//    var prevSmallID;
 
-    var setupCount = 0;
-    var margin, x, fitness, y, color, xAxis, yAxis, width, height, svg;
+    var debugMode = ( typeof saveAs == 'function' ? true : false);
 
-    var setupSVG = function()
+    //if we've included save functionality, we'll pull in some additional scripts
+    //since we're not the PCA website on the demo
+    if(debugMode)
     {
-        margin = {top: 20, right: 20, bottom: 30, left: 40},
-                width = 900 - margin.left - margin.right,
-                height = 500 - margin.top - margin.bottom;
 
-        x = d3.scale.linear()
-                .range([0, width]);
+        //doesn't work cross domain, maybe on eplex it will work?
+//        var s = document.createElement("script");
+//        s.type = "text/javascript";
+//        s.src = "../Helpers/pcaPrivate.js";
+//        $("head").append(s);
 
-        fitness = d3.scale.linear()
-                .range([3, 10]);
+        //set up some options for querying different types of PCA data
+        $('#base').prepend(
+                        '<h2 > XBin Count: </h2>' +
+                        '<input type="number" id="xbins" name="xbins" min="10" max="50" value="40" class="number" >' +
+                        '<h2 >YBin Count:</h2>' +
+                        '<input type="number" id="ybins" name="ybins" min="10" max="50" value="40" class="number">' +
+                        '<h2 >Selector:</h2>' +
+                        '<input type="number" id="selector" name="selector" min="0" max="1" value="1" class="number">' +
+                        '<h2 >Percent:</h2>' +
+                        '<input type="number" id="percent" name="percent" min="0" max="100" value="25" class="number">' +
+                        '<button value="Reset" onclick="svgPCA()">Re-Run PCA</button>' +
+                        '<button value="Sanitize" onclick="sanitizePCA()">Sanitize PCA</button>' +
+                        '  <form id="text-options">' +
+                            '<label>Filename: <input type="text" class="filename" id="text-filename" placeholder="a plain document"/>.txt</label>' +
+                            '<input id="save-button" type="submit" value="Save"/>' +
+                        ' </form>'
+        );
 
-        y = d3.scale.linear()
-                .range([height, 0]);
-
-        color = d3.scale.category10();
-
-        xAxis = d3.svg.axis()
-                .scale(x)
-                .orient("bottom")
-                .ticks(25);
-
-
-
-        yAxis = d3.svg.axis()
-                .scale(y)
-                .orient("left")
-                .ticks(25);
-
-        svg = d3.select("#d3").append("svg")//insert("svg", ":first-child")
-                .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom)
-                .attr("class", "svgClass" + setupCount)
-                .attr("id", "mainSVG" + setupCount++)
-                .append("g")
-                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-    };
-
-    var deleteSVG = function(svgElement)
-    {
-        //delete svgElement;
-        //$('#d3').remove('.svg');
-        $('#pcaViewer').remove();//append('<div id="pcaViewer"></div>');
-    };
+        //after pulling in the script, we setup the save ability
+        setupPCASave("text", "#text-options","#text-filename");
 
 
 
-//    svg.selectAll("path.xgrid").data(ticks).enter()
-//            .append("path")
-//            .attr("d", function(d) {
-//                return "M" + xScale(d) + " " + padding + "L" + xScale(d) + " " + (h-padding);
-//            });
 
-</script>
 
-<script>
+    }
+
+    var htmlID = '#container';
     var archiveOnScreen = {};
     var cachedObjects = {};
 
@@ -196,67 +169,8 @@
     var lastGenomeID;
     var previousSizedWorld;
     var previousSizedWorldID;
-
-//    var lastSmallGenome;
-//    var prevSmallWorld;
-//    var prevSmallID;
-
-    var htmlID = '#container';
-
-    //setup text saving
-    var text = $("text")
-            , text_options_form = $("#text-options")
-            , text_filename = $("#text-filename")
-            , get_blob = function() {
-                return window.Blob;
-            };
-
-//    $('#save-button')
-
-    text_options_form.submit(function(event) {
-        event.preventDefault();
-        if(!$.isEmptyObject(cachedObjects))
-        {
-
-            console.log('Saving!');
-//            console.log(JSON.stringify(cachedObjects));
-            var BB = get_blob();
-            saveAs(
-                    new BB(
-                            [JSON.stringify(cachedObjects)]
-                            , {type: "text/json;charset=" + document.characterSet}
-                    )
-                    , text_filename.val() +  ".json"
-            );
-
-            var BB = get_blob();
-            saveAs(
-                    new BB(
-                            [JSON.stringify(dataObjects)]
-                            , {type: "text/json;charset=" + document.characterSet}
-                    )
-                    , "pca" + text_filename.val() +  ".json"
-            );
-
-        }
-    });//, false);
-
-
-
-
-    var savePCAToFile = function()
-    {
-
-        if(cachedObjects){
-
-//            var filesaver = new FileSaver(JSON.stringify(cachedObjects), "data.json");
-
-        }
-          //  window.open( "data:text/json;charset=utf-8," + escape(JSON.stringify(cachedObjects)));
-    }
-
+    var rescale = true;
     var shouldFetchCache = true;
-
 
     var legend;
 
@@ -281,9 +195,6 @@
         var sizedWorld = addGenomeToSizedDiv(cachedObjects[uid], {containID: '#pcaViewer', width: 400, height: 400, zombieMode: false});
 
 
-
-
-
 //                                    sizedWorld.stopLoop();
         sizedWorld.shouldDrawBehavior(true,false);
         previousSizedWorld = sizedWorld;
@@ -291,12 +202,16 @@
         lastGenomeID = uid;
 
 
+        var updateLocation = (debugMode ? $('#com') : undefined);
         if(!prepend){
             $('#pcaViewer').prepend('<div id="stats">' +
                     '<input type="button" id="playPause" class="worldOverlay" value="Play/Pause"/>' +
-                    '<input type="button" id="reset" class="worldOverlay" value="Reset"/>' +
-                    '<input type="button" id="saveToSVG" class="worldOverlay" value="Save SVG"/>' +
-                    ' Distance: ' + absoluteFitness + ' COM Distance: <div id="com"></div></div>');
+                    '<input type="button" id="reset" class="worldOverlay" value="Reset"/>'
+                    //if we have saving functionality, include a button here
+                    + (debugMode ?
+                    '<input type="button" id="saveToSVG" class="worldOverlay" value="Save SVG"/>' : '')
+                    + (debugMode ? ' Distance: ' + absoluteFitness + ' Distance Traveled: <div id="com"></div>' : '')
+                    + '</div>');
 
 
 //            var behavior = sizedWorld.runSimulationForBehavior( {startEval: true, visual: true,
@@ -306,13 +221,14 @@
 
 //            console.log('Behavior Fit: ' + behavior.behavior.fitness);
 
+
             $('#playPause').click(function()
             {
                 if(previousSizedWorld)
                 {
-                    console.log('Play paused!')
+//                    console.log('Play paused!')
                     if(previousSizedWorld.interruptLoop)
-                        previousSizedWorld.startLoop($('#com'));
+                        previousSizedWorld.startLoop(updateLocation);
                     else
                         previousSizedWorld.stopLoop();
                 }
@@ -320,36 +236,33 @@
 
             $('#reset').click(function()
             {
-                console.log('Reset!')
+//                console.log('Reset!')
                 if(previousSizedWorld)
                 {
                     setGenomeBodyInViewer(lastGenomeID, 0, true);
-                    previousSizedWorld.stopLoop();
+
+                    if(debugMode)
+                        previousSizedWorld.stopLoop();
                 }
             });
 
-            $('#saveToSVG').click(function()
+            if(debugMode)
             {
-                console.log('Saving to SVG!')
-                if(previousSizedWorld)
+                $('#saveToSVG').click(function()
                 {
-
-                    var BB = get_blob();
-                    saveAs(
-                            new BB(
-                                    [previousSizedWorld.drawObject.fabricCanvas.toSVG()]
-                                    , {type: "text/plain;charset=" + document.characterSet}
-                            )
-                            , "svg" + text_filename.val() +  ".svg"
-                    );
-
-//                    alert();
-                }
-            });
+//                    console.log('Saving to SVG!')
+                    if(previousSizedWorld)
+                    {
+                        //without the .svg at the end, that will be added
+                        saveSVGToFile(previousSizedWorld.drawObject.fabricCanvas.toSVG(), "svg" + text_filename.val());
+    //                    alert();
+                    }
+                });
+            }
 
         }
 
-        sizedWorld.startLoop($('#com'));
+        sizedWorld.startLoop(updateLocation);
 
 
 //                                    var smallWorld = addGenomeObjectDiv(cachedObjects[d.uid], '#pcaViewer');
@@ -363,8 +276,6 @@
     var enterDataD3 = function(data)
     {
 
-
-
         if(shouldFetchCache)
         {
             dataObjects = data;
@@ -374,8 +285,6 @@
             {
                 bodyRequest.push(data[i].uid);
             }
-
-
             getGenomes(bodyRequest, function(bodies){
 
                         for(var gid in bodies){
@@ -401,9 +310,21 @@
         console.log('Setting up d3');
 
 
-        x.domain(d3.extent(data, function(d) { return d.x; })).nice();
-        y.domain(d3.extent(data, function(d) { return d.y; })).nice();
-        fitness.domain(d3.extent(data, function(d) { return d.absoluteFitness; })).nice();
+        if(rescale){
+            x.domain(d3.extent(data, function(d) { return d.x; })).nice();
+            y.domain(d3.extent(data, function(d) { return d.y; })).nice();
+            fitness.domain(d3.extent(data, function(d) { return d.absoluteFitness; })).nice();
+
+            xAxis = d3.svg.axis()
+                    .scale(x)
+                    .orient("bottom")
+                    .ticks(25);
+
+            yAxis = d3.svg.axis()
+                    .scale(y)
+                    .orient("left")
+                    .ticks(25);
+        }
 
         svg.append("g")
                 .attr("class", "x axis")
@@ -415,7 +336,7 @@
                 .attr("y", -6)
                 .style("text-anchor", "end")
                 .style("fill", "#DDD")
-                .text("Sepal Width (cm)");
+//                .text("Sepal Width (cm)");
 
 
         svg.append("g")
@@ -428,7 +349,7 @@
                 .attr("dy", ".71em")
                 .style("text-anchor", "end")
                 .style("fill", "#DDD")
-                .text("Sepal Length (cm)")
+//                .text("Sepal Length (cm)")
 
 
         svg.selectAll(".dot")
@@ -494,6 +415,10 @@
                 .style("text-anchor", "end")
                 .text(function(d) { return d; })
 
+
+        svg.selectAll('.x.axis text').attr("class", "axisLabel");
+        svg.selectAll('.y.axis text').attr("class", "axisLabel");
+
         $('<div id="pcaViewer"></div>').insertAfter(('.svgClass' + (setupCount-1)));
 
 
@@ -515,101 +440,57 @@
     var svgPCA = function()
     {
         console.log('Running svg pca');
-        deleteSVG();
-        setupSVG();
 
-        var useXCom = true;//$("#pcaTarget").val();
+       if(debugMode)
+       {
 
-        var xBins = $('#xbins').val();
-        var yBins = $('#ybins').val();
+           var params = {xBins: $('#xbins').val(), yBins: $('#ybins').val(), useXCom: true, selector: $('#selector').val(), percent: $('#percent').val()/100.0 };
 
-        var selector = $('#selector').val();
-        var percent = $('#percent').val()/100.0;
+//           deleteSVG();
+//           setupSVG();
+           //enterDataD3,
 
-        //set up d3
-        runFullPCA(useXCom, xBins, yBins, selector, percent,
-                enterDataD3,
-                function(err){ //still need to hide on body error!
+            doFullPCA(deleteSVG, setupSVG, enterDataD3, params);
 
-                    console.log('Error: ' );
-                    console.log(err);
-                }
-        );
+       }
+        else
+       {
+           $.getJSON('data.json',
+                   function(objects)
+                   {
+                       cachedObjects = objects;
 
-    }
+                       $.getJSON('pcaData.json', function(data)
+                       {
+                           var dataCopy = [];
 
-    var sanitizePCA = function()
-    {
-        $('#d3').append('<div id="temporary"></div>');
+                           for(var i=0; i< data.length; i++)
+                           {
+                               if(data[i].absoluteFitness >= 200)//ui.values[0])
+                               {
+                                   dataCopy.push(data[i]);
+                               }
+                           }
+                           dataObjects = dataCopy;
 
+                           //this will trigger data to be entered!
+                           $("#slider").slider('value', 200);
 
-        if(!$.isEmptyObject(cachedObjects)){
+                           //no more rescaling!
+                           rescale = false;
+//                        enterDataD3(data);
+                       });
 
-            var replaceData = [];
-
-            for(var i=0; i< dataObjects.length; i++)
-            {
-
-                var data  = dataObjects[i];
-
-                var uid = data.uid;
-                //now we want to set up our genome inside viewer below the PCA Chart (or to the side)
-                var sizedWorld = addGenomeToSizedDiv(cachedObjects[uid], {containID: '#temporary', width: 400, height: 400, zombieMode: true});
-
-                var behavior = sizedWorld.runSimulationForBehavior( {startEval: true, visual: true,
-                    isVisible: true,
-                    drawBehavior: false,
-                    zombieMode: true, genomeID:uid});
-
-                //fix the fitness and move one!
-                data.absoluteFitness = behavior.behavior.fitness;
-
-                replaceData.push(data);
-            }
-
-            dataObjects = replaceData;
-            console.log('Replaced data objects!')
-
-            var prevFetch = shouldFetchCache;
-            shouldFetchCache = false;
-
-            deleteSVG();
-            $('#mainSVG' +(setupCount -1)).remove();
-            setupSVG();
-            enterDataD3(replaceData);
-
-            shouldFetchCache = prevFetch;
-
-        }
-
-        $('#temporary').remove();
+                   });
+       }
 
 
+    };
 
-    }
 
-//    var updateSVGData = function(data)
-//    {
-//        x.domain(d3.extent(data, function(d) { return d.x; })).nice();
-//        y.domain(d3.extent(data, function(d) { return d.y; })).nice();
-//        fitness.domain(d3.extent(data, function(d) { return d.absoluteFitness; })).nice();
-//
-//        //update dots
-//        svg.selectAll(".dot")
-//                .data(data);
-//
-//        //update legend
-//        legend.data(data);
-//
-//    }
 
     //run the svg code
     svgPCA();
-
-
-
-
-
 
 
 
@@ -619,77 +500,58 @@
 
 
 </script>
-
 <!--setting up the slider-->
 <script type="text/javascript">
-    $(function() {
-        var startValue = 0;
-        $( "#slider" ).slider({
-            range: "min",
-            min: 0,
-            max: 500,
-            value: startValue,
-            slide: function( event, ui ) {
 
-                $("#slider-value").text("Cutoff: " + ui.value);
 
-                if(dataObjects)
-                {
-                    var prevFetch = shouldFetchCache;
-                    shouldFetchCache = false;
+    var sliderMoved = function( event, ui ) {
 
-                    var dataCopy = [];
+        $("#slider-value").text("Cutoff: " + ui.value);
 
-                    for(var i=0; i< dataObjects.length; i++)
-                    {
+        if(dataObjects)
+        {
 
+            var prevFetch = shouldFetchCache;
+            shouldFetchCache = false;
+            var dataCopy = [];
+
+            for(var i=0; i< dataObjects.length; i++)
+            {
 //                        console.log('Cutoff: ' + ui.value);
-                        if(dataObjects[i].absoluteFitness >= ui.value)//ui.values[0])
-                        {
-                            dataCopy.push(dataObjects[i]);
-                        }
-
-                    }
-
-                    deleteSVG();
-                    $('#mainSVG' +(setupCount -1)).remove();
-                    setupSVG();
-                    enterDataD3(dataCopy);
-
-                    shouldFetchCache = prevFetch;
-                    //updateSVGData(dataCopy);
-
-
-
-
-//                    var prevFetch = shouldFetchCache;
-//                    shouldFetchCache = false;
-//                    //we already have data, let's do some filtering
-//
-//                    deleteSVG();
-//                    setupSVG();
-//
-//
-//
-//
-//                    shouldFetchCache = prevFetch;
-
+                if(dataObjects[i].absoluteFitness >= ui.value)//ui.values[0])
+                {
+                    dataCopy.push(dataObjects[i]);
                 }
 
+            }
 
-//                        var maxv = d3.min([ui.values[1], data.length]);
-//                        var minv = d3.max([ui.values[0], 0]);;
-//
-//
-//
-//                        x.domain([minv, maxv-1]);
-//                        graph.transition().duration(750)
-//                                .select(".x.axis").call(xAxis);
-//                        graph.transition().duration(750)
-//                                .select(".path").attr("d", line(data));
-            }});
+            $("#slider-value").text("Cutoff: " + ui.value + " | Data count: " + dataCopy.length
+                    + " | Total Bins: " + (40*40) +
+                    " | Percent Filled: " + 100*dataCopy.length/(40.0*40.0));
+
+            deleteSVG();
+            $('#mainSVG' +(setupCount -1)).remove();
+            setupSVG();
+            enterDataD3(dataCopy);
+            shouldFetchCache = prevFetch;
+        }
+
+    };
+
+    $(function() {
+        var startValue = (debugMode) ? 0 : 200;
+        $( "#slider" ).slider({
+            range: "min",
+            min: (debugMode ? 0 : 200),
+            max: 500,
+            value: startValue,
+            slide: sliderMoved ,
+            change: sliderMoved
+
+        });
 
         $("#slider-value").text("Cutoff: " + startValue);
+
     });
 </script>
 
