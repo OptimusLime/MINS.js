@@ -7,39 +7,50 @@ var text = $("text")
         return window.Blob;
     };
 
-var setupPCASave = function(textName, textOptionsName, textFNName)
+
+var defaultSaveFunction = function()
+{
+    if(!$.isEmptyObject(cachedObjects))
+    {
+        console.log('Saving!');
+//            console.log(JSON.stringify(cachedObjects));
+        var BB = get_blob();
+        saveAs(
+            new BB(
+                [JSON.stringify(cachedObjects)]
+                , {type: "text/json;charset=" + document.characterSet}
+            )
+            , text_filename.val() +  ".json"
+        );
+
+        var BB = get_blob();
+        saveAs(
+            new BB(
+                [JSON.stringify(dataObjects)]
+                , {type: "text/json;charset=" + document.characterSet}
+            )
+            , "pca" + text_filename.val() +  ".json"
+        );
+
+    }
+};
+
+var setupPCASave = function(textName, textOptionsName, textFNName, saveFunction)
 {
     text = $(textName);
     text_options_form = $(textOptionsName);
     text_filename = $(textFNName);
 
+    var text_save_function;
+    if(typeof saveFunction === 'function')
+        text_save_function = saveFunction;
+    else
+        text_save_function = defaultSaveFunction;
+
     //    $('#save-button')
     text_options_form.submit(function(event) {
         event.preventDefault();
-        if(!$.isEmptyObject(cachedObjects))
-        {
-
-            console.log('Saving!');
-//            console.log(JSON.stringify(cachedObjects));
-            var BB = get_blob();
-            saveAs(
-                new BB(
-                    [JSON.stringify(cachedObjects)]
-                    , {type: "text/json;charset=" + document.characterSet}
-                )
-                , text_filename.val() +  ".json"
-            );
-
-            var BB = get_blob();
-            saveAs(
-                new BB(
-                    [JSON.stringify(dataObjects)]
-                    , {type: "text/json;charset=" + document.characterSet}
-                )
-                , "pca" + text_filename.val() +  ".json"
-            );
-
-        }
+        text_save_function();
     });//, false);
 
 };
